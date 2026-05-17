@@ -1,0 +1,11 @@
+{
+  "name": "promptbanken-mcp-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minimal Promptbanken MCP skill router",
+  "scripts": {
+    "dev": "node scripts/run-mcp.js",
+    "setup:python": "node scripts/setup-python.js",
+    "check:python": "node scripts/check-python.js"
+  }
+}

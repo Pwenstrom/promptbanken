@@ -4,8 +4,8 @@
   "private": true,
   "description": "Promptbanken MCP skill router",
   "scripts": {
-    "dev": "node scripts/run-mcp.js",
-    "setup:python": "node scripts/setup-python.js",
-    "check:python": "node scripts/check-python.js"
+    "dev": "node mcp-server/scripts/run-mcp.js",
+    "setup:python": "node mcp-server/scripts/setup-python.js",
+    "check:python": "node mcp-server/scripts/check-python.js"
   }
 }

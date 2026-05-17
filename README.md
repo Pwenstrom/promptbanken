@@ -104,9 +104,7 @@ uvicorn app.main:app --reload --port 8001
 Promptbanken kan också köras som en lokal MCP-server som exponerar promptarna som skills. Den kör ingen modell själv, utan levererar metadata, routing och prompttext till MCP-klienten.
 
 ```bash
-cd promptbanken
-python -m venv backend/.venv
-source backend/.venv/bin/activate
+cd promptbanken/mcp-server
 npm run setup:python
 npm run dev
 ```
@@ -114,9 +112,7 @@ npm run dev
 På Windows med PowerShell:
 
 ```powershell
-cd "C:\path\to\promptbanken"
-python -m venv backend\.venv
-backend\.venv\Scripts\Activate.ps1
+cd "C:\path\to\promptbanken\mcp-server"
 npm run setup:python
 npm run dev
 ```
@@ -129,7 +125,7 @@ Exempel på MCP-konfiguration för en lokal klient:
     "promptbanken": {
       "command": "npm",
       "args": ["run", "--silent", "dev"],
-      "cwd": "/path/to/promptbanken"
+      "cwd": "/path/to/promptbanken/mcp-server"
     }
   }
 }
