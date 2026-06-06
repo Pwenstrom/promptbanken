@@ -53,11 +53,95 @@
         const clearFavoritesBtn = document.getElementById('clear-favorites-btn');
         const advancedToggleInput = document.getElementById('advanced-toggle-input');
         const favoritesToggleInput = document.getElementById('favorites-toggle-input');
+        const localChatToggleInput = document.getElementById('local-chat-toggle-input');
         const ADVANCED_MODE_KEY = 'advancedModeEnabled';
         const FAVORITES_MODE_KEY = 'favoritesModeEnabled';
+        const LOCAL_CHAT_MODE_KEY = 'localChatEnabled';
         let advancedModeEnabled = false;
         let favoritesModeEnabled = false;
+        let localChatEnabled = false;
         let allPrompts = []; // Store all loaded prompts for favorites menu
+        let selectedPromptId = null;
+        let activeCategoryFilter = 'all';
+        let activeAudienceFilter = 'all';
+        let activeRoleFilter = 'all';
+        let activeRiskFilter = 'all';
+        let favoritesOnlyFilter = false;
+        let activeSort = 'newest';
+
+        const promptUiMeta = {
+            klarsprak: { icon: '☷', category: 'Skriva och förbättra text', audience: 'Intern & extern', role: 'Alla roller', risk: 'Låg risk', example: 'Texter till invånare, e-tjänster, brev, instruktioner och beslutsinformation.', phrase: 'Gör denna text tydligare för en extern målgrupp med begränsad förkunskap.' },
+            mejl: { icon: '✉', category: 'Svara och kommunicera', audience: 'Intern', role: 'Handläggare', risk: 'Låg risk', example: 'Svar på inkommande mejl där tonen behöver vara tydlig, vänlig och professionell.', phrase: 'Svara på detta mejl sakligt och vänligt med tydliga nästa steg.' },
+            faq: { icon: '?', category: 'Svara och kommunicera', audience: 'Extern', role: 'Kommunikatör', risk: 'Låg risk', example: 'Informationssidor, policyer, beslut och dokument som behöver göras om till frågor och svar.', phrase: 'Skapa en FAQ om detta ämne med korta och begripliga svar.' },
+            checklista: { icon: '☑', category: 'Sammanfatta och strukturera', audience: 'Intern', role: 'Alla roller', risk: 'Låg risk', example: 'Processer, rutiner, arbetsmoment och återkommande uppgifter.', phrase: 'Skapa en checklista för arbetet baserat på texten.' },
+            kallelse: { icon: '□', category: 'Möten och workshops', audience: 'Intern', role: 'Nämndsekreterare', risk: 'Låg risk', example: 'Möten, workshops, träffar, samråd och interna avstämningar.', phrase: 'Skriv en tydlig kallelse med agenda och praktisk information.' },
+            beslutsunderlag: { icon: '▱', category: 'Beslut och rutiner', audience: 'Intern', role: 'Handläggare', risk: 'Medelrisk', example: 'Ärenden, förslag, sammanfattningar och underlag inför beslut.', phrase: 'Ta fram ett strukturerat beslutsunderlag baserat på texten.' },
+            rutin: { icon: '⌘', category: 'Beslut och rutiner', audience: 'Intern', role: 'Alla roller', risk: 'Medelrisk', example: 'Rutiner, processbeskrivningar, instruktioner och arbetssätt.', phrase: 'Beskriv rutinen steg för steg på ett tydligt sätt.' },
+            tvaversioner: { icon: '⇄', category: 'Skriva och förbättra text', audience: 'Intern & extern', role: 'Alla roller', risk: 'Låg risk', example: 'När samma budskap behöver två versioner för olika målgrupper.', phrase: 'Skriv två versioner av texten med olika ton och detaljnivå.' },
+            reflektion: { icon: '◌', category: 'Möten och workshops', audience: 'Intern', role: 'Alla roller', risk: 'Låg risk', example: 'Workshops, lärande samtal, uppföljningar och verksamhetsutveckling.', phrase: 'Skapa reflekterande frågor som hjälper gruppen att tänka vidare.' },
+            samtalskompas: { icon: '◇', category: 'Möten och workshops', audience: 'Intern', role: 'Chef', risk: 'Låg risk', example: 'Samtal, dialogmöten och workshops som behöver struktur.', phrase: 'Skapa ett samtalsupplägg med frågor, struktur och nästa steg.' },
+            sammanfattning: { icon: '▤', category: 'Sammanfatta och strukturera', audience: 'Intern & extern', role: 'Alla roller', risk: 'Låg risk', example: 'Långa dokument, anteckningar, rapporter och beslutsunderlag.', phrase: 'Sammanfatta texten kort och tydligt med de viktigaste punkterna.' },
+            anteckningar: { icon: '✎', category: 'Sammanfatta och strukturera', audience: 'Intern', role: 'Alla roller', risk: 'Låg risk', example: 'Mötesanteckningar, minnesstöd, lösa punkter och arbetsmaterial.', phrase: 'Strukturera dessa anteckningar till tydliga rubriker och åtgärder.' },
+            diskussionsfragor: { icon: '☰', category: 'Möten och workshops', audience: 'Intern', role: 'Alla roller', risk: 'Låg risk', example: 'Arbetsplatsträffar, workshops, dialoger och gruppdiskussioner.', phrase: 'Skapa diskussionsfrågor som driver samtalet framåt.' },
+            nyckelord: { icon: '#', category: 'Sammanfatta och strukturera', audience: 'Intern', role: 'Alla roller', risk: 'Låg risk', example: 'Dokument, rapporter och texter där centrala begrepp behöver hittas.', phrase: 'Extrahera nyckelord och centrala begrepp ur texten.' },
+            informationsutskick: { icon: '!', category: 'Svara och kommunicera', audience: 'Extern', role: 'Kommunikatör', risk: 'Medelrisk', example: 'Nyheter, driftinformation, utskick och information till invånare.', phrase: 'Skriv ett tydligt informationsutskick med rubrik och nästa steg.' }
+        };
+
+        const mcpPromptMeta = {
+            tydlighetskoll: { icon: '▤', category: 'Beslut och rutiner', audiences: ['medarbetare', 'invånare', 'ledning', 'beslutsfattare'], roles: ['handläggare', 'chef', 'kommunikatör', 'samordnare'], risk: 'Medelrisk', example: 'Kommunala texter där ansvar, beslut, nästa steg eller risk för missförstånd behöver granskas.', phrase: 'Gör en tydlighetskoll på den här texten.' },
+            klarsprak: { icon: '☷', category: 'Skriva och förbättra text', audiences: ['invånare', 'allmänhet'], roles: ['handläggare', 'kommunikatör', 'chef'], risk: 'Medelrisk', example: 'Texter till invånare, e-tjänster, brev och instruktioner.', phrase: 'Skriv om den här texten till klarspråk.' },
+            mejl: { icon: '✉', category: 'Svara och kommunicera', audiences: ['invånare', 'företagare'], roles: ['handläggare', 'kommunikatör', 'kundcenter'], risk: 'Medelrisk', example: 'Svar på inkommande mejl där tonen behöver vara tydlig, vänlig och saklig.', phrase: 'Svara på det här mejlet utan att lova för mycket.' },
+            faq: { icon: '?', category: 'Sammanfatta och strukturera', audiences: ['invånare', 'medarbetare', 'allmänhet'], roles: ['kommunikatör', 'handläggare', 'verksamhetsutvecklare'], risk: 'Medelrisk', example: 'Policyer och dokument som behöver göras om till frågor och svar.', phrase: 'Gör en FAQ av den här policyn.' },
+            checklista: { icon: '☑', category: 'Sammanfatta och strukturera', audiences: ['medarbetare', 'invånare'], roles: ['handläggare', 'chef', 'samordnare'], risk: 'Medelrisk', example: 'Processer, rutiner, instruktioner och kontrollpunkter.', phrase: 'Gör en checklista av detta.' },
+            kallelse: { icon: '□', category: 'Svara och kommunicera', audiences: ['invånare', 'medarbetare', 'deltagare'], roles: ['handläggare', 'administratör', 'chef'], risk: 'Medelrisk', example: 'Möten, träffar, event och samråd.', phrase: 'Skriv en kallelse till möte.' },
+            beslutsunderlag: { icon: '▱', category: 'Beslut och rutiner', audiences: ['nämnd', 'ledning', 'beslutsfattare'], roles: ['handläggare', 'chef', 'utredare'], risk: 'Hög risk', example: 'Ärenden och förslag inför beslutande organ.', phrase: 'Skriv ett beslutsunderlag.' },
+            rutin: { icon: '⌘', category: 'Beslut och rutiner', audiences: ['medarbetare'], roles: ['chef', 'samordnare', 'verksamhetsutvecklare'], risk: 'Medelrisk', example: 'Rutiner, processbeskrivningar och arbetsanvisningar.', phrase: 'Skriv en rutin.' },
+            tvaversioner: { icon: '⇄', category: 'Skriva och förbättra text', audiences: ['invånare', 'medarbetare'], roles: ['kommunikatör', 'handläggare', 'chef'], risk: 'Medelrisk', example: 'När samma budskap behöver två tonlägen.', phrase: 'Gör en formell och en vardaglig version.' },
+            reflektion: { icon: '◌', category: 'Möten och workshops', audiences: ['medarbetare', 'grupp'], roles: ['chef', 'pedagog', 'samordnare'], risk: 'Låg risk', example: 'Workshops, lärande samtal och uppföljningar.', phrase: 'Skapa reflektionsfrågor.' },
+            samtalskompas: { icon: '◇', category: 'Möten och workshops', audiences: ['grupp', 'medarbetare'], roles: ['chef', 'facilitator', 'samordnare'], risk: 'Medelrisk', example: 'Möten, workshops och samtal som behöver struktur.', phrase: 'Skapa struktur för workshop.' },
+            sammanfattning: { icon: '▤', category: 'Sammanfatta och strukturera', audiences: ['medarbetare', 'invånare', 'ledning'], roles: ['handläggare', 'chef', 'kommunikatör'], risk: 'Medelrisk', example: 'Långa dokument, rapporter och underlag.', phrase: 'Sammanfatta den här texten.' },
+            anteckningar: { icon: '✎', category: 'Möten och workshops', audiences: ['medarbetare', 'ledning'], roles: ['handläggare', 'sekreterare', 'chef'], risk: 'Medelrisk', example: 'Mötesanteckningar, beslut och att-göra-punkter.', phrase: 'Strukturera mina mötesanteckningar.' },
+            diskussionsfragor: { icon: '☰', category: 'Möten och workshops', audiences: ['grupp', 'medarbetare'], roles: ['chef', 'facilitator', 'samordnare'], risk: 'Låg risk', example: 'Möten, workshops och gruppdiskussioner.', phrase: 'Skapa diskussionsfrågor.' },
+            nyckelord: { icon: '#', category: 'Sammanfatta och strukturera', audiences: ['medarbetare'], roles: ['handläggare', 'kommunikatör', 'analytiker'], risk: 'Låg risk', example: 'Dokument och rapporter där viktiga begrepp behöver hittas.', phrase: 'Plocka ut nyckelord.' },
+            informationsutskick: { icon: '!', category: 'Svara och kommunicera', audiences: ['invånare', 'medarbetare', 'allmänhet'], roles: ['kommunikatör', 'handläggare', 'chef'], risk: 'Medelrisk', example: 'Nyheter, driftinformation och utskick.', phrase: 'Skriv ett informationsutskick.' }
+        };
+
+        function getPromptMeta(prompt) {
+            const mcpMeta = mcpPromptMeta[prompt.id];
+            if (mcpMeta) {
+                return {
+                    ...mcpMeta,
+                    audience: mcpMeta.audiences.join(', '),
+                    role: mcpMeta.roles.join(', ')
+                };
+            }
+
+            const fallbackMeta = promptUiMeta[prompt.id] || {
+                icon: '▤',
+                category: 'Alla kategorier',
+                audience: 'Intern & extern',
+                role: 'Alla roller',
+                risk: 'Låg risk',
+                example: 'Policytexter, information till invånare, beslut, nyheter och instruktioner.',
+                phrase: 'Gör denna text tydligare och mer användbar för målgruppen.'
+            };
+
+            return {
+                ...fallbackMeta,
+                audiences: [fallbackMeta.audience],
+                roles: [fallbackMeta.role]
+            };
+        }
+
+        function stripLeadingIcon(title) {
+            return title.replace(/^[^\p{L}\p{N}]+/u, '').trim();
+        }
+
+        function getRiskRank(risk) {
+            if (risk.toLowerCase().includes('hög')) return 3;
+            if (risk.toLowerCase().includes('medel')) return 2;
+            return 1;
+        }
 
         function loadAdvancedMode() {
             const stored = localStorage.getItem(ADVANCED_MODE_KEY);
@@ -105,6 +189,11 @@
             if (favoritesToggleInput) {
                 favoritesToggleInput.checked = enabled;
             }
+            const favoritesSidebarBtn = document.getElementById('favorites-sidebar-btn');
+            if (favoritesSidebarBtn) {
+                favoritesSidebarBtn.classList.toggle('active', favoritesOnlyFilter);
+            }
+            applyPromptFilters();
         }
 
         function initFavoritesToggle() {
@@ -147,7 +236,7 @@
                         const promptText = await promptResponse.text();
 
                         // Create card HTML with quick input text support
-                        const card = createPromptCard(prompt, promptText);
+                        const card = createPromptCard(prompt, promptText, allPrompts.length + grid.querySelectorAll('.prompt-card').length);
                         grid.appendChild(card);
                     } catch (error) {
                         console.error(`Error loading prompt ${prompt.id}:`, error);
@@ -157,6 +246,8 @@
 
                 // Store prompts globally for favorites menu
                 allPrompts = prompts;
+                updateLibraryStats(prompts);
+                populateFilterOptions(prompts);
 
                 // Set up event delegation for all cards
                 setupEventDelegation();
@@ -166,6 +257,10 @@
 
                 // Update favorites menu
                 updateFavoritesMenu();
+                applyPromptSort();
+                if (prompts.length) {
+                    selectPrompt(prompts[0].id);
+                }
 
                 grid.classList.remove('loading');
             } catch (error) {
@@ -175,10 +270,292 @@
             }
         }
 
-        function createPromptCard(prompt, promptText) {
+        function updateLibraryStats(prompts) {
+            const statPrompts = document.getElementById('stat-prompts');
+            const statCategories = document.getElementById('stat-categories');
+            const resultCount = document.getElementById('result-count');
+            const categories = new Set(prompts.map((prompt) => getPromptMeta(prompt).category));
+
+            if (statPrompts) statPrompts.textContent = String(prompts.length);
+            if (statCategories) statCategories.textContent = String(categories.size);
+            if (resultCount) resultCount.textContent = `Visar 1-${prompts.length} av ${prompts.length} prompter`;
+        }
+
+        function setFilterOptions(selectId, values, allLabel) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+
+            const currentValue = select.value || 'all';
+            const collator = new Intl.Collator('sv', { sensitivity: 'base' });
+            const options = Array.from(new Set(values.filter(Boolean))).sort(collator.compare);
+            select.innerHTML = [
+                `<option value="all">${allLabel}</option>`,
+                ...options.map((value) => `<option value="${value}">${value}</option>`)
+            ].join('');
+            select.value = options.includes(currentValue) ? currentValue : 'all';
+        }
+
+        function populateFilterOptions(prompts) {
+            const metadata = prompts.map(getPromptMeta);
+            setFilterOptions('category-filter', metadata.map((meta) => meta.category), 'Alla kategorier');
+            setFilterOptions('audience-filter', metadata.flatMap((meta) => meta.audiences), 'Alla målgrupper');
+            setFilterOptions('role-filter', metadata.flatMap((meta) => meta.roles), 'Alla roller');
+            setFilterOptions('risk-filter', metadata.map((meta) => meta.risk), 'Alla risknivåer');
+        }
+
+        function getSearchQuery() {
+            return document.getElementById('prompt-search')?.value.trim().toLowerCase() || '';
+        }
+
+        function comparePromptCards(a, b) {
+            const promptA = allPrompts.find((prompt) => prompt.id === a.dataset.promptId);
+            const promptB = allPrompts.find((prompt) => prompt.id === b.dataset.promptId);
+            if (!promptA || !promptB) return 0;
+
+            const metaA = getPromptMeta(promptA);
+            const metaB = getPromptMeta(promptB);
+            const titleA = stripLeadingIcon(promptA.title);
+            const titleB = stripLeadingIcon(promptB.title);
+            const orderA = Number(a.dataset.originalOrder || 0);
+            const orderB = Number(b.dataset.originalOrder || 0);
+            const collator = new Intl.Collator('sv', { sensitivity: 'base' });
+
+            if (activeSort === 'title-asc') return collator.compare(titleA, titleB);
+            if (activeSort === 'title-desc') return collator.compare(titleB, titleA);
+            if (activeSort === 'category-asc') {
+                const categoryCompare = collator.compare(metaA.category, metaB.category);
+                return categoryCompare || collator.compare(titleA, titleB);
+            }
+            if (activeSort === 'risk-asc') {
+                return getRiskRank(metaA.risk) - getRiskRank(metaB.risk) || collator.compare(titleA, titleB);
+            }
+            if (activeSort === 'risk-desc') {
+                return getRiskRank(metaB.risk) - getRiskRank(metaA.risk) || collator.compare(titleA, titleB);
+            }
+
+            return orderA - orderB;
+        }
+
+        function applyPromptSort() {
+            if (!grid) return;
+
+            Array.from(grid.querySelectorAll('.prompt-card'))
+                .sort(comparePromptCards)
+                .forEach((card) => grid.appendChild(card));
+        }
+
+        function initPromptSort() {
+            const sortSelect = document.getElementById('prompt-sort');
+            if (!sortSelect) return;
+
+            activeSort = sortSelect.value || 'newest';
+            sortSelect.addEventListener('change', () => {
+                activeSort = sortSelect.value || 'newest';
+                applyPromptSort();
+                applyPromptFilters();
+            });
+        }
+
+        function applyPromptFilters() {
+            if (!grid) return;
+
+            const query = getSearchQuery();
+            const favorites = getFavorites();
+            let visibleCount = 0;
+
+            grid.querySelectorAll('.prompt-card').forEach((card) => {
+                const prompt = allPrompts.find((item) => item.id === card.dataset.promptId);
+                if (!prompt) {
+                    card.hidden = true;
+                    return;
+                }
+
+                const meta = getPromptMeta(prompt);
+                const haystack = `${prompt.title} ${prompt.description} ${meta.category} ${meta.audience} ${meta.role} ${meta.risk} ${meta.example} ${meta.phrase}`.toLowerCase();
+                const matchesSearch = !query || haystack.includes(query);
+                const matchesCategory = activeCategoryFilter === 'all' || meta.category === activeCategoryFilter;
+                const matchesAudience = activeAudienceFilter === 'all' || meta.audiences.includes(activeAudienceFilter);
+                const matchesRole = activeRoleFilter === 'all' || meta.roles.includes(activeRoleFilter);
+                const matchesRisk = activeRiskFilter === 'all' || meta.risk === activeRiskFilter;
+                const matchesFavorites = !favoritesOnlyFilter || favorites.includes(prompt.id);
+                const isVisible = matchesSearch && matchesCategory && matchesAudience && matchesRole && matchesRisk && matchesFavorites;
+
+                card.hidden = !isVisible;
+                if (isVisible) visibleCount += 1;
+            });
+
+            const resultCount = document.getElementById('result-count');
+            if (resultCount) {
+                resultCount.textContent = `Visar ${visibleCount} av ${allPrompts.length} prompter`;
+            }
+        }
+
+        function initCategoryFilters() {
+            document.querySelectorAll('[data-category-filter]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    activeCategoryFilter = button.getAttribute('data-category-filter') || 'all';
+                    favoritesOnlyFilter = false;
+                    const categoryFilter = document.getElementById('category-filter');
+                    if (categoryFilter) categoryFilter.value = activeCategoryFilter;
+                    document.querySelectorAll('[data-category-filter]').forEach((item) => {
+                        item.classList.toggle('active', item.getAttribute('data-category-filter') === activeCategoryFilter);
+                    });
+                    const favoritesSidebarBtn = document.getElementById('favorites-sidebar-btn');
+                    if (favoritesSidebarBtn) favoritesSidebarBtn.classList.remove('active');
+                    applyPromptFilters();
+                });
+            });
+
+            const categoryFilter = document.getElementById('category-filter');
+            const audienceFilter = document.getElementById('audience-filter');
+            const roleFilter = document.getElementById('role-filter');
+            const riskFilter = document.getElementById('risk-filter');
+            const clearFiltersBtn = document.getElementById('clear-filters-btn');
+
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', () => {
+                    activeCategoryFilter = categoryFilter.value || 'all';
+                    document.querySelectorAll('[data-category-filter]').forEach((item) => {
+                        item.classList.toggle('active', item.getAttribute('data-category-filter') === activeCategoryFilter);
+                    });
+                    applyPromptFilters();
+                });
+            }
+
+            if (audienceFilter) {
+                audienceFilter.addEventListener('change', () => {
+                    activeAudienceFilter = audienceFilter.value || 'all';
+                    applyPromptFilters();
+                });
+            }
+
+            if (roleFilter) {
+                roleFilter.addEventListener('change', () => {
+                    activeRoleFilter = roleFilter.value || 'all';
+                    applyPromptFilters();
+                });
+            }
+
+            if (riskFilter) {
+                riskFilter.addEventListener('change', () => {
+                    activeRiskFilter = riskFilter.value || 'all';
+                    applyPromptFilters();
+                });
+            }
+
+            if (clearFiltersBtn) {
+                clearFiltersBtn.addEventListener('click', () => {
+                    activeCategoryFilter = 'all';
+                    activeAudienceFilter = 'all';
+                    activeRoleFilter = 'all';
+                    activeRiskFilter = 'all';
+                    favoritesOnlyFilter = false;
+                    if (categoryFilter) categoryFilter.value = 'all';
+                    if (audienceFilter) audienceFilter.value = 'all';
+                    if (roleFilter) roleFilter.value = 'all';
+                    if (riskFilter) riskFilter.value = 'all';
+                    const searchInput = document.getElementById('prompt-search');
+                    if (searchInput) searchInput.value = '';
+                    document.querySelectorAll('[data-category-filter]').forEach((item) => {
+                        item.classList.toggle('active', item.getAttribute('data-category-filter') === 'all');
+                    });
+                    const favoritesSidebarBtn = document.getElementById('favorites-sidebar-btn');
+                    if (favoritesSidebarBtn) favoritesSidebarBtn.classList.remove('active');
+                    applyPromptFilters();
+                });
+            }
+        }
+
+        function getPromptText(promptId) {
+            const textArea = document.getElementById(`textarea-${promptId}`);
+            if (!textArea) return '';
+            return replaceInputMarkers(textArea.value, quickInputText);
+        }
+
+        function selectPrompt(promptId) {
+            selectedPromptId = promptId;
+            const prompt = allPrompts.find((item) => item.id === promptId);
+            if (!prompt) return;
+
+            const meta = getPromptMeta(prompt);
+            const title = stripLeadingIcon(prompt.title);
+
+            grid.querySelectorAll('.prompt-card').forEach((card) => {
+                card.classList.toggle('selected', card.dataset.promptId === promptId);
+            });
+
+            const fields = {
+                title: document.getElementById('selected-prompt-title'),
+                description: document.getElementById('selected-prompt-description'),
+                icon: document.getElementById('detail-icon'),
+                risk: document.getElementById('detail-risk'),
+                audience: document.getElementById('detail-audience'),
+                role: document.getElementById('detail-role'),
+                example: document.getElementById('detail-example'),
+                phrase: document.getElementById('detail-phrase'),
+                preview: document.getElementById('detail-prompt-preview'),
+                related: document.getElementById('related-prompts')
+            };
+
+            if (fields.title) fields.title.textContent = title;
+            if (fields.description) fields.description.textContent = prompt.description;
+            if (fields.icon) fields.icon.textContent = meta.icon;
+            if (fields.risk) {
+                fields.risk.textContent = meta.risk;
+                fields.risk.dataset.risk = meta.risk.toLowerCase();
+            }
+            if (fields.audience) fields.audience.textContent = meta.audience;
+            if (fields.role) fields.role.textContent = meta.role;
+            if (fields.example) fields.example.textContent = meta.example;
+            if (fields.phrase) fields.phrase.textContent = `"${meta.phrase}"`;
+            if (fields.preview) fields.preview.textContent = getPromptText(promptId) || 'Prompttext saknas.';
+
+            document.querySelectorAll('#selected-prompt-chat-btn, #selected-prompt-copy-btn, #selected-prompt-view-btn, #selected-prompt-export-btn')
+                .forEach((button) => button.removeAttribute('disabled'));
+
+            if (fields.related) {
+                fields.related.innerHTML = allPrompts
+                    .filter((item) => item.id !== promptId && getPromptMeta(item).category === meta.category)
+                    .slice(0, 3)
+                    .map((item) => `<button type="button" data-related-prompt="${item.id}">${stripLeadingIcon(item.title)}</button>`)
+                    .join('');
+            }
+        }
+
+        function loadLocalChatMode() {
+            const stored = localStorage.getItem(LOCAL_CHAT_MODE_KEY);
+            return stored === 'true';
+        }
+
+        function persistLocalChatMode(enabled) {
+            localStorage.setItem(LOCAL_CHAT_MODE_KEY, enabled ? 'true' : 'false');
+        }
+
+        function setLocalChatMode(enabled) {
+            localChatEnabled = enabled;
+            persistLocalChatMode(enabled);
+            document.body.classList.toggle('local-chat-enabled', enabled);
+            if (localChatToggleInput) {
+                localChatToggleInput.checked = enabled;
+            }
+        }
+
+        function initLocalChatToggle() {
+            setLocalChatMode(loadLocalChatMode());
+            if (localChatToggleInput) {
+                localChatToggleInput.addEventListener('change', (event) => {
+                    setLocalChatMode(Boolean(event.target.checked));
+                });
+            }
+        }
+
+        function createPromptCard(prompt, promptText, originalOrder = 0) {
             const card = document.createElement('div');
             card.className = 'prompt-card';
             card.setAttribute('data-prompt-id', prompt.id);
+            card.dataset.originalOrder = String(originalOrder);
+            const meta = getPromptMeta(prompt);
+            const title = stripLeadingIcon(prompt.title);
 
             // Include user input dynamically
             const userInput = document.getElementById('quick-input-textarea')?.value || '';
@@ -187,12 +564,21 @@
             // Build card HTML
             card.innerHTML = `
                 <button class="favorite-btn favorites-only" data-favorite="${prompt.id}" title="Markera som favorit">☆</button>
-                <h3>${prompt.title}</h3>
+                <span class="selected-check" aria-hidden="true">✓</span>
+                <div class="card-title-row">
+                    <span class="card-icon" aria-hidden="true">${meta.icon}</span>
+                    <h3>${title}</h3>
+                </div>
                 <p>${prompt.description}</p>
-                <div class="spacer-min-height"></div>
+                <div class="card-tags">
+                    <span>${meta.audience}</span>
+                    <span>${meta.role}</span>
+                </div>
+                <p class="card-example">Exempel: "${meta.phrase}"</p>
                 <div class="actions card-actions">
                     <button class="primary-btn export-btn advanced-only" data-export="${prompt.id}">Anpassa prompt</button>
-                    <button class="copy-btn copy-btn-primary" data-prompt="${prompt.id}">Kopiera prompt</button>
+                    <button class="copy-btn copy-btn-primary" data-prompt="${prompt.id}">Använd</button>
+                    <button class="secondary-btn info-btn" data-show-full="${prompt.id}" title="Förhandsvisa">Förhandsvisa</button>
                     <button class="secondary-btn local-chat-btn" data-chat-local="${prompt.id}">Chatta lokalt</button>
                     <button class="secondary-btn direct-chat-btn" type="button" disabled aria-disabled="true" title="Kommer snart">Chatta direkt (kommer snart)</button>
                     <button class="info-btn" data-show-full="${prompt.id}" title="Se hela prompt">ℹ️ Se hela prompt</button>
@@ -205,6 +591,11 @@
         function setupEventDelegation() {
             // Toggle examples - event delegation
             grid.addEventListener('click', (event) => {
+                const card = event.target.closest('.prompt-card');
+                if (card) {
+                    selectPrompt(card.dataset.promptId);
+                }
+
                 if (event.target.classList.contains('security-note-link')) {
                     event.preventDefault();
                     const promptId = event.target.getAttribute('data-toggle-examples');
@@ -216,7 +607,7 @@
 
                 // Copy button click
                 if (event.target.classList.contains('copy-btn')) {
-                    handleCopyClick(event.target);
+                    handleCopyClick(event.target, event);
                 }
 
                 // Favorite button click
@@ -272,6 +663,7 @@
 
             // Update favorites menu
             updateFavoritesMenu();
+            applyPromptFilters();
         }
 
         function loadFavoriteStates() {
@@ -327,6 +719,15 @@
             }
         }
 
+        function initPromptSearch() {
+            const searchInput = document.getElementById('prompt-search');
+            if (!searchInput) return;
+
+            ['input', 'keyup', 'search', 'change'].forEach((eventName) => {
+                searchInput.addEventListener(eventName, applyPromptFilters);
+            });
+        }
+
         function clearAllFavorites() {
             if (confirm('Är du säker på att du vill rensa alla favoriter?')) {
                 // Clear localStorage
@@ -344,11 +745,40 @@
 
                 // Update favorites menu
                 updateFavoritesMenu();
+                applyPromptFilters();
             }
         }
 
         // Set up clear favorites button
         clearFavoritesBtn.addEventListener('click', clearAllFavorites);
+
+        document.addEventListener('click', (event) => {
+            const relatedButton = event.target.closest('[data-related-prompt]');
+            if (relatedButton) {
+                selectPrompt(relatedButton.getAttribute('data-related-prompt'));
+                return;
+            }
+
+            if (!selectedPromptId) return;
+
+            if (event.target.id === 'selected-prompt-chat-btn') {
+                navigateToLocalChat(selectedPromptId);
+            }
+
+            if (event.target.id === 'selected-prompt-copy-btn') {
+                const cardButton = grid.querySelector(`.copy-btn[data-prompt="${selectedPromptId}"]`);
+                if (cardButton) handleCopyClick(cardButton, event);
+            }
+
+            if (event.target.id === 'selected-prompt-view-btn') {
+                const cardButton = grid.querySelector(`.info-btn[data-show-full="${selectedPromptId}"]`);
+                if (cardButton) handleInfoClick(cardButton);
+            }
+
+            if (event.target.id === 'selected-prompt-export-btn') {
+                openExportModal(selectedPromptId);
+            }
+        });
 
         // Modal functionality
         const promptModal = document.getElementById('prompt-modal');
@@ -404,8 +834,8 @@
             }
         }
 
-        async function handleCopyClick(button) {
-            event.preventDefault();
+        async function handleCopyClick(button, clickEvent) {
+            if (clickEvent) clickEvent.preventDefault();
             const promptId = button.getAttribute('data-prompt');
             const textArea = document.getElementById(`textarea-${promptId}`);
 
@@ -443,6 +873,10 @@
         }
 
         function navigateToLocalChat(promptId) {
+            if (!localChatEnabled) {
+                return;
+            }
+
             const textArea = document.getElementById(`textarea-${promptId}`);
             const prompt = allPrompts.find((item) => item.id === promptId);
             if (!textArea) {
@@ -1461,7 +1895,7 @@ ${initialUserInput.trim()}`
                     btn.style.display = 'none';
                 } else {
                     btn.style.display = '';
-                    btn.textContent = 'Kopiera prompt';
+                    btn.textContent = 'Använd';
                     btn.classList.remove('with-text');
                 }
             });
@@ -1480,6 +1914,9 @@ ${initialUserInput.trim()}`
                 quickInputText = event.target.value;
                 updateCharCounter();
                 updateCopyButtonLabels();
+                if (selectedPromptId) {
+                    selectPrompt(selectedPromptId);
+                }
                 updateExportPreview(); // keep export preview in sync
             });
             // Initialize counter on load
@@ -1510,6 +1947,21 @@ ${initialUserInput.trim()}`
             });
         }
 
+        const favoritesSidebarBtn = document.getElementById('favorites-sidebar-btn');
+        if (favoritesSidebarBtn) {
+            favoritesSidebarBtn.addEventListener('click', () => {
+                favoritesOnlyFilter = !favoritesOnlyFilter;
+                if (favoritesOnlyFilter && !favoritesModeEnabled) {
+                    setFavoritesMode(true);
+                }
+                favoritesSidebarBtn.classList.toggle('active', favoritesOnlyFilter);
+                document.querySelectorAll('[data-category-filter]').forEach((item) => {
+                    item.classList.remove('active');
+                });
+                applyPromptFilters();
+            });
+        }
+
         // Settings gear menu toggle
         const settingsGear = document.getElementById('settings-gear');
         const settingsDropdown = document.getElementById('settings-dropdown');
@@ -1531,6 +1983,10 @@ ${initialUserInput.trim()}`
         window.addEventListener('DOMContentLoaded', () => {
             initAdvancedToggle();
             initFavoritesToggle();
+            initLocalChatToggle();
+            initPromptSearch();
+            initPromptSort();
+            initCategoryFilters();
             loadPrompts();
             loadExportSettings();
             registerExportSettingsListeners();

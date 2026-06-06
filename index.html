@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Promptbank för kommun</title>
+    <meta name="description" content="Promptbanken är en öppen promptkatalog för kommunala texter, klarspråk, mejl, informationsutskick, checklistor, FAQ, rutiner och beslutsunderlag.">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="https://kommun.promptbanken.se/">
+    <link rel="alternate" type="application/json" href="prompts.json" title="Promptbanken promptmanifest">
+    <link rel="alternate" type="text/plain" href="llms.txt" title="Promptbanken för AI-agenter">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="local-run.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
@@ -222,14 +227,52 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>🏛️ Promptbank för kommun</h1>
-        <p>AI-stöd för tydligare kommunikation i kommun</p>
-    </header>
+    <div class="app-shell">
+        <aside class="app-sidebar" aria-label="Huvudnavigation">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true">▦</span>
+                <span>Promptbanken</span>
+            </div>
 
-    <div class="settings-container">
-        <div class="settings-menu">
-            <button class="settings-gear" id="settings-gear">⚙️</button>
+            <nav class="sidebar-nav">
+                <button class="sidebar-link active" type="button" data-category-filter="all"><span aria-hidden="true">▦</span>Alla prompter</button>
+                <a class="sidebar-link mcp-feature-link" href="mcp.html"><span aria-hidden="true">◇</span>MCP och användning</a>
+                <button class="sidebar-link" type="button" data-category-filter="Beslut och rutiner"><span aria-hidden="true">□</span>Beslut och rutiner</button>
+                <button class="sidebar-link" type="button" data-category-filter="Skriva och förbättra text"><span aria-hidden="true">✎</span>Skriva och förbättra text</button>
+                <button class="sidebar-link" type="button" data-category-filter="Svara och kommunicera"><span aria-hidden="true">◌</span>Svara och kommunicera</button>
+                <button class="sidebar-link" type="button" data-category-filter="Sammanfatta och strukturera"><span aria-hidden="true">▤</span>Sammanfatta och strukturera</button>
+                <button class="sidebar-link" type="button" data-category-filter="Möten och workshops"><span aria-hidden="true">♙</span>Möten och workshops</button>
+            </nav>
+
+            <nav class="sidebar-nav secondary" aria-label="Personliga vyer">
+                <button class="sidebar-link" type="button" id="favorites-sidebar-btn"><span aria-hidden="true">☆</span>Favoriter</button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="help.html">Hjälp och vägledning</a>
+                <a href="AI-COMPLIANCE.md">Om Promptbanken</a>
+                <a href="GDPR-POLICY.md">Dataskydd</a>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <header class="topbar">
+                <label class="search-box" for="prompt-search">
+                    <span aria-hidden="true">⌕</span>
+                    <input id="prompt-search" type="search" placeholder="Sök prompter, exempel eller kategori..." autocomplete="off">
+                    <kbd>⌘ K</kbd>
+                </label>
+
+                <div class="topbar-actions">
+                    <a class="help-btn" href="help.html">? Hjälp</a>
+                    <a class="help-btn mcp-top-link" href="mcp.html">MCP</a>
+                    <div class="info-class">
+                        <span class="shield" aria-hidden="true">◇</span>
+                        <span><small>Informationsklass</small><strong><span class="status-dot"></span>Öppen</strong></span>
+                        <span aria-hidden="true">⌄</span>
+                    </div>
+                    <div class="settings-menu">
+            <button class="settings-gear" id="settings-gear" aria-label="Inställningar">⚙</button>
             <div class="settings-dropdown hidden" id="settings-dropdown">
                 <div class="settings-option">
                     <label for="advanced-toggle-input">
@@ -246,58 +289,23 @@
                     <p class="settings-helper">Spara och visa favoriter</p>
                 </div>
                 <div class="settings-option">
+                    <label for="local-chat-toggle-input">
+                        <input type="checkbox" id="local-chat-toggle-input" />
+                        Lokal chatt
+                    </label>
+                    <p class="settings-helper">Visa knappar för att öppna prompten i lokal chatt</p>
+                </div>
+                <div class="settings-option">
                     <span class="settings-link settings-link-disabled" aria-disabled="true">⚙️ Multiprovider-inställningar</span>
                     <p class="settings-helper">Kommer i PRO-versionen (hosted)</p>
                 </div>
 
             </div>
-        </div>
-    </div>
+                    </div>
+                </div>
+            </header>
 
-    <div class="quick-input-container workflow-step-shell">
-        <div class="quick-input-header">
-            <div class="quick-input-header-copy">
-                <span class="workflow-step-kicker">Steg 1</span>
-                <h3 class="workflow-step-title">Vilken text vill du arbeta med?</h3>
-                <p class="workflow-step-helper">Klistra in brevet, anteckningarna eller underlaget här. Du väljer uppgift i nästa steg.</p>
-            </div>
-            <h3>✍️ Snabbinmatning</h3>
-            <button class="quick-input-clear-btn" id="quick-input-clear-btn">🗑️ Rensa</button>
-        </div>
-        <textarea 
-            id="quick-input-textarea" 
-            class="quick-input-textarea" 
-            maxlength="5000"
-            placeholder="Klistra in eller skriv din text här... När du sedan kopierar en prompt kommer din text automatiskt att inkluderas. (Ingen data lagras, allt sker lokalt)"
-            aria-label="Snabbinmatning för text"></textarea>
-        <div class="quick-input-info-row">
-            <span>Max 5 000 tecken. Undvik personuppgifter. <button id="show-anon-examples" class="example-btn" type="button">Visa exempel</button></span>
-            <span id="quick-input-char-counter">0 / 5 000 tecken</span>
-        </div>
-        <div class="quick-input-helper-row">
-            <span class="quick-input-lock-icon">🔒</span>
-            <span>Anonymisera alltid personuppgifter innan du exporterar eller kopierar! Kontrollera att namn, personnummer, adresser och känsliga uppgifter är borttagna.</span>
-        </div>
-        <div class="quick-input-file-row">
-            <label for="quick-input-file" class="quick-input-file-label">Välj fil</label>
-            <input id="quick-input-file" type="file" accept=".txt,.md,.csv,.json,.docx,.rtf,.odt,.log,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
-            <span class="quick-input-file-help">Stödjer: txt, md, csv, json, docx</span>
-        </div>
-        <div id="anon-examples-modal">
-            <strong>Exempel på vad du ska ta bort:</strong>
-            <ul>
-                <li>Namn på personer (t.ex. 'Anna Andersson')</li>
-                <li>Personnummer eller födelsedatum</li>
-                <li>Adress, telefonnummer, e-post</li>
-                <li>Specifika ärendenummer eller diarienummer</li>
-                <li>Hälsoinformation eller känsliga uppgifter</li>
-            </ul>
-            <button id="close-anon-examples" class="example-btn anon-examples-close">Stäng</button>
-        </div>
-    </div>
-
-
-    <main>
+    <main class="workspace">
         <div class="favorites-menu hidden favorites-only" id="favorites-menu">
             <div class="favorites-header">
                 <h2>⭐ Mina Favoriter</h2>
@@ -308,33 +316,144 @@
             </div>
         </div>
 
-        <section class="prompt-stage-shell" aria-label="Val av uppgift och fortsattning">
-            <div>
-                <span class="workflow-step-kicker">Steg 2</span>
-                <h2 class="workflow-step-title">Välj vad du vill göra med texten</h2>
-                <p class="workflow-step-helper">Börja med att välja uppgift. Hur du vill fortsätta visas först när ett kort är valt.</p>
-            </div>
-
-            <div class="selected-prompt-panel" id="selected-prompt-panel" hidden>
-                <div class="selected-prompt-summary">
-                    <span class="selected-prompt-label">Vald uppgift</span>
-                    <h3 class="selected-prompt-title" id="selected-prompt-title">Ingen uppgift vald än</h3>
-                    <p class="selected-prompt-description" id="selected-prompt-description">Välj ett kort nedan för att fortsätta.</p>
+        <div class="workspace-grid">
+            <section class="prompt-library" aria-label="Tillgängliga prompter">
+                <div class="page-title-row">
+                    <div>
+                        <h1>Alla prompter</h1>
+                        <p>Färdiga prompter för offentliga verksamheter.</p>
+                    </div>
                 </div>
-                <div class="selected-prompt-actions">
-                    <button class="primary-btn" id="selected-prompt-copy-btn" type="button">Kopiera prompt</button>
-                    <button class="secondary-btn" id="selected-prompt-chat-btn" type="button">Chatta lokalt</button>
-                    <button class="secondary-btn advanced-only" id="selected-prompt-export-btn" type="button">Anpassa prompt</button>
-                    <button class="info-btn" id="selected-prompt-view-btn" type="button">Visa prompt</button>
-                </div>
-                <p class="selected-prompt-meta">Steg 3: Välj hur du vill fortsätta med den markerade uppgiften.</p>
-            </div>
-        </section>
 
-        <section class="prompt-grid" id="prompt-grid" aria-label="Tillgängliga uppgifter">
-            <div class="loading-message">Laddar promptmallar...</div>
-        </section>
+                <div class="filter-row" aria-label="Filter">
+                    <label class="filter-control" for="category-filter">
+                        <span>Kategori</span>
+                        <select id="category-filter">
+                            <option value="all">Alla kategorier</option>
+                        </select>
+                    </label>
+                    <label class="filter-control" for="audience-filter">
+                        <span>Målgrupp</span>
+                        <select id="audience-filter">
+                            <option value="all">Alla målgrupper</option>
+                        </select>
+                    </label>
+                    <label class="filter-control" for="role-filter">
+                        <span>Roll</span>
+                        <select id="role-filter">
+                            <option value="all">Alla roller</option>
+                        </select>
+                    </label>
+                    <label class="filter-control" for="risk-filter">
+                        <span>Risknivå</span>
+                        <select id="risk-filter">
+                            <option value="all">Alla risknivåer</option>
+                        </select>
+                    </label>
+                    <button type="button" class="filter-more" id="clear-filters-btn">Rensa filter</button>
+                </div>
+
+                <div class="stats-row">
+                    <article class="stat-card blue"><span>▦</span><strong id="stat-prompts">0</strong><p>prompter</p><small>Tillgängliga för dig</small></article>
+                    <article class="stat-card green"><span>⌘</span><strong id="stat-categories">0</strong><p>kategorier</p><small>Organiserade ämnesområden</small></article>
+                    <article class="stat-card amber"><span>◇</span><strong>Risknivåer</strong><p><b>10</b> Låg risk</p><p><b>5</b> Medelrisk</p><p><b>1</b> Hög risk</p></article>
+                </div>
+
+                <div class="grid-toolbar">
+                    <span></span>
+                    <div>
+                        <label class="sort-control" for="prompt-sort">
+                            <span>Sortera:</span>
+                            <select id="prompt-sort" aria-label="Sortera prompter">
+                                <option value="newest">Nyast först</option>
+                                <option value="title-asc">Titel A-Ö</option>
+                                <option value="title-desc">Titel Ö-A</option>
+                                <option value="category-asc">Kategori A-Ö</option>
+                                <option value="risk-asc">Lägst risk först</option>
+                                <option value="risk-desc">Högst risk först</option>
+                            </select>
+                        </label>
+                        <button type="button" class="active">▦</button>
+                        <button type="button">☰</button>
+                    </div>
+                </div>
+
+                <section class="prompt-grid" id="prompt-grid" aria-label="Tillgängliga prompter">
+                    <div class="loading-message">Laddar promptmallar...</div>
+                </section>
+                <p class="result-count" id="result-count">Visar prompter</p>
+            </section>
+
+            <aside class="prompt-detail-panel" id="prompt-detail-panel" aria-label="Vald prompt">
+                <button class="detail-close" id="detail-close" type="button" aria-label="Stäng detaljpanel">×</button>
+                <div class="detail-icon" id="detail-icon">▤</div>
+                <div class="detail-heading">
+                    <h2 id="selected-prompt-title">Välj en prompt</h2>
+                    <span class="risk-badge" id="detail-risk">Låg risk</span>
+                </div>
+                <p id="selected-prompt-description">Klicka på ett promptkort för att se detaljer, exempel och prompttext här.</p>
+                <div class="detail-meta">
+                    <span>Målgrupp <b id="detail-audience">Intern & extern</b></span>
+                    <span>Roller <b id="detail-role">Alla roller</b></span>
+                </div>
+                <div class="detail-section">
+                    <h3>Exempel på när den kan användas</h3>
+                    <p id="detail-example">Policytexter, information till invånare, beslut, nyheter och instruktioner.</p>
+                </div>
+                <div class="detail-section">
+                    <h3>Exempelfras</h3>
+                    <div class="example-phrase" id="detail-phrase">"Gör denna text tydligare för en extern målgrupp med begränsad förkunskap."</div>
+                </div>
+                <div class="quick-input-container">
+                    <div class="quick-input-header">
+                        <h3>Din text</h3>
+                        <button class="quick-input-clear-btn" id="quick-input-clear-btn">Rensa</button>
+                    </div>
+                    <textarea id="quick-input-textarea" class="quick-input-textarea" maxlength="5000" placeholder="Klistra in eller skriv den text du vill arbeta med..." aria-label="Snabbinmatning för text"></textarea>
+                    <div class="quick-input-info-row">
+                        <span>Max 5 000 tecken. <button id="show-anon-examples" class="example-btn" type="button">Visa exempel</button></span>
+                        <span id="quick-input-char-counter">0 / 5 000 tecken</span>
+                    </div>
+                    <div class="quick-input-helper-row">
+                        <span class="quick-input-lock-icon">🔒</span>
+                        <span>Ta bort personuppgifter innan du går vidare.</span>
+                    </div>
+                    <div class="quick-input-file-row">
+                        <label for="quick-input-file" class="quick-input-file-label">Välj fil</label>
+                        <input id="quick-input-file" type="file" accept=".txt,.md,.csv,.json,.docx,.rtf,.odt,.log,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+                        <span class="quick-input-file-help">Stödjer: txt, md, csv, json, docx</span>
+                    </div>
+                    <div id="anon-examples-modal">
+                        <strong>Exempel på vad du ska ta bort:</strong>
+                        <ul>
+                            <li>Namn på personer</li>
+                            <li>Personnummer eller födelsedatum</li>
+                            <li>Adress, telefonnummer, e-post</li>
+                            <li>Ärendenummer eller diarienummer</li>
+                            <li>Hälsoinformation eller känsliga uppgifter</li>
+                        </ul>
+                        <button id="close-anon-examples" class="example-btn anon-examples-close">Stäng</button>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h3>Prompt kopieringsbar</h3>
+                    <pre class="prompt-preview" id="detail-prompt-preview">Välj en prompt för att visa texten.</pre>
+                </div>
+                <div class="detail-actions selected-prompt-actions">
+                    <button class="primary-btn" id="selected-prompt-copy-btn" type="button" disabled>Använd</button>
+                    <button class="secondary-btn local-chat-only" id="selected-prompt-chat-btn" type="button" disabled>Chatta lokalt</button>
+                    <button class="secondary-btn" id="selected-prompt-view-btn" type="button" disabled>Förhandsvisa</button>
+                    <button class="secondary-btn advanced-only" id="selected-prompt-export-btn" type="button" disabled>Anpassa</button>
+                </div>
+                <div class="related-prompts">
+                    <h3>Relaterade prompter</h3>
+                    <div id="related-prompts"></div>
+                </div>
+            </aside>
+        </div>
     </main>
+        </div>
+    </div>
 
     <!-- Modal for full prompt view -->
     <div class="modal-overlay" id="prompt-modal">

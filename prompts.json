@@ -1,6 +1,13 @@
 {
   "prompts": [
     {
+      "id": "tydlighetskoll",
+      "title": "Tydlighetskoll",
+      "description": "Granska kommunala texter och flagga otydligt ansvar, oklara beslut, saknade nästa steg och risk för missförstånd.",
+      "file": "prompts/tydlighetskoll.txt",
+      "security_examples": ["Personuppgifter", "Känsliga ärenden", "Sekretessnära information"]
+    },
+    {
       "id": "klarsprak",
       "title": "📝 Skriv om till klarspråk",
       "description": "Gör text kortare och lättare att förstå för invånare.",

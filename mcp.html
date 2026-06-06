@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promptbanken MCP</title>
+    <meta name="description" content="Så använder du Promptbanken som webbsida, remote MCP-server eller lokal MCP-server i AI-klienter.">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="https://kommun.promptbanken.se/mcp.html">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="info-page">
+    <div class="app-shell">
+        <aside class="app-sidebar" aria-label="Huvudnavigation">
+            <a class="brand" href="index.html">
+                <span class="brand-mark" aria-hidden="true">▦</span>
+                <span>Promptbanken</span>
+            </a>
+
+            <nav class="sidebar-nav">
+                <a class="sidebar-link" href="index.html"><span aria-hidden="true">▦</span>Alla prompter</a>
+                <a class="sidebar-link active mcp-feature-link" href="mcp.html"><span aria-hidden="true">◇</span>MCP och användning</a>
+                <a class="sidebar-link" href="help.html"><span aria-hidden="true">?</span>Hjälp</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="AI-COMPLIANCE.md">Om Promptbanken</a>
+                <a href="GDPR-POLICY.md">Dataskydd</a>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <header class="topbar">
+                <a class="help-btn" href="index.html">Tillbaka till prompter</a>
+                <a class="help-btn" href="help.html">? Hjälp</a>
+                <div class="info-class">
+                    <span class="shield" aria-hidden="true">◇</span>
+                    <span><small>Informationsklass</small><strong><span class="status-dot"></span>Öppen</strong></span>
+                </div>
+            </header>
+
+            <main class="article-shell">
+                <article class="article-page">
+                    <p class="article-kicker">Guide</p>
+                    <h1>Hur använder man Promptbanken i praktiken?</h1>
+                    <p class="article-lead">Det finns två ganska olika sätt att använda Promptbanken: som vanlig webbsida eller som MCP-server i ett AI-verktyg.</p>
+
+                    <section>
+                        <h2>Det enkla sättet</h2>
+                        <p>Gå till <a href="https://kommun.promptbanken.se">kommun.promptbanken.se</a>.</p>
+                        <p>Där kan du läsa promptarna, kontrollera hur de är uppbyggda och kopiera dem till en vanlig AI-chatt. Det passar bra om du vill testa snabbt, förstå innehållet eller använda en mall manuellt.</p>
+                    </section>
+
+                    <section>
+                        <h2>Det mer tekniska sättet</h2>
+                        <p>Lägg till Promptbanken som en MCP-server i en AI-klient som stödjer MCP. Då kan klienten hämta promptmallar när du behöver stöd för exempelvis klarspråk, informationsutskick, checklistor, FAQ:er eller beslutsunderlag.</p>
+                        <p>I klienter som stödjer remote MCP via HTTP/SSE kan konfigurationen ofta se ut ungefär så här:</p>
+                        <pre><code>{
+  "mcpServers": {
+    "promptbanken": {
+      "url": "https://mcp.promptbanken.se/sse"
+    }
+  }
+}</code></pre>
+                        <p>Vissa klienter har ett grafiskt gränssnitt där man lägger till en ny MCP-server och klistrar in adressen. Andra använder en konfigurationsfil. Vissa klienter stödjer bara lokala MCP-servrar. Då behöver man i stället köra Promptbanken MCP lokalt.</p>
+                    </section>
+
+                    <section>
+                        <h2>Ett sätt att få AI-verktyget att använda Promptbanken</h2>
+                        <p>Man kan lägga in en enkel anvisning i sina Custom Instructions, så att AI-verktyget vet när Promptbanken ska användas.</p>
+                        <blockquote>När jag ber om svenska texter, kommunala underlag, mejl, rutiner, checklistor, informationsutskick, FAQ eller beslutsunderlag ska du först kontrollera om Promptbanken har en relevant mall. Om en mall passar ska du använda den och säga vilken mall du valt.</blockquote>
+                        <p>Det gör att man inte behöver skriva “använd Promptbanken” varje gång. Men vill man vara extra tydlig kan man börja chatten med:</p>
+                        <ul>
+                            <li>Promptbanken: gör detta till klarspråk.</li>
+                            <li>Använd Promptbanken och skriv ett informationsutskick.</li>
+                            <li>Använd Promptbanken. Här är min text. Välj lämplig mall.</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Lokal eller remote MCP?</h2>
+                        <div class="article-table">
+                            <div><strong>Vill du läsa och kopiera manuellt?</strong><span>Använd kommun.promptbanken.se.</span></div>
+                            <div><strong>Vill du testa snabbt via publik MCP?</strong><span>Använd remote MCP och demo-servern.</span></div>
+                            <div><strong>Vill du använda egna mallar eller känsligt material?</strong><span>Använd lokal MCP eller kontrollerad intern server.</span></div>
+                            <div><strong>Vill du dela en kurerad promptbank till flera användare?</strong><span>Remote MCP kan passa, men kräver tydlig styrning.</span></div>
+                        </div>
+                        <p>Demo-servern för remote MCP är <a href="https://mcp.promptbanken.se/sse">https://mcp.promptbanken.se/sse</a>.</p>
+                    </section>
+
+                    <section>
+                        <h2>Vilka verktyg stödjer MCP?</h2>
+                        <p>Jobbar du i VS Code, Cursor, Windsurf, Codex eller Claude Code kan du ofta använda lokal eller remote MCP, beroende på upplägg.</p>
+                        <p>Microsoft-delen behöver särskiljas:</p>
+                        <div class="article-table">
+                            <div><strong>Microsoft 365 Copilot</strong><span>MCP blir relevant genom connectors eller motsvarande kopplingar. Ta detta med IT.</span></div>
+                            <div><strong>Copilot Studio</strong><span>Här bygger man en agent som kan använda en MCP-server som verktyg.</span></div>
+                            <div><strong>VS Code med GitHub Copilot</strong><span>Utvecklaren kan lägga till lokala eller remote MCP-servrar.</span></div>
+                            <div><strong>Visual Studio med Copilot</strong><span>Liknar VS Code-spåret, men är mer kopplat till Visual Studio och kodnära arbete.</span></div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Praktisk slutsats</h2>
+                        <p>Vill man testa de öppna promptarna som vanlig webbsida är <a href="https://kommun.promptbanken.se">kommun.promptbanken.se</a> enklast.</p>
+                        <p>Vill man testa den publika MCP-servern är <a href="https://mcp.promptbanken.se/sse">mcp.promptbanken.se/sse</a> rätt väg.</p>
+                        <p>Vill man använda egna mallar, interna texter eller mer verksamhetsnära material bör man hellre köra lokalt eller i en kontrollerad intern miljö.</p>
+                    </section>
+                </article>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

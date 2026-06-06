@@ -2,6 +2,16 @@
 
 Centraliserad webbplattform med AI-assisterade kommunikationsmallar för svenska kommuner. Dessa prompter hjälper handläggare skriva tydligare, kortare och mer invånarvänlig kommunikation.
 
+Webbplatsen är även gjord för att kunna läsas av AI-agenter och indexeringstjänster:
+
+- Webbsida: https://kommun.promptbanken.se
+- Hjälp: https://kommun.promptbanken.se/help.html
+- MCP-guide: https://kommun.promptbanken.se/mcp.html
+- Statisk promptkatalog: https://kommun.promptbanken.se/prompts.html
+- Promptmanifest: https://kommun.promptbanken.se/prompts.json
+- Agentguide: https://kommun.promptbanken.se/llms.txt
+- Remote MCP demo: https://mcp.promptbanken.se/sse
+
 **Status:** ✅ Live på GitHub Pages | **Version:** 1.0.0
 
 ---
@@ -129,25 +139,57 @@ uvicorn app.main:app --reload --port 8001
 
 ---
 
-## 📋 Tillgängliga prompter (15 st.)
+## MCP och agentanvändning
+
+Promptbanken kan användas på två sätt:
+
+1. Som vanlig webbplats där användaren läser och kopierar promptar manuellt.
+2. Som MCP-källa i AI-klienter som stödjer MCP.
+
+Remote MCP-demo:
+
+```json
+{
+  "mcpServers": {
+    "promptbanken": {
+      "url": "https://mcp.promptbanken.se/sse"
+    }
+  }
+}
+```
+
+För AI-agenter som bara kan läsa ett begränsat crawldjup finns:
+
+- `llms.txt` med agentinstruktioner
+- `prompts.html` som statisk promptkatalog
+- `prompts.json` som manifest
+- direkta filer under `prompts/*.txt`
+- `robots.txt` och `sitemap.xml`
+
+Rekommenderad agentinstruktion:
+
+> När jag ber om svenska texter, kommunala underlag, mejl, rutiner, checklistor, informationsutskick, FAQ eller beslutsunderlag ska du först kontrollera om Promptbanken har en relevant mall. Om en mall passar ska du använda den och säga vilken mall du valt.
+
+## 📋 Tillgängliga prompter (16 st.)
 
 | # | Prompt | Syfte |
 |---|--------|-------|
-| 1 | 📝 Skriv om till klarspråk | Gör text kortare och lättare att förstå |
-| 2 | 📧 Svar på medborgarmejl | Skriv vänligt och sakligt svar |
-| 3 | ❓ Gör en FAQ | Skapa 8–12 Q&A från dokument |
-| 4 | ✓ Skapa checklista | Omvandla instruktioner till checklista |
-| 5 | 📋 Skriva kallelse | Skriv formell men vänlig kallelse |
-| 6 | 🎯 Beslutsunderlag | Sammanfatta för beslutande organ |
-| 7 | ⚙️ Rutiner & anvisningar | Gör instruktioner tydliga |
-| 8 | 🔀 Två versioner | Omvandla mellan formell/vardaglig |
-| 9 | 💭 Reflektionsfrågor | Skapa frågor för djupare tänkande |
-| 10 | 🧭 Samtalskompas | Strukturera möte/workshop |
-| 11 | 📌 Sammanfattning | Förkorta längre text |
-| 12 | 📝 Strukturera anteckningar | Organisera mötes-anteckningar |
-| 13 | 💬 Diskussionsfrågor | Driva diskussion framåt |
-| 14 | 🔑 Extrahera nyckelord | Identifiera centrala termer |
-| 15 | 📣 Skapa informationsutskick | Skriv tydligt utskick med rubrik, sammanfattning och nästa steg |
+| 1 | Tydlighetskoll | Granska ansvar, beslut, nästa steg och risk för missförstånd |
+| 2 | Skriv om till klarspråk | Gör text kortare och lättare att förstå |
+| 3 | Svar på medborgarmejl | Skriv vänligt och sakligt svar |
+| 4 | Gör en FAQ | Skapa frågor och svar från dokument |
+| 5 | Skapa checklista | Omvandla instruktioner till checklista |
+| 6 | Skriva kallelse | Skriv formell men enkel kallelse |
+| 7 | Beslutsunderlag | Sammanfatta för beslutande organ |
+| 8 | Rutiner & anvisningar | Gör instruktioner tydliga |
+| 9 | Två versioner | Omvandla mellan formell och vardaglig text |
+| 10 | Reflektionsfrågor | Skapa frågor för djupare tänkande |
+| 11 | Samtalskompass | Strukturera möte eller workshop |
+| 12 | Sammanfattning | Förkorta längre text |
+| 13 | Strukturera anteckningar | Organisera mötesanteckningar |
+| 14 | Diskussionsfrågor | Driva diskussion framåt |
+| 15 | Extrahera nyckelord | Identifiera centrala termer |
+| 16 | Skapa informationsutskick | Skriv tydligt utskick med rubrik, sammanfattning och nästa steg |
 
 ---
 
@@ -192,7 +234,13 @@ Denna plattform följer:
 
 **Filstruktur:**
 ```
-├── index.html              # Startsida med stegvis promptflöde
+├── index.html              # Promptkatalog och användargränssnitt
+├── help.html               # Hjälp och vägledning
+├── mcp.html                # MCP-guide
+├── prompts.html            # Statisk promptkatalog för indexering/agenter
+├── llms.txt                # Agentinstruktioner
+├── robots.txt              # Indexeringspolicy
+├── sitemap.xml             # Sitemap
 ├── local-chat.html         # Lokal chattsida
 ├── script.js               # Logik för startsidan, promptkort och filinläsning
 ├── local-chat.js           # Logik för lokal chatt via backend/Ollama
