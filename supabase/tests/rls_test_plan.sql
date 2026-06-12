@@ -1,0 +1,200 @@
+-- Promptbanken RLS test plan.
+--
+-- This file is not a migration. It is a commented checklist for staging
+-- verification after the schema and RLS migrations have been applied.
+--
+-- Recommended setup:
+-- 1. Create two workspaces: workspace_a and workspace_b.
+-- 2. Create users for platform_owner, workspace_a_admin, workspace_a_editor,
+--    workspace_a_viewer, and workspace_b_admin.
+-- 3. Insert representative content_items in each status/visibility combination.
+-- 4. Run each block through the Supabase SQL editor, REST API, or psql while
+--    authenticated as the role named in the block.
+
+begin;
+
+-- ---------------------------------------------------------------------------
+-- anon/public reads only published + public
+-- ---------------------------------------------------------------------------
+-- As anon:
+-- select id, status, visibility
+-- from public.content_items
+-- order by updated_at desc;
+--
+-- Expected:
+-- - Returns rows where status = 'published' and visibility = 'public'.
+-- - Does not return workspace, private, draft, review, or archived rows.
+--
+-- As anon via view:
+-- select id, title, slug
+-- from public.published_public_content;
+--
+-- Expected:
+-- - Returns only published public rows.
+
+-- ---------------------------------------------------------------------------
+-- draft is not publicly visible
+-- ---------------------------------------------------------------------------
+-- Fixture:
+-- - content_items row in workspace_a with status = 'draft' and visibility = 'public'.
+--
+-- As anon:
+-- select id
+-- from public.content_items
+-- where id = '<draft_public_content_item_id>';
+--
+-- Expected:
+-- - Returns 0 rows.
+
+-- ---------------------------------------------------------------------------
+-- archived is not publicly visible
+-- ---------------------------------------------------------------------------
+-- Fixture:
+-- - content_items row in workspace_a with status = 'archived' and visibility = 'public'.
+--
+-- As anon:
+-- select id
+-- from public.content_items
+-- where id = '<archived_public_content_item_id>';
+--
+-- Expected:
+-- - Returns 0 rows.
+
+-- ---------------------------------------------------------------------------
+-- workspace A cannot read workspace B
+-- ---------------------------------------------------------------------------
+-- Fixture:
+-- - workspace_b content item with status = 'published' and visibility = 'workspace'.
+--
+-- As workspace_a_viewer:
+-- select id
+-- from public.content_items
+-- where id = '<workspace_b_workspace_content_item_id>';
+--
+-- Expected:
+-- - Returns 0 rows.
+--
+-- As workspace_a_viewer via workspace view:
+-- select id
+-- from public.published_workspace_content
+-- where workspace_id = '<workspace_b_id>';
+--
+-- Expected:
+-- - Returns 0 rows.
+
+-- ---------------------------------------------------------------------------
+-- editor can create/edit draft but cannot publish
+-- ---------------------------------------------------------------------------
+-- As workspace_a_editor:
+-- insert into public.content_items (
+--     workspace_id,
+--     owner_user_id,
+--     type,
+--     title,
+--     slug,
+--     content,
+--     status,
+--     visibility,
+--     created_by
+-- )
+-- values (
+--     '<workspace_a_id>',
+--     '<workspace_a_editor_user_id>',
+--     'prompt',
+--     'Draft test',
+--     'draft-test',
+--     'Test content',
+--     'draft',
+--     'workspace',
+--     '<workspace_a_editor_user_id>'
+-- )
+-- returning id;
+--
+-- Expected:
+-- - Insert succeeds.
+--
+-- As workspace_a_editor:
+-- update public.content_items
+-- set title = 'Draft test updated'
+-- where id = '<draft_test_content_item_id>';
+--
+-- Expected:
+-- - Update affects 1 row.
+--
+-- As workspace_a_editor:
+-- update public.content_items
+-- set status = 'published'
+-- where id = '<draft_test_content_item_id>';
+--
+-- Expected:
+-- - Update affects 0 rows or is rejected by RLS/check constraints.
+
+-- ---------------------------------------------------------------------------
+-- workspace_admin can publish
+-- ---------------------------------------------------------------------------
+-- As workspace_a_admin:
+-- update public.content_items
+-- set status = 'published'
+-- where id = '<draft_test_content_item_id>'
+-- returning id, status, published_at;
+--
+-- Expected:
+-- - Update affects 1 row.
+-- - status = 'published'.
+-- - published_at is set by trigger if it was null.
+
+-- ---------------------------------------------------------------------------
+-- workspace_admin can read profiles in own workspace
+-- ---------------------------------------------------------------------------
+-- Proposed policy behavior:
+-- - workspace_owner and workspace_admin can read profiles where
+--   profiles.workspace_id is their own workspace.
+-- - editor/viewer can only read their own profile row.
+-- - platform_owner can read all rows.
+--
+-- As workspace_a_admin:
+-- select user_id, workspace_id, role
+-- from public.profiles
+-- where workspace_id = '<workspace_a_id>';
+--
+-- Expected:
+-- - Returns all profile rows in workspace_a.
+--
+-- As workspace_a_admin:
+-- select user_id, workspace_id, role
+-- from public.profiles
+-- where workspace_id = '<workspace_b_id>';
+--
+-- Expected:
+-- - Returns 0 rows.
+--
+-- As workspace_a_viewer:
+-- select user_id, workspace_id, role
+-- from public.profiles
+-- where workspace_id = '<workspace_a_id>';
+--
+-- Expected:
+-- - Returns only the viewer's own profile row.
+
+-- ---------------------------------------------------------------------------
+-- api_keys.key_hash is not exposed in views
+-- ---------------------------------------------------------------------------
+-- As anon:
+-- select *
+-- from public.published_public_content
+-- limit 1;
+--
+-- Expected:
+-- - Result columns do not include key_hash, key_prefix, scopes, or other
+--   api_keys fields.
+--
+-- As authenticated workspace member:
+-- select *
+-- from public.published_workspace_content
+-- limit 1;
+--
+-- Expected:
+-- - Result columns do not include key_hash, key_prefix, scopes, or other
+--   api_keys fields.
+
+rollback;

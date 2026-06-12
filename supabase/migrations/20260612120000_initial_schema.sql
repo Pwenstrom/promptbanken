@@ -86,12 +86,6 @@ begin
         new.published_at = now();
     end if;
 
-    if tg_op = 'UPDATE'
-       and old.status = 'published'
-       and new.status <> 'published' then
-        new.published_at = null;
-    end if;
-
     return new;
 end;
 $$;

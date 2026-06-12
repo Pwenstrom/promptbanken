@@ -195,15 +195,20 @@ with check (
     )
 );
 
--- Users can read their own profile rows; platform owners can read all profile rows.
+-- Users can read their own profile rows; workspace owners/admins can read
+-- profiles in their workspace; platform owners can read all profile rows.
 drop policy if exists "profiles_read_own_or_platform_owner" on public.profiles;
-create policy "profiles_read_own_or_platform_owner"
+create policy "profiles_read_scoped"
 on public.profiles
 for select
 to authenticated
 using (
     user_id = (select auth.uid())
     or (select app_private.current_user_is_platform_owner())
+    or (select app_private.current_user_has_workspace_role(
+        workspace_id,
+        array['workspace_owner', 'workspace_admin']::public.profile_role[]
+    ))
 );
 
 -- Platform owners administer profiles. Initial bootstrap must be done by service role.

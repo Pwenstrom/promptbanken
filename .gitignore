@@ -5,3 +5,4 @@ __pycache__/
 mcp-server/.venv/
 .env
 backend/data/provider_secrets.db
+supabase/.temp/
