@@ -39,10 +39,10 @@ as $$
 $$;
 
 revoke all on schema app_private from public;
-grant usage on schema app_private to anon, authenticated;
+grant usage on schema app_private to authenticated;
 revoke all on function app_private.current_user_has_workspace_role(uuid, public.profile_role[]) from public;
 revoke all on function app_private.current_user_is_platform_owner() from public;
-grant execute on function app_private.current_user_has_workspace_role(uuid, public.profile_role[]) to anon, authenticated;
+grant execute on function app_private.current_user_has_workspace_role(uuid, public.profile_role[]) to authenticated;
 grant execute on function app_private.current_user_is_platform_owner() to authenticated;
 
 alter table public.workspaces enable row level security;
@@ -85,6 +85,15 @@ using (
     or (
         visibility = 'private'
         and owner_user_id = (select auth.uid())
+        and (select app_private.current_user_has_workspace_role(
+            workspace_id,
+            array[
+                'workspace_owner',
+                'workspace_admin',
+                'editor',
+                'viewer'
+            ]::public.profile_role[]
+        ))
     )
 );
 
@@ -142,6 +151,15 @@ using (
 )
 with check (
     status in ('draft', 'review')
+    and (
+        owner_user_id is null
+        or owner_user_id = (select auth.uid())
+        or (select app_private.current_user_has_workspace_role(
+            workspace_id,
+            array['workspace_owner', 'workspace_admin']::public.profile_role[]
+        ))
+        or (select app_private.current_user_is_platform_owner())
+    )
     and (
         (select app_private.current_user_is_platform_owner())
         or (select app_private.current_user_has_workspace_role(

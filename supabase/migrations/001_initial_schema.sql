@@ -77,6 +77,25 @@ begin
 end;
 $$;
 
+create or replace function public.set_content_published_at()
+returns trigger
+language plpgsql
+as $$
+begin
+    if new.status = 'published' and new.published_at is null then
+        new.published_at = now();
+    end if;
+
+    if tg_op = 'UPDATE'
+       and old.status = 'published'
+       and new.status <> 'published' then
+        new.published_at = null;
+    end if;
+
+    return new;
+end;
+$$;
+
 create table if not exists public.workspaces (
     id uuid primary key default gen_random_uuid(),
     name text not null,
@@ -191,3 +210,8 @@ drop trigger if exists set_content_items_updated_at on public.content_items;
 create trigger set_content_items_updated_at
 before update on public.content_items
 for each row execute function public.set_updated_at();
+
+drop trigger if exists set_content_items_published_at on public.content_items;
+create trigger set_content_items_published_at
+before insert or update on public.content_items
+for each row execute function public.set_content_published_at();
