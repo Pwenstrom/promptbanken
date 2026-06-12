@@ -15,7 +15,10 @@ if (!(Test-Path ".venv")) {
 pip install -r requirements.txt
 
 # Admin env
-$env:ADMIN_PANEL_TOKEN="dev-token"
+if (-not $env:ADMIN_PANEL_TOKEN) {
+    $env:ADMIN_PANEL_TOKEN=(python -c "import secrets; print(secrets.token_urlsafe(32))")
+    Write-Host "ADMIN_PANEL_TOKEN saknades och skapades temporärt för denna session."
+}
 $env:PROVIDER_ENCRYPTION_KEY=(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
 
 Start-Process powershell -ArgumentList "cd backend; .\.venv\Scripts\Activate.ps1; uvicorn app.main:app --reload --port 8001"

@@ -291,7 +291,7 @@
                 updateFavoritesMenu();
                 applyPromptSort();
                 if (prompts.length) {
-                    selectPrompt(prompts[0].id);
+                    selectPrompt(prompts[0].id, { reveal: false });
                 }
 
                 grid.classList.remove('loading');
@@ -504,11 +504,15 @@
             return replaceInputMarkers(textArea.value, quickInputText);
         }
 
-        function selectPrompt(promptId) {
+        function selectPrompt(promptId, options = {}) {
+            const shouldReveal = options.reveal !== false;
             selectedPromptId = promptId;
             const prompt = allPrompts.find((item) => item.id === promptId);
             if (!prompt) return;
             document.body.classList.remove('detail-panel-closed');
+            if (shouldReveal) {
+                document.body.classList.add('detail-sheet-open');
+            }
 
             const meta = getPromptMeta(prompt);
             const title = stripLeadingIcon(prompt.title);
@@ -562,11 +566,20 @@
                     .map((item) => `<button type="button" data-related-prompt="${item.id}">${stripLeadingIcon(item.title)}</button>`)
                     .join('');
             }
+
+            const detailPanel = document.getElementById('prompt-detail-panel');
+            if (shouldReveal && detailPanel && window.matchMedia('(max-width: 1180px)').matches) {
+                window.requestAnimationFrame(() => {
+                    detailPanel.focus({ preventScroll: true });
+                    detailPanel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                });
+            }
         }
 
         function closePromptDetailPanel() {
             selectedPromptId = null;
             document.body.classList.add('detail-panel-closed');
+            document.body.classList.remove('detail-sheet-open');
             grid.querySelectorAll('.prompt-card.selected').forEach((card) => {
                 card.classList.remove('selected');
             });
@@ -650,7 +663,7 @@
             grid.addEventListener('click', (event) => {
                 const card = event.target.closest('.prompt-card');
                 if (card) {
-                    selectPrompt(card.dataset.promptId);
+                    selectPrompt(card.dataset.promptId, { reveal: true });
                 }
 
                 if (event.target.classList.contains('security-note-link')) {
@@ -825,7 +838,7 @@
 
             const relatedButton = event.target.closest('[data-related-prompt]');
             if (relatedButton) {
-                selectPrompt(relatedButton.getAttribute('data-related-prompt'));
+                selectPrompt(relatedButton.getAttribute('data-related-prompt'), { reveal: true });
                 return;
             }
 
@@ -1473,7 +1486,7 @@ ${initialUserInput.trim()}`
 
             try {
                 const extractedText = await extractTextFromFile(file);
-                quickInputTextarea.value = extractedText.slice(0, 5000);
+                quickInputTextarea.value = extractedText.slice(0, 25000);
                 quickInputText = quickInputTextarea.value;
                 quickInputTextarea.dispatchEvent(new Event('input'));
                 showLocalRunStatus(`Fil inläst: ${file.name}`);
@@ -1495,7 +1508,7 @@ ${initialUserInput.trim()}`
 
             try {
                 const extractedText = await extractTextFromFile(file);
-                quickInputTextarea.value = extractedText.slice(0, 5000);
+                quickInputTextarea.value = extractedText.slice(0, 25000);
                 quickInputText = quickInputTextarea.value;
                 quickInputTextarea.dispatchEvent(new Event('input'));
                 showQuickInputStatus(`Fil inlast: ${file.name}`);
@@ -1977,7 +1990,7 @@ ${initialUserInput.trim()}`
             function updateCharCounter() {
                 const len = quickInputTextarea.value.length;
                 if (quickInputCharCounter) {
-                    quickInputCharCounter.textContent = `${len} / 5 000 tecken`;
+                    quickInputCharCounter.textContent = `${len} / 25 000 tecken`;
                 }
             }
             quickInputTextarea.addEventListener('input', (event) => {
@@ -1985,7 +1998,7 @@ ${initialUserInput.trim()}`
                 updateCharCounter();
                 updateCopyButtonLabels();
                 if (selectedPromptId) {
-                    selectPrompt(selectedPromptId);
+                    selectPrompt(selectedPromptId, { reveal: false });
                 }
                 updateExportPreview(); // keep export preview in sync
             });
@@ -2013,7 +2026,7 @@ ${initialUserInput.trim()}`
                 updateCopyButtonLabels();
                 // Nollställ teckenräknaren
                 const quickInputCharCounter = document.getElementById('quick-input-char-counter');
-                if (quickInputCharCounter) quickInputCharCounter.textContent = '0 / 5 000 tecken';
+                if (quickInputCharCounter) quickInputCharCounter.textContent = '0 / 25 000 tecken';
             });
         }
 

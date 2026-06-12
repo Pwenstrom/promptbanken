@@ -34,8 +34,10 @@ class SecretStore:
 
         # MVP fallback: derive key from admin token so encryption-at-rest always exists,
         # but rotate carefully because old data cannot be decrypted after token changes.
-        admin_token = os.getenv("ADMIN_PANEL_TOKEN", "development-admin-token")
-        digest = hashlib.sha256(admin_token.encode("utf-8")).digest()
+        key_material = os.getenv("PROVIDER_ENCRYPTION_KEY") or os.getenv("ADMIN_PANEL_TOKEN")
+        if not key_material:
+            raise RuntimeError("PROVIDER_ENCRYPTION_KEY eller ADMIN_PANEL_TOKEN måste vara satt.")
+        digest = hashlib.sha256(key_material.encode("utf-8")).digest()
         return base64.urlsafe_b64encode(digest)
 
     def _connect(self) -> sqlite3.Connection:

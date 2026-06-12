@@ -263,8 +263,8 @@
                 </label>
 
                 <div class="topbar-actions">
-                    <a class="help-btn" href="help.html">? Hjälp</a>
-                    <a class="help-btn mcp-top-link" href="mcp.html">MCP</a>
+                    <a class="help-btn" href="help.html"><span class="app-icon" aria-hidden="true" data-icon="help"></span>Hjälp</a>
+                    <a class="help-btn mcp-top-link" href="mcp.html"><span class="app-icon" aria-hidden="true" data-icon="network"></span>MCP</a>
                     <div class="settings-menu">
             <button class="settings-gear" id="settings-gear" aria-label="Inställningar"><span class="app-icon" aria-hidden="true" data-icon="settings"></span></button>
             <div class="settings-dropdown hidden" id="settings-dropdown">
@@ -335,12 +335,17 @@
                 </ol>
 
                 <div class="filter-row" aria-label="Filter">
+                    <button type="button" class="filter-toggle" id="filter-toggle" aria-expanded="false" aria-controls="advanced-filters">
+                        <span class="app-icon" aria-hidden="true" data-icon="list"></span>
+                        Fler filter
+                    </button>
                     <label class="filter-control" for="category-filter">
                         <span>Kategori</span>
                         <select id="category-filter">
                             <option value="all">Alla kategorier</option>
                         </select>
                     </label>
+                    <div class="advanced-filters" id="advanced-filters">
                     <label class="filter-control" for="audience-filter">
                         <span>Målgrupp</span>
                         <select id="audience-filter">
@@ -360,6 +365,7 @@
                         </select>
                     </label>
                     <button type="button" class="filter-more" id="clear-filters-btn">Rensa filter</button>
+                    </div>
                 </div>
 
                 <div class="stats-row">
@@ -393,7 +399,7 @@
                 <p class="result-count" id="result-count">Visar prompter</p>
             </section>
 
-            <aside class="prompt-detail-panel" id="prompt-detail-panel" aria-label="Vald prompt">
+            <aside class="prompt-detail-panel" id="prompt-detail-panel" aria-label="Vald prompt" tabindex="-1">
                 <button class="detail-close" id="detail-close" type="button" aria-label="Stäng detaljpanel">×</button>
                 <div class="detail-icon app-icon" id="detail-icon" data-icon="list"></div>
                 <div class="detail-heading">
@@ -422,10 +428,10 @@
                         <h3>Din text</h3>
                         <button class="quick-input-clear-btn" id="quick-input-clear-btn">Rensa</button>
                     </div>
-                    <textarea id="quick-input-textarea" class="quick-input-textarea" maxlength="5000" placeholder="Klistra in eller skriv den text du vill arbeta med..." aria-label="Snabbinmatning för text"></textarea>
+                    <textarea id="quick-input-textarea" class="quick-input-textarea" maxlength="25000" placeholder="Klistra in eller skriv den text du vill arbeta med..." aria-label="Snabbinmatning för text"></textarea>
                     <div class="quick-input-info-row">
-                        <span>Max 5 000 tecken. <button id="show-anon-examples" class="example-btn" type="button">Visa exempel</button></span>
-                        <span id="quick-input-char-counter">0 / 5 000 tecken</span>
+                        <span>Max 25 000 tecken i din text. Promptmall och instruktioner tillkommer. <button id="show-anon-examples" class="example-btn" type="button">Visa exempel</button></span>
+                        <span id="quick-input-char-counter">0 / 25 000 tecken</span>
                     </div>
                     <div class="quick-input-helper-row">
                         <span class="quick-input-lock-icon app-icon" aria-hidden="true" data-icon="shield"></span>
@@ -630,7 +636,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.3.1/html-docx.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-    <script src="script.js?v=detail-panel-close" defer></script>
+    <script src="script.js?v=mobile-ux-panel" defer></script>
     <script>
         (() => {
             const grid = document.getElementById('prompt-grid');
@@ -691,7 +697,7 @@
                 if (quickInputInfo) {
                     const infoTextNode = quickInputInfo.childNodes[0];
                     if (infoTextNode) {
-                        infoTextNode.textContent = 'Max 5 000 tecken. ';
+                        infoTextNode.textContent = 'Max 25 000 tecken i din text. Promptmall och instruktioner tillkommer. ';
                     }
                 }
 
@@ -735,7 +741,8 @@
                 }
             }
 
-            function selectPrompt(promptId) {
+            function selectPrompt(promptId, options = {}) {
+                const shouldReveal = options.reveal !== false;
                 selectedPromptId = promptId;
 
                 grid.querySelectorAll('.prompt-card').forEach((card) => {
@@ -756,7 +763,11 @@
                 panelTitle.textContent = selectedCard.querySelector('h3')?.textContent?.trim() || 'Vald uppgift';
                 panelDescription.textContent = selectedCard.querySelector('p')?.textContent?.trim() || 'Välj hur du vill fortsätta med den här uppgiften.';
                 panel.hidden = false;
-                panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.body.classList.toggle('detail-sheet-open', shouldReveal);
+                if (shouldReveal) {
+                    panel.focus({ preventScroll: true });
+                    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             }
 
             function enhanceCard(card) {
@@ -781,7 +792,7 @@
                     selectButton.addEventListener('click', (event) => {
                         event.preventDefault();
                         event.stopPropagation();
-                        selectPrompt(card.dataset.promptId);
+                        selectPrompt(card.dataset.promptId, { reveal: true });
                     });
                     actions.insertBefore(selectButton, actions.firstChild);
                 }
@@ -790,13 +801,35 @@
                     if (event.target.closest('button')) {
                         return;
                     }
-                    selectPrompt(card.dataset.promptId);
+                    selectPrompt(card.dataset.promptId, { reveal: true });
                 });
             }
 
             function enhanceExistingCards() {
                 grid.querySelectorAll('.prompt-card').forEach(enhanceCard);
             }
+
+            document.addEventListener('click', (event) => {
+                const filterToggle = event.target.closest('#filter-toggle');
+                if (filterToggle) {
+                    const advancedFilters = document.getElementById('advanced-filters');
+                    if (advancedFilters) {
+                        const isOpen = advancedFilters.classList.toggle('is-open');
+                        filterToggle.setAttribute('aria-expanded', String(isOpen));
+                    }
+                    return;
+                }
+
+                const selectButton = event.target.closest('.prompt-card .select-prompt-btn');
+                if (selectButton) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const card = selectButton.closest('.prompt-card');
+                    if (card) {
+                        selectPrompt(card.dataset.promptId, { reveal: true });
+                    }
+                }
+            });
 
             panelChatButton.addEventListener('click', () => {
                 if (selectedPromptId) {
