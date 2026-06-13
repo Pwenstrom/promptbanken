@@ -1948,6 +1948,7 @@ body.local-chat-enabled .card-actions .local-chat-btn {
 .admin-review-list article {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 1rem;
     padding: 1rem;
     border-bottom: 1px solid #edf1f6;
@@ -1967,6 +1968,23 @@ body.local-chat-enabled .card-actions .local-chat-btn {
 .admin-review-list small {
     color: #667085;
     font-size: 0.85rem;
+}
+
+.admin-review-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.admin-review-actions button {
+    border: 0;
+    border-radius: 6px;
+    background: #0f5ea8;
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 750;
+    padding: 0.45rem 0.65rem;
 }
 
 .admin-review-detail {

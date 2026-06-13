@@ -184,7 +184,12 @@ function renderPrompts() {
               <strong>${escapeHtml(item.title)}</strong>
               <span>${escapeHtml(item.category || 'Okategoriserad')} · ${escapeHtml(item.audience || 'Alla')}</span>
             </div>
-            <small>${escapeHtml(item.updated_at ? new Date(item.updated_at).toLocaleDateString('sv-SE') : '')}</small>
+            <div class="admin-review-actions">
+              <small>${escapeHtml(item.updated_at ? new Date(item.updated_at).toLocaleDateString('sv-SE') : '')}</small>
+              ${isAdminRole(state.profile.role) && item.status !== 'published'
+                ? `<button type="button" data-publish-prompt="${item.id}">Publicera</button>`
+                : ''}
+            </div>
           </article>
         `).join('')
       : '<p>Inga förslag väntar på granskning.</p>';
