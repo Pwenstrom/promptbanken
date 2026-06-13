@@ -11,18 +11,22 @@
     <main class="auth-shell" aria-labelledby="login-title">
         <section class="auth-panel">
             <a class="auth-brand" href="index.html">Promptbanken</a>
-            <p class="auth-kicker">Inloggat lage</p>
+            <p class="auth-kicker">Inloggat läge</p>
             <h1 id="login-title">Logga in</h1>
+            <div class="auth-tabs" aria-label="Inloggningsläge">
+                <button type="button" class="active" data-auth-mode="login">Logga in</button>
+                <button type="button" data-auth-mode="signup">Skapa free-konto</button>
+            </div>
             <form class="auth-form" data-login-form>
                 <label>
                     E-post
                     <input type="email" autocomplete="email" required data-login-email>
                 </label>
                 <label>
-                    Losenord
+                    Lösenord
                     <input type="password" autocomplete="current-password" required data-login-password>
                 </label>
-                <button type="submit">Logga in</button>
+                <button type="submit" data-auth-submit>Logga in</button>
                 <p class="auth-status" role="status" data-login-status></p>
             </form>
         </section>
