@@ -111,6 +111,41 @@
       "description": "Skriv ett tydligt informationsmeddelande med rubrik, sammanfattning och nästa steg.",
       "file": "prompts/informationsutskick.txt",
       "security_examples": ["Namn på berörda personer", "Känsliga detaljer om incidenter", "Interna systemnummer"]
+    },
+    {
+      "id": "enkel_infografik",
+      "title": "Enkel infografik",
+      "description": "Skapa en enkel visuell struktur för information, siffror eller viktiga punkter.",
+      "file": "prompts/enkel_infografik.txt",
+      "security_examples": ["Personuppgifter", "Felaktiga siffror", "Vilseledande visualisering"]
+    },
+    {
+      "id": "illustration_informationsutskick",
+      "title": "Illustration till informationsutskick",
+      "description": "Skapa en trygg och neutral bildidé till kommunalt informationsutskick.",
+      "file": "prompts/illustration_informationsutskick.txt",
+      "security_examples": ["Igenkännbara personer", "Känsliga situationer", "Verkliga logotyper"]
+    },
+    {
+      "id": "ikon_symbolbild",
+      "title": "Ikon / symbolbild",
+      "description": "Skapa en enkel ikon eller symbolbild för ett ämne, begrepp eller budskap.",
+      "file": "prompts/ikon_symbolbild.txt",
+      "security_examples": ["Myndighetssymboler", "Partipolitiska symboler", "Varumärkesliknande symboler"]
+    },
+    {
+      "id": "presentationstitelbild",
+      "title": "Presentationstitelbild",
+      "description": "Skapa en professionell och lugn titelbild till presentation, utbildning eller möte.",
+      "file": "prompts/presentationstitelbild.txt",
+      "security_examples": ["Igenkännbara personer", "Verkliga logotyper", "Känsliga händelser"]
+    },
+    {
+      "id": "alt_text_bild",
+      "title": "Alt-text till bild",
+      "description": "Skriv en kort och tillgänglig alt-text till en bild.",
+      "file": "prompts/alt_text_bild.txt",
+      "security_examples": ["Personuppgifter i bild", "Känslig information", "Ogrundade tolkningar"]
     }
   ]
 }

@@ -265,6 +265,7 @@
                 <div class="topbar-actions">
                     <a class="help-btn" href="help.html"><span class="app-icon" aria-hidden="true" data-icon="help"></span>Hjälp</a>
                     <a class="help-btn mcp-top-link" href="mcp.html"><span class="app-icon" aria-hidden="true" data-icon="network"></span>MCP</a>
+                    <a class="help-btn" href="login.html" id="auth-nav-link"><span class="app-icon" aria-hidden="true" data-icon="user"></span><span id="auth-nav-label">Logga in</span></a>
                     <div class="settings-menu">
             <button class="settings-gear" id="settings-gear" aria-label="Inställningar"><span class="app-icon" aria-hidden="true" data-icon="settings"></span></button>
             <div class="settings-dropdown hidden" id="settings-dropdown">
@@ -637,6 +638,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.3.1/html-docx.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     <script src="script.js?v=mobile-ux-panel" defer></script>
+    <script type="module">
+      import { supabase, hasSupabaseConfig } from '/src/supabaseClient.js';
+      if (hasSupabaseConfig) {
+        supabase.auth.getSession().then(({ data }) => {
+          const link = document.getElementById('auth-nav-link');
+          const label = document.getElementById('auth-nav-label');
+          if (data?.session) {
+            link.href = 'admin.html';
+            label.textContent = 'Min workspace';
+          }
+        });
+      }
+    </script>
     <script>
         (() => {
             const grid = document.getElementById('prompt-grid');

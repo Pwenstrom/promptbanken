@@ -4,8 +4,18 @@
   "private": true,
   "description": "Promptbanken MCP skill router",
   "scripts": {
+    "web:dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview",
     "dev": "node mcp-server/scripts/run-mcp.js",
+    "seed:test-users": "node scripts/seed-test-users.mjs",
     "setup:python": "node mcp-server/scripts/setup-python.js",
     "check:python": "node mcp-server/scripts/check-python.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.84.0"
+  },
+  "devDependencies": {
+    "vite": "7.3.5"
   }
 }

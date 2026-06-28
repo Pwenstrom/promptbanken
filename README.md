@@ -65,6 +65,29 @@ python -m http.server 8000
 # Backend docs: http://localhost:8001/docs
 ```
 
+### Testa inloggat läge lokalt
+
+Fas 1 använder Supabase Auth i frontend med publishable key. Använd aldrig
+`service_role` eller andra hemliga nycklar i frontend.
+
+1. Kopiera `.env.example` till `.env.local`.
+2. Fyll i:
+   ```bash
+   VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+   VITE_SUPABASE_PUBLISHABLE_KEY=<publishable-key>
+   ```
+3. Installera frontend-beroenden och starta Vite:
+   ```bash
+   npm install
+   npm run web:dev
+   ```
+4. Öppna `http://localhost:5173/login.html`.
+5. Logga in med en Supabase Auth-användare som har en rad i
+   `public.profiles` och en kopplad `public.workspaces`-rad.
+
+Om användaren finns i Auth men saknar profile visas:
+“Ditt konto är skapat men inte kopplat till en workspace ännu.”
+
 ### Community Edition på Windows med Docker (rekommenderat)
 Community Edition är local-first och använder endast Ollama via backend.
 

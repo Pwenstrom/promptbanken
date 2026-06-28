@@ -84,7 +84,12 @@
             anteckningar: { icon: '✎', category: 'Sammanfatta och strukturera', audience: 'Intern', role: 'Alla roller', risk: 'Låg risk', example: 'Mötesanteckningar, minnesstöd, lösa punkter och arbetsmaterial.', phrase: 'Strukturera dessa anteckningar till tydliga rubriker och åtgärder.' },
             diskussionsfragor: { icon: '☰', category: 'Möten och workshops', audience: 'Intern', role: 'Alla roller', risk: 'Låg risk', example: 'Arbetsplatsträffar, workshops, dialoger och gruppdiskussioner.', phrase: 'Skapa diskussionsfrågor som driver samtalet framåt.' },
             nyckelord: { icon: '#', category: 'Sammanfatta och strukturera', audience: 'Intern', role: 'Alla roller', risk: 'Låg risk', example: 'Dokument, rapporter och texter där centrala begrepp behöver hittas.', phrase: 'Extrahera nyckelord och centrala begrepp ur texten.' },
-            informationsutskick: { icon: '!', category: 'Svara och kommunicera', audience: 'Extern', role: 'Kommunikatör', risk: 'Medelrisk', example: 'Nyheter, driftinformation, utskick och information till invånare.', phrase: 'Skriv ett tydligt informationsutskick med rubrik och nästa steg.' }
+            informationsutskick: { icon: '!', category: 'Svara och kommunicera', audience: 'Extern', role: 'Kommunikatör', risk: 'Medelrisk', example: 'Nyheter, driftinformation, utskick och information till invånare.', phrase: 'Skriv ett tydligt informationsutskick med rubrik och nästa steg.' },
+            enkel_infografik: { icon: '▦', category: 'Bild och infografik', audience: 'Intern & extern', role: 'Kommunikatör', risk: 'Medelrisk', example: 'Information, siffror och viktiga punkter som behöver bli visuellt tydliga.', phrase: 'Skapa en enkel infografik av de här punkterna.' },
+            illustration_informationsutskick: { icon: '◫', category: 'Bild och infografik', audience: 'Extern', role: 'Kommunikatör', risk: 'Medelrisk', example: 'Informationsutskick där en neutral och trygg bildidé behövs.', phrase: 'Skapa en trygg bild till kommunal information.' },
+            ikon_symbolbild: { icon: '◇', category: 'Bild och infografik', audience: 'Intern & extern', role: 'Alla roller', risk: 'Låg risk', example: 'Begrepp, ämnen och budskap som behöver en enkel visuell symbol.', phrase: 'Föreslå en enkel visuell symbol.' },
+            presentationstitelbild: { icon: '▣', category: 'Bild och infografik', audience: 'Intern', role: 'Alla roller', risk: 'Låg risk', example: 'Presentationer, utbildningar och möten som behöver en lugn öppningsbild.', phrase: 'Skapa en professionell titelbild till presentation.' },
+            alt_text_bild: { icon: 'A', category: 'Bild och infografik', audience: 'Intern & extern', role: 'Alla roller', risk: 'Låg risk', example: 'Bilder som behöver tillgänglig alt-text eller längre bildbeskrivning.', phrase: 'Skriv en kort alt-text till bilden.' }
         };
 
         const mcpPromptMeta = {
@@ -103,7 +108,12 @@
             anteckningar: { icon: '✎', category: 'Möten och workshops', audiences: ['medarbetare', 'ledning'], roles: ['handläggare', 'sekreterare', 'chef'], risk: 'Medelrisk', example: 'Mötesanteckningar, beslut och att-göra-punkter.', phrase: 'Strukturera mina mötesanteckningar.' },
             diskussionsfragor: { icon: '☰', category: 'Möten och workshops', audiences: ['grupp', 'medarbetare'], roles: ['chef', 'facilitator', 'samordnare'], risk: 'Låg risk', example: 'Möten, workshops och gruppdiskussioner.', phrase: 'Skapa diskussionsfrågor.' },
             nyckelord: { icon: '#', category: 'Sammanfatta och strukturera', audiences: ['medarbetare'], roles: ['handläggare', 'kommunikatör', 'analytiker'], risk: 'Låg risk', example: 'Dokument och rapporter där viktiga begrepp behöver hittas.', phrase: 'Plocka ut nyckelord.' },
-            informationsutskick: { icon: '!', category: 'Svara och kommunicera', audiences: ['invånare', 'medarbetare', 'allmänhet'], roles: ['kommunikatör', 'handläggare', 'chef'], risk: 'Medelrisk', example: 'Nyheter, driftinformation och utskick.', phrase: 'Skriv ett informationsutskick.' }
+            informationsutskick: { icon: '!', category: 'Svara och kommunicera', audiences: ['invånare', 'medarbetare', 'allmänhet'], roles: ['kommunikatör', 'handläggare', 'chef'], risk: 'Medelrisk', example: 'Nyheter, driftinformation och utskick.', phrase: 'Skriv ett informationsutskick.' },
+            enkel_infografik: { icon: '▦', category: 'Bild och infografik', audiences: ['invånare', 'medarbetare', 'ledning', 'allmänhet'], roles: ['handläggare', 'kommunikatör', 'samordnare', 'chef'], risk: 'Medelrisk', example: 'Information, siffror och viktiga punkter som behöver bli visuellt tydliga.', phrase: 'Skapa en enkel infografik.' },
+            illustration_informationsutskick: { icon: '◫', category: 'Bild och infografik', audiences: ['invånare', 'medarbetare', 'vårdnadshavare', 'allmänhet'], roles: ['handläggare', 'kommunikatör', 'samordnare', 'chef'], risk: 'Medelrisk', example: 'Kommunala informationsutskick som behöver en neutral bildidé.', phrase: 'Skapa en bild till informationsutskick.' },
+            ikon_symbolbild: { icon: '◇', category: 'Bild och infografik', audiences: ['invånare', 'medarbetare', 'elever', 'vårdnadshavare', 'allmänhet'], roles: ['handläggare', 'kommunikatör', 'samordnare', 'chef', 'pedagog'], risk: 'Låg risk', example: 'Begrepp, ämnen och budskap som behöver en enkel visuell symbol.', phrase: 'Skapa en ikon för detta.' },
+            presentationstitelbild: { icon: '▣', category: 'Bild och infografik', audiences: ['medarbetare', 'ledning', 'grupp', 'deltagare'], roles: ['chef', 'samordnare', 'pedagog', 'kommunikatör', 'handläggare'], risk: 'Låg risk', example: 'Presentationer, utbildningar och möten som behöver en lugn öppningsbild.', phrase: 'Skapa en titelbild till presentation.' },
+            alt_text_bild: { icon: 'A', category: 'Bild och infografik', audiences: ['invånare', 'medarbetare', 'allmänhet', 'webbanvändare'], roles: ['kommunikatör', 'handläggare', 'administratör', 'samordnare', 'pedagog'], risk: 'Låg risk', example: 'Bilder som behöver tillgänglig alt-text eller längre bildbeskrivning.', phrase: 'Skriv alt-text till bilden.' }
         };
 
         const categoryIconMap = {
@@ -112,6 +122,7 @@
             'Svara och kommunicera': 'message',
             'Sammanfatta och strukturera': 'list',
             'Möten och workshops': 'users',
+            'Bild och infografik': 'image',
             'Alla kategorier': 'library'
         };
 
@@ -131,6 +142,11 @@
             diskussionsfragor: 'users',
             nyckelord: 'search',
             informationsutskick: 'message',
+            enkel_infografik: 'chart',
+            illustration_informationsutskick: 'image',
+            ikon_symbolbild: 'sparkles',
+            presentationstitelbild: 'image',
+            alt_text_bild: 'accessibility',
             tydlighetskoll: 'shield'
         };
 

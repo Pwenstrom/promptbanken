@@ -3,5 +3,10 @@ __pycache__/
 *.pyc
 .venv/
 mcp-server/.venv/
+node_modules/
+dist/
 .env
+.env.local
+.env.*.local
 backend/data/provider_secrets.db
+supabase/.temp/
