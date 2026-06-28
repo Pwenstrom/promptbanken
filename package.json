@@ -16,6 +16,7 @@
     "@supabase/supabase-js": "2.84.0"
   },
   "devDependencies": {
-    "vite": "7.3.5"
+    "vite": "7.3.5",
+    "vite-plugin-static-copy": "^4.1.1"
   }
 }

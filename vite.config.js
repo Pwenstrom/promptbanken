@@ -1,7 +1,19 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
+  plugins: [
+    viteStaticCopy({
+      targets: [
+        { src: 'prompts.json', dest: '.' },
+        { src: 'prompts', dest: '.' },
+        { src: 'script.js', dest: '.' },
+        { src: 'style.css', dest: '.' },
+        { src: '.nojekyll', dest: '.' },
+      ]
+    })
+  ],
   build: {
     rollupOptions: {
       input: {
