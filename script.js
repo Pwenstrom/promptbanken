@@ -123,6 +123,7 @@
             'Sammanfatta och strukturera': 'list',
             'Möten och workshops': 'users',
             'Bild och infografik': 'image',
+            'Bilder och infografik': 'image',
             'Alla kategorier': 'library'
         };
 
