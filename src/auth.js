@@ -47,7 +47,7 @@ export async function requireSession() {
 export function getRedirectTarget() {
   const params = new URLSearchParams(window.location.search);
   const redirect = params.get('redirect');
-  if (!redirect || redirect.startsWith('http') || redirect.startsWith('//')) {
+  if (!redirect || !/^[a-zA-Z0-9_-]+\.html$/.test(redirect)) {
     return 'admin.html';
   }
 
