@@ -7,7 +7,8 @@ Detta repo ar Promptbanken: en svensk kommunal promptkatalog med statisk/Vite-fr
 - Frontendens publika sidor ligger i root: `index.html`, `promptbanken.html`, `prompts.html`, `help.html`, `mcp.html`, `providers.html`, `local-chat.html`.
 - Stora frontendfiler: `script.js` och `style.css`. Gor sma, riktade andringar och sok efter befintliga funktioner/klasser innan du lagger till nya monster.
 - Modern modulbaserad auth/admin-frontend ligger i `src/`: `supabaseClient.js`, `auth.js`, `login.js`, `admin.js`.
-- Vite bygger flera HTML-ingangar via `vite.config.js`: `index.html`, `login.html`, `admin.html`.
+- Vite bygger flera HTML-ingangar via `vite.config.js`: alla `.html`-filer i rooten inkluderas som rollupOptions.input.
+- `vite-plugin-static-copy` kopierar `prompts.json`, `prompts/`, `script.js`, `style.css` och `.nojekyll` till `dist/`. Vite kopierar INTE statiska rotfiler automatiskt utan detta plugin — lagg till nya statiska filer i vite.config.js om de behovs pa den deployade sidan.
 - Backend for lokal LLM-gateway ligger i `backend/app/`. Startpunkt: `backend/app/main.py`.
 - MCP-servern ligger i `mcp-server/`. Den har egen `server/`, `prompts/`, `scripts/`, `requirements.txt` och `package.json`.
 - Prompttext finns dubbelt: `prompts/*.txt` for huvudprojektet och `mcp-server/prompts/*.txt` for MCP-paketet. Hall dem synkade nar en prompt ska galla bada ytorna.
@@ -79,7 +80,10 @@ Det finns inga tydliga repo-tester for all frontend/backendlogik. Nar automatisk
 - `README.md` innehaller mojibake i vissa avsnitt. Tolka projektets avsikt fran koden och andra filer innan du mekaniskt kopierar text darifran.
 - `node_modules/` och `dist/` kan finnas lokalt. Andra inte genererade eller installerade filer om inte uppgiften uttryckligen kraver det.
 - Rootens `package.json` startar MCP via wrapper-skript i `mcp-server/scripts/`; `mcp-server/package.json` gor motsvarande fran undermappen.
-- GitHub Pages deployar root-katalogen via `.github/workflows/pages.yml`; var forsiktig med filnamn och relativa lankar i statiska HTML-filer.
+- GitHub Actions bygger via `.github/workflows/deploy.yml` och deployar `dist/` till GitHub Pages. Pages-kallan maste vara satt till "GitHub Actions" i repo-installningarna, inte "Deploy from branch".
+- `import.meta.env.VITE_*`-variabler bakas in vid bygget — de kravs som GitHub Secrets (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`) i repot; annars ar de undefined pa live-sidan.
+- `script.js` och `style.css` ar INTE bundlade av Vite (de innehaller inga ES-moduler). De kopieras som-ar till `dist/` via vite-plugin-static-copy och maste inte ha `import`-satser.
+- Om `prompts.json` eller `prompts/*.txt` saknas i `dist/` visar `promptbanken.html` "0 prompter / 0 kategorier" och fastnar pa "Laddar". Verifiera alltid med `ls dist/prompts/` efter ett bygge.
 - Lokalt inloggat lage kraver bade Supabase Auth-anvandare, `public.profiles` och kopplad `public.workspaces`-rad.
 
 ## Rekommenderad arbetsordning for kodagenter
