@@ -86,6 +86,18 @@ if (form) {
   form.addEventListener('submit', handleLogin);
 }
 
+const googleButton = document.querySelector('[data-google-signin]');
+if (googleButton) {
+  googleButton.addEventListener('click', async () => {
+    if (!requireSupabaseConfig(statusElement)) return;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/admin.html' }
+    });
+    if (error) setStatus(error.message || 'Kunde inte starta Google-inloggning.', true);
+  });
+}
+
 modeButtons.forEach((button) => {
   button.addEventListener('click', () => setAuthMode(button.dataset.authMode));
 });
