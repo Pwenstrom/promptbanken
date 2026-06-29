@@ -53,6 +53,10 @@ function apiEnabled() {
   return state.workspace?.api_enabled === true;
 }
 
+function mcpEnabled() {
+  return state.workspace?.mcp_enabled === true;
+}
+
 function maxPrompts() {
   return state.workspace?.max_prompts ?? 3;
 }
@@ -139,6 +143,11 @@ function renderCapabilityState() {
   const apiUnlocked = document.querySelector('[data-api-unlocked]');
   if (apiLocked) apiLocked.hidden = apiEnabled();
   if (apiUnlocked) apiUnlocked.hidden = !apiEnabled();
+
+  const mcpLocked = document.querySelector('[data-mcp-locked]');
+  const mcpUnlocked = document.querySelector('[data-mcp-unlocked]');
+  if (mcpLocked) mcpLocked.hidden = mcpEnabled();
+  if (mcpUnlocked) mcpUnlocked.hidden = !mcpEnabled();
 }
 
 function renderPlanInfo() {
@@ -320,6 +329,12 @@ function renderMcpKeys() {
 }
 
 async function loadMcpKeys() {
+  if (!isAdminRole(state.profile.role)) {
+    state.mcpKeys = [];
+    renderMcpKeys();
+    return;
+  }
+
   const { data, error } = await supabase
     .from('api_keys')
     .select('id, name, key_prefix, scopes, revoked_at, created_at')
@@ -334,6 +349,15 @@ async function loadMcpKeys() {
 
 async function createMcpKey(event) {
   event.preventDefault();
+  if (!isAdminRole(state.profile.role)) {
+    setStatus('Din roll får inte skapa MCP-nycklar.', true);
+    return;
+  }
+  if (!mcpEnabled()) {
+    setStatus('MCP är inte aktiverat för det här workspacet.', true);
+    return;
+  }
+
   const formData = new FormData(mcpKeyForm);
   const name = formData.get('name')?.toString().trim();
   if (!name) {
