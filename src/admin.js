@@ -783,8 +783,14 @@ async function logout() {
   const { error } = await supabase.auth.signOut();
   if (error && error.name !== 'AuthSessionMissingError') {
     setStatus(error.message || 'Kunde inte logga ut.', true);
-    return;
   }
+
+  // signOut() can bail out before clearing the local token (e.g. when it
+  // first finds the session already invalid), leaving a stale token in
+  // storage that bounces login.html straight back here. Clear it directly.
+  Object.keys(window.localStorage)
+    .filter((key) => /^sb-.*-auth-token$/.test(key))
+    .forEach((key) => window.localStorage.removeItem(key));
 
   window.location.replace('login.html');
 }
