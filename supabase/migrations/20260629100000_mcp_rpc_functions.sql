@@ -76,9 +76,9 @@ declare
     v_workspace public.workspaces%rowtype;
 begin
     select * into v_workspace
-    from public.workspaces
-    where id = p_workspace_id
-      and status = 'active';
+    from public.workspaces w
+    where w.id = p_workspace_id
+      and w.status = 'active';
 
     if not found then
         return;
