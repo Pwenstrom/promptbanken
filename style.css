@@ -1650,6 +1650,19 @@ body.local-chat-enabled .card-actions .local-chat-btn {
     gap: 0.5rem;
 }
 
+.field-error {
+    color: #b91c1c;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.workspace-form input.is-invalid,
+.workspace-form textarea.is-invalid,
+.workspace-form select.is-invalid {
+    border-color: #b91c1c;
+    background: #fef2f2;
+}
+
 .workspace-table-wrap {
     width: 100%;
     overflow-x: auto;

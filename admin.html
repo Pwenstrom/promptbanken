@@ -183,7 +183,8 @@
                         <form class="workspace-form" data-prompt-form>
                             <label>
                                 Titel
-                                <input name="title" required>
+                                <input name="title" required minlength="2">
+                                <small class="field-error" data-field-error="title" hidden></small>
                             </label>
                             <label>
                                 Slug
@@ -219,7 +220,8 @@
                             </label>
                             <label class="workspace-form-wide">
                                 Prompttext
-                                <textarea name="content" rows="5" required></textarea>
+                                <textarea name="content" rows="5" required minlength="10"></textarea>
+                                <small class="field-error" data-field-error="content" hidden></small>
                             </label>
                             <div class="workspace-form-actions">
                                 <button type="submit" data-prompt-form-submit>Spara utkast</button>

@@ -103,6 +103,41 @@ function showSecret(name, rawKey) {
   if (panel) panel.hidden = false;
 }
 
+function setFieldError(fieldName, message) {
+  const input = promptForm?.querySelector(`[name="${fieldName}"]`);
+  const errorEl = promptForm?.querySelector(`[data-field-error="${fieldName}"]`);
+  if (input) input.classList.toggle('is-invalid', Boolean(message));
+  if (errorEl) {
+    errorEl.textContent = message || '';
+    errorEl.hidden = !message;
+  }
+}
+
+function clearFieldErrors() {
+  promptForm?.querySelectorAll('[data-field-error]').forEach((el) => {
+    el.hidden = true;
+    el.textContent = '';
+  });
+  promptForm?.querySelectorAll('.is-invalid').forEach((el) => el.classList.remove('is-invalid'));
+}
+
+function validatePromptForm({ title, content }) {
+  clearFieldErrors();
+  let isValid = true;
+
+  if (!title || title.length < 2) {
+    setFieldError('title', 'Titel krävs (minst 2 tecken).');
+    isValid = false;
+  }
+
+  if (!content || content.length < 10) {
+    setFieldError('content', 'Prompttext krävs (minst 10 tecken).');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
 function emptyRow(colspan, text) {
   return `<tr><td colspan="${colspan}">${text}</td></tr>`;
 }
@@ -576,6 +611,7 @@ function startEditPrompt(promptId) {
 function cancelEditPrompt() {
   state.editingPromptId = null;
   promptForm.reset();
+  clearFieldErrors();
   if (promptFormSubmit) promptFormSubmit.textContent = 'Spara utkast';
   if (promptFormCancel) promptFormCancel.hidden = true;
 }
@@ -612,8 +648,8 @@ async function savePromptUnsafe() {
     visibility = allowedVisibilityOptions()[0][0];
   }
 
-  if (!title || !content || !slug) {
-    setStatus('Titel, slug och prompttext krävs.', true);
+  if (!validatePromptForm({ title, content })) {
+    setStatus('Rätta fälten som är markerade nedan.', true);
     return;
   }
 
@@ -842,6 +878,9 @@ if (logoutButton) {
 
 if (promptForm) {
   promptForm.addEventListener('submit', savePrompt);
+  promptForm.querySelectorAll('[name="title"], [name="content"]').forEach((field) => {
+    field.addEventListener('input', () => setFieldError(field.name, ''));
+  });
 }
 
 if (promptFormCancel) {
