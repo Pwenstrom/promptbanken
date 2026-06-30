@@ -572,11 +572,25 @@ function cancelEditPrompt() {
 
 async function savePrompt(event) {
   event.preventDefault();
+
+  if (!state.profile || !state.workspace) {
+    setStatus('Workspace är inte laddat än. Vänta tills sidan laddat klart och försök igen.', true);
+    return;
+  }
+
   if (!canEdit(state.profile.role)) {
     setStatus('Din roll får inte skapa prompts.', true);
     return;
   }
 
+  try {
+    await savePromptUnsafe();
+  } catch (error) {
+    setStatus(error?.message || 'Kunde inte spara prompt (oväntat fel).', true);
+  }
+}
+
+async function savePromptUnsafe() {
   const formData = new FormData(promptForm);
   const title = formData.get('title')?.toString().trim();
   const content = formData.get('content')?.toString().trim();
