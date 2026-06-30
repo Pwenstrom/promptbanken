@@ -240,6 +240,9 @@ function renderPrompts() {
             ${isAdminRole(state.profile.role) && item.status !== 'published'
               ? `<button type="button" data-publish-prompt="${item.id}">Publicera</button>`
               : ''}
+            ${item.status !== 'published'
+              ? `<button type="button" data-delete-prompt="${item.id}">Ta bort</button>`
+              : ''}
           </td>
         </tr>
       `).join('')
@@ -631,6 +634,30 @@ async function savePrompt(event) {
   await loadPrompts();
 }
 
+async function deletePrompt(promptId) {
+  if (!window.confirm('Ta bort den här prompten? Det går inte att ångra.')) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from('content_items')
+    .delete()
+    .eq('id', promptId)
+    .eq('workspace_id', state.workspace.id);
+
+  if (error) {
+    setStatus(error.message || 'Kunde inte ta bort prompt.', true);
+    return;
+  }
+
+  if (state.editingPromptId === promptId) {
+    cancelEditPrompt();
+  }
+
+  setStatus('Prompten togs bort.');
+  await loadPrompts();
+}
+
 async function publishPrompt(promptId) {
   if (!isAdminRole(state.profile.role)) {
     setStatus('Din roll får inte publicera.', true);
@@ -781,6 +808,7 @@ refreshButtons.forEach((button) => {
 document.addEventListener('click', (event) => {
   const publishButton = event.target.closest('[data-publish-prompt]');
   const editButton = event.target.closest('[data-edit-prompt]');
+  const deleteButton = event.target.closest('[data-delete-prompt]');
   const revokeButton = event.target.closest('[data-revoke-api-key]');
 
   const revokeMcpButton = event.target.closest('[data-revoke-mcp-key]');
@@ -792,6 +820,10 @@ document.addEventListener('click', (event) => {
 
   if (editButton) {
     startEditPrompt(editButton.dataset.editPrompt);
+  }
+
+  if (deleteButton) {
+    deletePrompt(deleteButton.dataset.deletePrompt);
   }
 
   if (revokeButton) {
