@@ -1681,6 +1681,38 @@ body.local-chat-enabled .card-actions .local-chat-btn {
     font-size: 0.9rem;
 }
 
+.secret-reveal {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #f5c542;
+    background: #fffbeb;
+    border-radius: 8px;
+}
+
+.secret-reveal-warning {
+    margin: 0 0 0.5rem;
+    color: #92400e;
+    font-size: 0.85rem;
+}
+
+.secret-reveal-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.secret-reveal-row code {
+    flex: 1;
+    overflow-wrap: anywhere;
+    color: #0f5ea8;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.9rem;
+}
+
+.secret-reveal-row button {
+    flex-shrink: 0;
+}
+
 /* Admin workspace */
 .admin-workspace-page {
     background: #f6f8fb;

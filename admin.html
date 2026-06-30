@@ -287,7 +287,13 @@
                                 </label>
                                 <button type="submit">Skapa MCP-nyckel</button>
                             </form>
-                            <p class="workspace-secret" data-new-mcp-key></p>
+                            <div class="secret-reveal" data-new-mcp-key-panel hidden>
+                                <p class="secret-reveal-warning">⚠️ Nyckeln visas bara just nu och går inte att se igen. Spara den säkert (t.ex. i en lösenordshanterare) innan du lämnar sidan.</p>
+                                <div class="secret-reveal-row">
+                                    <code data-new-mcp-key></code>
+                                    <button type="button" data-copy-secret="new-mcp-key">Kopiera</button>
+                                </div>
+                            </div>
                             <div class="workspace-table-wrap">
                                 <table class="workspace-table">
                                     <thead>
@@ -328,7 +334,13 @@
                                 </label>
                                 <button type="submit">Skapa API-nyckel</button>
                             </form>
-                            <p class="workspace-secret" data-new-api-key></p>
+                            <div class="secret-reveal" data-new-api-key-panel hidden>
+                                <p class="secret-reveal-warning">⚠️ Nyckeln visas bara just nu och går inte att se igen. Spara den säkert (t.ex. i en lösenordshanterare) innan du lämnar sidan.</p>
+                                <div class="secret-reveal-row">
+                                    <code data-new-api-key></code>
+                                    <button type="button" data-copy-secret="new-api-key">Kopiera</button>
+                                </div>
+                            </div>
                             <div class="workspace-table-wrap">
                                 <table class="workspace-table">
                                     <thead>

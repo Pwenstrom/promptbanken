@@ -88,6 +88,12 @@ function setText(selector, value) {
   });
 }
 
+function showSecret(name, rawKey) {
+  const panel = document.querySelector(`[data-new-${name}-panel]`);
+  setText(`[data-new-${name}]`, rawKey);
+  if (panel) panel.hidden = false;
+}
+
 function emptyRow(colspan, text) {
   return `<tr><td colspan="${colspan}">${text}</td></tr>`;
 }
@@ -390,7 +396,7 @@ async function createMcpKey(event) {
   }
 
   mcpKeyForm.reset();
-  setText('[data-new-mcp-key]', rawKey);
+  showSecret('mcp-key', rawKey);
   setStatus('MCP-nyckeln skapades. Kopiera den nu, den visas bara en gång.');
   await loadMcpKeys();
 }
@@ -643,7 +649,7 @@ async function createApiKey(event) {
   }
 
   apiKeyForm.reset();
-  setText('[data-new-api-key]', rawKey);
+  showSecret('api-key', rawKey);
   setStatus('API-nyckeln skapades. Kopiera den nu, den visas bara här.');
   await loadApiKeys();
 }
@@ -724,6 +730,7 @@ document.addEventListener('click', (event) => {
   const revokeButton = event.target.closest('[data-revoke-api-key]');
 
   const revokeMcpButton = event.target.closest('[data-revoke-mcp-key]');
+  const copySecretButton = event.target.closest('[data-copy-secret]');
 
   if (publishButton) {
     publishPrompt(publishButton.dataset.publishPrompt);
@@ -735,6 +742,16 @@ document.addEventListener('click', (event) => {
 
   if (revokeMcpButton) {
     revokeMcpKey(revokeMcpButton.dataset.revokeMcpKey);
+  }
+
+  if (copySecretButton) {
+    const name = copySecretButton.dataset.copySecret;
+    const value = document.querySelector(`[data-${name}]`)?.textContent;
+    if (value) {
+      navigator.clipboard.writeText(value)
+        .then(() => setStatus('Kopierad till urklipp.'))
+        .catch(() => setStatus('Kunde inte kopiera, markera och kopiera manuellt.', true));
+    }
   }
 });
 
