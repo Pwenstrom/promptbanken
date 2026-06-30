@@ -204,6 +204,14 @@
                                 Målgrupp
                                 <input name="audience">
                             </label>
+                            <label>
+                                Risknivå
+                                <select name="risk_level">
+                                    <option value="low">Låg risk</option>
+                                    <option value="medium">Medelrisk</option>
+                                    <option value="high">Hög risk</option>
+                                </select>
+                            </label>
                             <label class="workspace-form-wide">
                                 Sammanfattning
                                 <input name="summary">
@@ -212,7 +220,10 @@
                                 Prompttext
                                 <textarea name="content" rows="5" required></textarea>
                             </label>
-                            <button type="submit">Spara utkast</button>
+                            <div class="workspace-form-actions">
+                                <button type="submit" data-prompt-form-submit>Spara utkast</button>
+                                <button type="button" data-prompt-form-cancel hidden>Avbryt redigering</button>
+                            </div>
                         </form>
                         <div class="workspace-table-wrap">
                             <table class="workspace-table">
@@ -221,6 +232,7 @@
                                         <th>Titel</th>
                                         <th>Status</th>
                                         <th>Synlighet</th>
+                                        <th>Risknivå</th>
                                         <th>Uppdaterad</th>
                                         <th>Åtgärd</th>
                                     </tr>

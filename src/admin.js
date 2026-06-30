@@ -16,7 +16,14 @@ const state = {
   prompts: [],
   members: [],
   apiKeys: [],
-  mcpKeys: []
+  mcpKeys: [],
+  editingPromptId: null
+};
+
+const riskLabels = {
+  low: 'Låg risk',
+  medium: 'Medelrisk',
+  high: 'Hög risk'
 };
 
 const statusElement = document.querySelector('[data-admin-status]');
@@ -28,6 +35,8 @@ const apiKeyForm = document.querySelector('[data-api-key-form]');
 const mcpKeyForm = document.querySelector('[data-mcp-key-form]');
 const refreshButtons = document.querySelectorAll('[data-refresh]');
 const visibilitySelect = promptForm?.querySelector('select[name="visibility"]');
+const promptFormSubmit = promptForm?.querySelector('[data-prompt-form-submit]');
+const promptFormCancel = promptForm?.querySelector('[data-prompt-form-cancel]');
 
 function isAdminRole(role) {
   return ['workspace_admin', 'workspace_owner', 'platform_owner'].includes(role);
@@ -222,15 +231,19 @@ function renderPrompts() {
           <td>${escapeHtml(item.title)}</td>
           <td>${escapeHtml(item.status)}</td>
           <td>${escapeHtml(item.visibility)}</td>
+          <td>${escapeHtml(riskLabels[item.risk_level] || riskLabels.low)}</td>
           <td>${escapeHtml(item.updated_at ? new Date(item.updated_at).toLocaleDateString('sv-SE') : '')}</td>
           <td>
+            ${item.status !== 'published'
+              ? `<button type="button" data-edit-prompt="${item.id}">Redigera</button>`
+              : ''}
             ${isAdminRole(state.profile.role) && item.status !== 'published'
               ? `<button type="button" data-publish-prompt="${item.id}">Publicera</button>`
               : ''}
           </td>
         </tr>
       `).join('')
-    : emptyRow(5, 'Inga egna prompts ännu.');
+    : emptyRow(6, 'Inga egna prompts ännu.');
 
   libraryBody.innerHTML = publishedPrompts.length
     ? publishedPrompts.map((item) => `
@@ -468,7 +481,7 @@ async function loadProfile(user) {
 async function loadPrompts() {
   const { data, error } = await supabase
     .from('content_items')
-    .select('id, title, slug, summary, status, visibility, category, audience, owner_user_id, created_by, published_at, updated_at')
+    .select('id, title, slug, summary, content, status, visibility, category, audience, risk_level, owner_user_id, created_by, published_at, updated_at')
     .eq('workspace_id', state.workspace.id)
     .order('updated_at', { ascending: false });
 
@@ -522,7 +535,33 @@ async function refreshWorkspaceData() {
   setStatus('');
 }
 
-async function createPrompt(event) {
+function startEditPrompt(promptId) {
+  const item = state.prompts.find((p) => p.id === promptId);
+  if (!item) return;
+
+  state.editingPromptId = promptId;
+  promptForm.querySelector('[name="title"]').value = item.title || '';
+  promptForm.querySelector('[name="slug"]').value = item.slug || '';
+  promptForm.querySelector('[name="visibility"]').value = item.visibility || 'private';
+  promptForm.querySelector('[name="category"]').value = item.category || '';
+  promptForm.querySelector('[name="audience"]').value = item.audience || '';
+  promptForm.querySelector('[name="risk_level"]').value = item.risk_level || 'low';
+  promptForm.querySelector('[name="summary"]').value = item.summary || '';
+  promptForm.querySelector('[name="content"]').value = item.content || '';
+
+  if (promptFormSubmit) promptFormSubmit.textContent = 'Spara ändringar';
+  if (promptFormCancel) promptFormCancel.hidden = false;
+  promptForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelEditPrompt() {
+  state.editingPromptId = null;
+  promptForm.reset();
+  if (promptFormSubmit) promptFormSubmit.textContent = 'Spara utkast';
+  if (promptFormCancel) promptFormCancel.hidden = true;
+}
+
+async function savePrompt(event) {
   event.preventDefault();
   if (!canEdit(state.profile.role)) {
     setStatus('Din roll får inte skapa prompts.', true);
@@ -533,6 +572,7 @@ async function createPrompt(event) {
   const title = formData.get('title')?.toString().trim();
   const content = formData.get('content')?.toString().trim();
   const slug = slugify(formData.get('slug')?.toString().trim() || title);
+  const riskLevel = formData.get('risk_level')?.toString() || 'low';
   let visibility = formData.get('visibility')?.toString() || 'private';
 
   if (!allowedVisibilityOptions().some(([value]) => value === visibility)) {
@@ -544,7 +584,9 @@ async function createPrompt(event) {
     return;
   }
 
-  if (state.workspace?.type === 'personal') {
+  const editingId = state.editingPromptId;
+
+  if (!editingId && state.workspace?.type === 'personal') {
     const activeOwnPrompts = state.prompts.filter((item) => (
       item.status !== 'archived'
       && (item.owner_user_id === state.user.id || item.created_by === state.user.id)
@@ -557,28 +599,35 @@ async function createPrompt(event) {
     }
   }
 
-  const { error } = await supabase.from('content_items').insert({
-    workspace_id: state.workspace.id,
-    owner_user_id: state.user.id,
-    type: 'prompt',
+  const payload = {
     title,
     slug,
     summary: formData.get('summary')?.toString().trim() || null,
     content,
-    status: 'draft',
     visibility,
     category: formData.get('category')?.toString().trim() || null,
     audience: formData.get('audience')?.toString().trim() || null,
-    created_by: state.user.id
-  });
+    risk_level: riskLevel
+  };
+
+  const { error } = editingId
+    ? await supabase.from('content_items').update(payload).eq('id', editingId)
+    : await supabase.from('content_items').insert({
+        ...payload,
+        workspace_id: state.workspace.id,
+        owner_user_id: state.user.id,
+        type: 'prompt',
+        status: 'draft',
+        created_by: state.user.id
+      });
 
   if (error) {
-    setStatus(error.message || 'Kunde inte skapa prompt.', true);
+    setStatus(error.message || 'Kunde inte spara prompt.', true);
     return;
   }
 
-  promptForm.reset();
-  setStatus('Prompten sparades som utkast.');
+  cancelEditPrompt();
+  setStatus(editingId ? 'Prompten uppdaterades.' : 'Prompten sparades som utkast.');
   await loadPrompts();
 }
 
@@ -708,7 +757,11 @@ if (logoutButton) {
 }
 
 if (promptForm) {
-  promptForm.addEventListener('submit', createPrompt);
+  promptForm.addEventListener('submit', savePrompt);
+}
+
+if (promptFormCancel) {
+  promptFormCancel.addEventListener('click', cancelEditPrompt);
 }
 
 if (apiKeyForm) {
@@ -727,6 +780,7 @@ refreshButtons.forEach((button) => {
 
 document.addEventListener('click', (event) => {
   const publishButton = event.target.closest('[data-publish-prompt]');
+  const editButton = event.target.closest('[data-edit-prompt]');
   const revokeButton = event.target.closest('[data-revoke-api-key]');
 
   const revokeMcpButton = event.target.closest('[data-revoke-mcp-key]');
@@ -734,6 +788,10 @@ document.addEventListener('click', (event) => {
 
   if (publishButton) {
     publishPrompt(publishButton.dataset.publishPrompt);
+  }
+
+  if (editButton) {
+    startEditPrompt(editButton.dataset.editPrompt);
   }
 
   if (revokeButton) {

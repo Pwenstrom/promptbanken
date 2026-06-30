@@ -1644,6 +1644,12 @@ body.local-chat-enabled .card-actions .local-chat-btn {
     grid-column: 1 / -1;
 }
 
+.workspace-form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0.5rem;
+}
+
 .workspace-table-wrap {
     width: 100%;
     overflow-x: auto;
