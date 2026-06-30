@@ -117,7 +117,7 @@ function escapeHtml(value) {
 }
 
 function slugify(value) {
-  return value
+  const base = (value || '')
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -127,6 +127,16 @@ function slugify(value) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 90);
+
+  // content_items_slug_format requires at least 3 chars, starting and
+  // ending alphanumeric -- short titles (e.g. "AI") or titles made up
+  // only of stripped characters would otherwise violate that constraint.
+  if (base.length >= 3) {
+    return base;
+  }
+
+  const suffix = Math.random().toString(36).slice(2, 8);
+  return base ? `${base}-${suffix}` : `prompt-${suffix}`;
 }
 
 function renderRoleMode(role) {
