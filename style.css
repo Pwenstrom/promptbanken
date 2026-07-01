@@ -1589,6 +1589,29 @@ body.local-chat-enabled .card-actions .local-chat-btn {
     font-size: 1.05rem;
 }
 
+.workspace-section-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.admin-danger-note {
+    color: #667085;
+    font-size: 0.9rem;
+    margin: 0 0 0.75rem;
+}
+
+.workspace-section button.danger-btn {
+    background: #fee2e2;
+    color: #b42318;
+    border: 1px solid #fca5a5;
+}
+
+.workspace-section button.danger-btn:hover {
+    background: #fecaca;
+}
+
 .workspace-section button,
 .workspace-form button,
 .workspace-table button {

@@ -141,6 +141,17 @@
                         </section>
                     </div>
 
+                    <section class="workspace-section admin-danger-section" id="konto">
+                        <div class="workspace-section-heading">
+                            <div>
+                                <h2>Radera mitt konto</h2>
+                                <p>Tar bort ditt konto, ditt privata workspace och alla dina egna prompts permanent. Går inte att ångra.</p>
+                            </div>
+                        </div>
+                        <p class="admin-danger-note">Tips: exportera dina prompts under "Mina prompts" innan du raderar kontot — de går inte att återfå efteråt.</p>
+                        <button type="button" class="danger-btn" data-delete-account>Radera mitt konto</button>
+                    </section>
+
                     <section class="workspace-section" id="bibliotek">
                         <div class="workspace-section-heading">
                             <div>
@@ -178,7 +189,10 @@
                                 <p>Skapa utkast och publicera när rollen tillåter det.</p>
                                 <p data-prompt-limit-note>Free-läge: du kan skapa upp till 3 privata prompts.</p>
                             </div>
-                            <button type="button" data-refresh>Uppdatera</button>
+                            <div class="workspace-section-actions">
+                                <button type="button" data-export-my-prompts>Exportera mina prompts</button>
+                                <button type="button" data-refresh>Uppdatera</button>
+                            </div>
                         </div>
                         <form class="workspace-form" data-prompt-form>
                             <label>

@@ -699,6 +699,47 @@ async function savePromptUnsafe() {
   await loadPrompts();
 }
 
+function exportMyPrompts() {
+  const ownPrompts = state.prompts.filter((item) => (
+    item.owner_user_id === state.user.id || item.created_by === state.user.id
+  ));
+
+  if (!ownPrompts.length) {
+    setStatus('Du har inga egna prompts att exportera än.', true);
+    return;
+  }
+
+  const exportPayload = {
+    exported_at: new Date().toISOString(),
+    user_email: state.user.email,
+    workspace: state.workspace.name,
+    prompts: ownPrompts.map((item) => ({
+      title: item.title,
+      slug: item.slug,
+      summary: item.summary,
+      content: item.content,
+      status: item.status,
+      visibility: item.visibility,
+      category: item.category,
+      audience: item.audience,
+      risk_level: item.risk_level,
+      updated_at: item.updated_at
+    }))
+  };
+
+  const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `promptbanken-mina-prompts-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+
+  setStatus(`Exporterade ${ownPrompts.length} prompt(s).`);
+}
+
 async function deletePrompt(promptId) {
   if (!window.confirm('Ta bort den här prompten? Det går inte att ångra.')) {
     return;
@@ -816,6 +857,38 @@ async function createApiKey(event) {
   await loadApiKeys();
 }
 
+async function deleteAccount() {
+  const confirmed = window.confirm(
+    'Radera ditt konto permanent? Ditt privata workspace och alla dina egna prompts tas bort och går inte att återfå. ' +
+    'Har du redan exporterat dina prompts om du vill spara dem?'
+  );
+  if (!confirmed) {
+    return;
+  }
+
+  setStatus('Raderar konto...');
+
+  const { data: sessionData } = await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  if (!accessToken) {
+    setStatus('Ingen giltig session hittades. Logga in igen och försök på nytt.', true);
+    return;
+  }
+
+  const { data, error } = await supabase.functions.invoke('delete-account', {
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+
+  if (error) {
+    const message = data?.error || error.message || 'Kunde inte radera kontot.';
+    setStatus(message, true);
+    return;
+  }
+
+  await supabase.auth.signOut();
+  window.location.assign('login.html');
+}
+
 async function revokeApiKey(keyId) {
   if (!isAdminRole(state.profile.role)) {
     setStatus('Din roll får inte återkalla API-nycklar.', true);
@@ -892,6 +965,16 @@ if (apiKeyForm) {
 
 if (mcpKeyForm) {
   mcpKeyForm.addEventListener('submit', createMcpKey);
+}
+
+const exportMyPromptsButton = document.querySelector('[data-export-my-prompts]');
+if (exportMyPromptsButton) {
+  exportMyPromptsButton.addEventListener('click', exportMyPrompts);
+}
+
+const deleteAccountButton = document.querySelector('[data-delete-account]');
+if (deleteAccountButton) {
+  deleteAccountButton.addEventListener('click', deleteAccount);
 }
 
 refreshButtons.forEach((button) => {
