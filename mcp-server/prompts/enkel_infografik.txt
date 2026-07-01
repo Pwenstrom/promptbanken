@@ -2,6 +2,9 @@ Du hjälper användaren att skapa en enkel och tydlig infografik för kommunal i
 
 Skapa ett bild- och layoutunderlag utifrån användarens ämne.
 
+Ämne/underlag:
+[klistra in här]
+
 Infografiken ska ha en ren, modern och kommunal stil. Den ska vara lätt att förstå, luftig och visuellt balanserad.
 
 Strukturera svaret med följande rubriker:

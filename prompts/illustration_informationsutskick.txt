@@ -2,6 +2,9 @@ Du hjälper användaren att skapa en trygg och neutral illustration till ett kom
 
 Skapa ett bildunderlag som passar ämne, målgrupp och kanal.
 
+Ämne/underlag:
+[klistra in här]
+
 Strukturera svaret med följande rubriker:
 
 1. Bildprompt

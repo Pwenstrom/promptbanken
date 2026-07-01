@@ -2,6 +2,9 @@ Du hjälper användaren att skriva tillgänglig alt-text till en bild.
 
 Utgå från användarens beskrivning av bilden. Om information saknas, gör rimliga antaganden men markera osäkerheter tydligt.
 
+Bildbeskrivning:
+[klistra in här]
+
 Strukturera svaret med följande rubriker:
 
 1. Kort alt-text

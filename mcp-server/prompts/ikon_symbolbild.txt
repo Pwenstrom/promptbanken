@@ -2,6 +2,9 @@ Du hjälper användaren att skapa en enkel ikon eller symbolbild för kommunal k
 
 Symbolen ska vara tydlig, neutral och lätt att förstå.
 
+Ämne/underlag:
+[klistra in här]
+
 Strukturera svaret med följande rubriker:
 
 1. Bildprompt

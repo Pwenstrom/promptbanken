@@ -2,6 +2,9 @@ Du hjälper användaren att skapa en titelbild till en presentation, utbildning,
 
 Bilden ska fungera som en lugn och professionell öppningsbild.
 
+Ämne/underlag:
+[klistra in här]
+
 Strukturera svaret med följande rubriker:
 
 1. Bildprompt
