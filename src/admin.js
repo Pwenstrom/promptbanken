@@ -662,8 +662,7 @@ async function savePromptUnsafe() {
     )).length;
     const limit = maxPrompts();
     if (activeOwnPrompts >= limit) {
-      const plan = state.workspace.plan ?? 'free';
-      setStatus(`Du har nått gränsen på ${limit} prompts för ${plan}-planen.`, true);
+      setStatus(`Du har skapat max antal prompts (${limit} st). Ta bort en prompt eller uppgradera för att skapa fler.`, true);
       return;
     }
   }
@@ -939,8 +938,17 @@ document.addEventListener('click', (event) => {
     const name = copySecretButton.dataset.copySecret;
     const value = document.querySelector(`[data-${name}]`)?.textContent;
     if (value) {
+      const originalLabel = copySecretButton.textContent;
       navigator.clipboard.writeText(value)
-        .then(() => setStatus('Kopierad till urklipp.'))
+        .then(() => {
+          setStatus('Kopierad till urklipp.');
+          copySecretButton.textContent = 'Kopierad!';
+          copySecretButton.classList.add('is-copied');
+          setTimeout(() => {
+            copySecretButton.textContent = originalLabel;
+            copySecretButton.classList.remove('is-copied');
+          }, 2000);
+        })
         .catch(() => setStatus('Kunde inte kopiera, markera och kopiera manuellt.', true));
     }
   }

@@ -4065,3 +4065,9 @@ body.detail-panel-closed .prompt-detail-panel {
     background: #f9fafb;
     border-color: #d1d5db;
 }
+
+[data-copy-secret].is-copied {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #fff;
+}
