@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import uuid
 from pathlib import Path
 from typing import AsyncIterator
@@ -22,9 +23,16 @@ logger = logging.getLogger("promptbanken.gateway")
 
 app = FastAPI(title="Promptbanken Community LLM Gateway", version="0.4.0")
 
+_default_allowed_origins = "http://localhost:8080,http://127.0.0.1:8080"
+allowed_origins = [
+    origin.strip()
+    for origin in os.getenv("ALLOWED_ORIGINS", _default_allowed_origins).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

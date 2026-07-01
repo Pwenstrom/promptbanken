@@ -6,8 +6,9 @@ services:
     environment:
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       - MODEL_TIMEOUT_SECONDS=${MODEL_TIMEOUT_SECONDS:-300}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080}
     ports:
-      - "8001:8001"
+      - "127.0.0.1:8001:8001"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
