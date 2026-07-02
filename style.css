@@ -4006,6 +4006,43 @@ body.detail-panel-closed .prompt-detail-panel {
     margin: 0.5rem 0;
 }
 
+.pro-status-banner {
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #dfe6ee;
+    color: #475467;
+    margin-bottom: 1.25rem;
+    font-weight: 500;
+}
+
+.pro-status-banner.is-pro {
+    background: #ecfdf3;
+    border-color: #86d19f;
+    color: #067647;
+}
+
+.pro-area-section {
+    margin-bottom: 2rem;
+}
+
+.pro-card.is-locked {
+    opacity: 0.85;
+    background: #fafbfc;
+}
+
+.pro-lock-badge {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.pro-card .card-title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
 /* ── Login plan comparison ─────────────────────────────────── */
 .auth-plan-compare {
     display: grid;

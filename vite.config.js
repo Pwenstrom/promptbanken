@@ -27,7 +27,8 @@ export default defineConfig({
         terms: resolve(__dirname, 'terms.html'),
         'local-chat': resolve(__dirname, 'local-chat.html'),
         providers: resolve(__dirname, 'providers.html'),
-        invite: resolve(__dirname, 'invite.html')
+        invite: resolve(__dirname, 'invite.html'),
+        pro: resolve(__dirname, 'pro.html')
       }
     }
   }

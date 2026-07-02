@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promptbanken Pro | Premium-mallar för kommun</title>
+    <meta name="description" content="Promptbanken Pro: 42 premium-mallar för kommunikation, förändringsledning, processer, beslutsberedning, visuellt stöd och ledarskap i kommunal verksamhet.">
+    <meta name="robots" content="index,follow">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="app-sidebar" aria-label="Huvudnavigation">
+            <div class="brand">
+                <span class="brand-mark app-icon" aria-hidden="true" data-icon="library"></span>
+                <span>Promptbanken</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link" href="promptbanken.html"><span class="app-icon" aria-hidden="true" data-icon="library"></span>Alla prompter</a>
+                <a class="sidebar-link active" href="pro.html"><span class="app-icon" aria-hidden="true" data-icon="shield"></span>Promptbanken Pro</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="help.html">Hjälp och vägledning</a>
+                <a href="GDPR-POLICY.md">Dataskydd</a>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <header class="topbar">
+                <div>
+                    <h1 style="margin:0;font-size:1.3rem;">Promptbanken Pro</h1>
+                </div>
+                <div class="topbar-actions">
+                    <a class="help-btn" href="login.html" id="pro-auth-link"><span class="app-icon" aria-hidden="true" data-icon="user"></span><span id="pro-auth-label">Logga in</span></a>
+                </div>
+            </header>
+
+            <main class="workspace">
+                <div class="page-title-row">
+                    <div>
+                        <h1>Promptbibliotek och Pro-verktyg för kommunanställda</h1>
+                        <p>Free hjälper dig skriva. Pro hjälper dig strukturera, analysera, visualisera, kvalitetssäkra och återanvända arbetssätt.</p>
+                    </div>
+                </div>
+
+                <div id="pro-status-banner" class="pro-status-banner" hidden></div>
+
+                <div id="pro-areas" aria-label="Pro-områden">
+                    <p class="loading-message">Laddar Pro-mallar...</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="pro-prompt-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="pro-modal-title">Prompt</h3>
+                <button class="modal-close" id="pro-modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <pre id="pro-modal-text"></pre>
+                <div class="actions">
+                    <button class="secondary-btn" id="pro-modal-copy" type="button">Kopiera</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/pro.js"></script>
+</body>
+</html>
