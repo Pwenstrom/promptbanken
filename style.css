@@ -3967,6 +3967,17 @@ body.detail-panel-closed .prompt-detail-panel {
     margin: 0;
 }
 
+.plan-expiry-note {
+    font-size: 0.78rem;
+    color: #0f5ea8;
+    margin: 0.25rem 0 0;
+    font-weight: 600;
+}
+
+.plan-expiry-note.is-expiring-soon {
+    color: #b42318;
+}
+
 .plan-feature-list {
     list-style: none;
     margin: 0;

@@ -213,6 +213,35 @@ function renderCapabilityState() {
   if (mcpUnlocked) mcpUnlocked.hidden = !mcpEnabled();
 }
 
+function renderPlanExpiry() {
+  const element = document.querySelector('[data-plan-expiry]');
+  if (!element) return;
+
+  const expiresAt = state.workspace?.plan_expires_at;
+  if (!expiresAt || state.workspace?.plan === 'free') {
+    element.hidden = true;
+    element.classList.remove('is-expiring-soon');
+    return;
+  }
+
+  const daysLeft = Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+  const dateLabel = new Date(expiresAt).toLocaleDateString('sv-SE');
+  const sourceLabel = state.workspace?.plan_source === 'invite' ? 'Pro-test' : 'Pro-abonnemang';
+
+  if (daysLeft > 1) {
+    element.textContent = `${sourceLabel}: ${daysLeft} dagar kvar (till ${dateLabel})`;
+  } else if (daysLeft === 1) {
+    element.textContent = `${sourceLabel}: går ut imorgon (${dateLabel})`;
+  } else if (daysLeft === 0) {
+    element.textContent = `${sourceLabel}: går ut idag`;
+  } else {
+    element.textContent = `${sourceLabel}: perioden har gått ut, väntar på nedgradering till Free`;
+  }
+
+  element.hidden = false;
+  element.classList.toggle('is-expiring-soon', daysLeft <= 7);
+}
+
 function renderPlanInfo() {
   const plan = state.workspace?.plan ?? 'free';
   const planLabels = { free: 'Free', pro: 'Pro', start: 'Start', plus: 'Plus', enterprise: 'Enterprise' };
@@ -228,6 +257,8 @@ function renderPlanInfo() {
   if (desc) {
     desc.textContent = 'Personligt konto';
   }
+
+  renderPlanExpiry();
 
   const features = [
     { label: `${maxP} prompts`, ok: true },
@@ -524,7 +555,7 @@ async function loadProfile(user) {
 
   const { data: workspace, error: workspaceError } = await supabase
     .from('workspaces')
-    .select('id, name, type, plan, api_enabled, mcp_enabled, max_prompts')
+    .select('id, name, type, plan, api_enabled, mcp_enabled, max_prompts, plan_source, plan_expires_at')
     .eq('id', profile.workspace_id)
     .single();
 
