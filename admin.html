@@ -29,6 +29,7 @@
                 <p>Administration</p>
                 <a class="admin-nav-link" href="#medlemmar"><span class="app-icon" data-icon="users"></span>Medlemmar</a>
                 <a class="admin-nav-link" href="#installningar"><span class="app-icon" data-icon="settings"></span>Inställningar</a>
+                <a class="admin-nav-link" href="#plattformsadmin" data-platform-only hidden><span class="app-icon" data-icon="shield"></span>Plattformsadmin</a>
             </div>
 
             <button class="admin-logout" type="button" data-logout>Logga ut</button>
@@ -385,6 +386,64 @@
                                     <tbody data-api-keys></tbody>
                                 </table>
                             </div>
+                        </div>
+                    </section>
+
+                    <section class="workspace-section" id="plattformsadmin" data-platform-only hidden>
+                        <div class="workspace-section-heading">
+                            <div>
+                                <h2>Plattformsadmin</h2>
+                                <p>Endast synligt för plattformsägare.</p>
+                            </div>
+                        </div>
+
+                        <div class="workspace-section-heading">
+                            <h3>Gör användare till plattformsadmin</h3>
+                        </div>
+                        <form class="workspace-form compact" data-promote-admin-form>
+                            <label>
+                                E-post
+                                <input type="email" name="email" required placeholder="anvandare@exempel.se">
+                            </label>
+                            <button type="submit">Sätt som admin</button>
+                        </form>
+
+                        <div class="workspace-section-heading">
+                            <h3>Pro-inbjudningar</h3>
+                            <button type="button" data-refresh>Uppdatera</button>
+                        </div>
+                        <form class="workspace-form compact" data-invite-form>
+                            <label>
+                                Dagar
+                                <input type="number" name="days" value="30" min="1" required>
+                            </label>
+                            <label>
+                                Notering
+                                <input name="note" placeholder="t.ex. mottagarens namn">
+                            </label>
+                            <button type="submit">Skapa inbjudan</button>
+                        </form>
+                        <div class="secret-reveal" data-new-invite-link-panel hidden>
+                            <p class="secret-reveal-warning">Länken visas bara just nu — kopiera och skicka den till mottagaren.</p>
+                            <div class="secret-reveal-row">
+                                <code data-new-invite-link></code>
+                                <button type="button" data-copy-secret="new-invite-link">Kopiera</button>
+                            </div>
+                        </div>
+                        <div class="workspace-table-wrap">
+                            <table class="workspace-table">
+                                <thead>
+                                    <tr>
+                                        <th>Token</th>
+                                        <th>Notering</th>
+                                        <th>Dagar</th>
+                                        <th>Status</th>
+                                        <th>Skapad</th>
+                                        <th>Går ut</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-pro-invites></tbody>
+                            </table>
                         </div>
                     </section>
                 </section>

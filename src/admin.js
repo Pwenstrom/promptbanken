@@ -17,6 +17,7 @@ const state = {
   members: [],
   apiKeys: [],
   mcpKeys: [],
+  proInvites: [],
   editingPromptId: null
 };
 
@@ -33,6 +34,8 @@ const logoutButton = document.querySelector('[data-logout]');
 const promptForm = document.querySelector('[data-prompt-form]');
 const apiKeyForm = document.querySelector('[data-api-key-form]');
 const mcpKeyForm = document.querySelector('[data-mcp-key-form]');
+const inviteForm = document.querySelector('[data-invite-form]');
+const promoteAdminForm = document.querySelector('[data-promote-admin-form]');
 const refreshButtons = document.querySelectorAll('[data-refresh]');
 const visibilitySelect = promptForm?.querySelector('select[name="visibility"]');
 const promptFormSubmit = promptForm?.querySelector('[data-prompt-form-submit]');
@@ -401,6 +404,23 @@ function renderMcpKeys() {
     : emptyRow(5, 'Ingen MCP-nyckel skapad ännu.');
 }
 
+function renderProInvites() {
+  const body = document.querySelector('[data-pro-invites]');
+  if (!body) return;
+  body.innerHTML = state.proInvites.length
+    ? state.proInvites.map((invite) => `
+        <tr>
+          <td><code>${escapeHtml(invite.token)}</code></td>
+          <td>${escapeHtml(invite.note || '-')}</td>
+          <td>${escapeHtml(invite.days)}</td>
+          <td>${escapeHtml(invite.status)}</td>
+          <td>${escapeHtml(invite.created_at ? new Date(invite.created_at).toLocaleDateString('sv-SE') : '')}</td>
+          <td>${escapeHtml(invite.expires_at ? new Date(invite.expires_at).toLocaleDateString('sv-SE') : '')}</td>
+        </tr>
+      `).join('')
+    : emptyRow(6, 'Ingen inbjudan skapad ännu.');
+}
+
 async function loadMcpKeys() {
   if (!isAdminRole(state.profile.role)) {
     state.mcpKeys = [];
@@ -585,7 +605,7 @@ async function loadApiKeys() {
 
 async function refreshWorkspaceData() {
   setStatus('Uppdaterar...');
-  await Promise.all([loadPrompts(), loadMembers(), loadMcpKeys(), loadApiKeys()]);
+  await Promise.all([loadPrompts(), loadMembers(), loadMcpKeys(), loadApiKeys(), loadProInvites()]);
   setStatus('');
 }
 
@@ -857,6 +877,79 @@ async function createApiKey(event) {
   await loadApiKeys();
 }
 
+async function loadProInvites() {
+  if (!isPlatformOwner()) {
+    state.proInvites = [];
+    renderProInvites();
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('pro_invites')
+    .select('id, token, note, plan, days, status, created_at, expires_at')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  state.proInvites = data || [];
+  renderProInvites();
+}
+
+async function createProInvite(event) {
+  event.preventDefault();
+  if (!isPlatformOwner()) {
+    setStatus('Endast plattformsadmin kan skapa Pro-inbjudningar.', true);
+    return;
+  }
+
+  const formData = new FormData(inviteForm);
+  const days = Number(formData.get('days')) || 30;
+  const note = formData.get('note')?.toString().trim() || null;
+  const token = `pro_${randomToken().slice(0, 24)}`;
+
+  const { error } = await supabase.from('pro_invites').insert({
+    token,
+    plan: 'pro',
+    days,
+    note
+  });
+
+  if (error) {
+    setStatus(error.message || 'Kunde inte skapa inbjudan.', true);
+    return;
+  }
+
+  inviteForm.reset();
+  inviteForm.querySelector('[name="days"]').value = 30;
+  showSecret('invite-link', `${window.location.origin}/invite.html?token=${token}`);
+  setStatus('Inbjudan skapades. Kopiera länken och skicka den till mottagaren.');
+  await loadProInvites();
+}
+
+async function promoteAdmin(event) {
+  event.preventDefault();
+  if (!isPlatformOwner()) {
+    setStatus('Endast plattformsadmin kan göra detta.', true);
+    return;
+  }
+
+  const formData = new FormData(promoteAdminForm);
+  const email = formData.get('email')?.toString().trim();
+  if (!email) {
+    setStatus('E-post krävs.', true);
+    return;
+  }
+
+  const { error } = await supabase.rpc('promote_user_to_platform_owner', { p_email: email });
+
+  if (error) {
+    setStatus(error.message || 'Kunde inte göra användaren till admin.', true);
+    return;
+  }
+
+  promoteAdminForm.reset();
+  setStatus(`${email} är nu plattformsadmin.`);
+}
+
 async function deleteAccount() {
   const confirmed = window.confirm(
     'Radera ditt konto permanent? Ditt privata workspace och alla dina egna prompts tas bort och går inte att återfå. ' +
@@ -965,6 +1058,14 @@ if (apiKeyForm) {
 
 if (mcpKeyForm) {
   mcpKeyForm.addEventListener('submit', createMcpKey);
+}
+
+if (inviteForm) {
+  inviteForm.addEventListener('submit', createProInvite);
+}
+
+if (promoteAdminForm) {
+  promoteAdminForm.addEventListener('submit', promoteAdmin);
 }
 
 const exportMyPromptsButton = document.querySelector('[data-export-my-prompts]');
