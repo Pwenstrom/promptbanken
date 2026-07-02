@@ -17,7 +17,12 @@ const detailLockedNote = document.getElementById('pro-detail-locked-note');
 const detailPreviewSection = document.getElementById('pro-detail-preview-section');
 const detailPreview = document.getElementById('pro-detail-prompt-preview');
 const detailCopyButton = document.getElementById('pro-detail-copy-btn');
+const detailSaveButton = document.getElementById('pro-detail-save-btn');
+const detailSaveStatus = document.getElementById('pro-detail-save-status');
 const detailUpgradeButton = document.getElementById('pro-detail-upgrade-btn');
+
+let currentSession = null;
+let personalWorkspaceId = null;
 
 const areaIconMap = {
   kommunikation: 'megaphone',
@@ -107,23 +112,96 @@ function selectTemplate(template) {
   const icon = document.querySelector('#pro-detail-panel .detail-icon');
   if (icon) icon.dataset.icon = areaIconMap[template.area] || 'library';
 
+  detailSaveStatus.hidden = true;
+
   if (template.is_unlocked) {
     detailLockedNote.hidden = true;
     detailPreviewSection.hidden = false;
     detailPreview.textContent = template.prompt_text;
     detailCopyButton.hidden = false;
+    detailSaveButton.hidden = false;
     detailUpgradeButton.hidden = true;
     detailCopyButton.onclick = () => copyPrompt(template, detailCopyButton);
+    detailSaveButton.onclick = () => saveTemplateAsOwnPrompt(template);
   } else {
     detailLockedNote.hidden = false;
     detailPreviewSection.hidden = true;
     detailCopyButton.hidden = true;
+    detailSaveButton.hidden = true;
     detailUpgradeButton.hidden = false;
   }
 
   document.body.classList.add('detail-sheet-open');
   detailPanel.hidden = false;
   detailPanel.focus({ preventScroll: true });
+}
+
+async function getPersonalWorkspaceId() {
+  if (personalWorkspaceId) {
+    return personalWorkspaceId;
+  }
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('workspace_id, workspaces!inner(type)')
+    .eq('user_id', currentSession.user.id)
+    .eq('workspaces.type', 'personal')
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) {
+    throw new Error('Kunde inte hitta ditt personliga workspace.');
+  }
+
+  personalWorkspaceId = data.workspace_id;
+  return personalWorkspaceId;
+}
+
+function showSaveStatus(message, isError = false) {
+  detailSaveStatus.textContent = message;
+  detailSaveStatus.hidden = false;
+  detailSaveStatus.classList.toggle('is-error', isError);
+}
+
+async function saveTemplateAsOwnPrompt(template) {
+  if (!currentSession) {
+    showSaveStatus('Logga in för att spara mallen till dina egna prompts.', true);
+    return;
+  }
+
+  detailSaveButton.disabled = true;
+  showSaveStatus('Sparar...');
+
+  try {
+    const workspaceId = await getPersonalWorkspaceId();
+
+    const { error } = await supabase.from('content_items').insert({
+      workspace_id: workspaceId,
+      type: 'prompt',
+      title: template.title,
+      slug: `pro-${template.id}`.slice(0, 90),
+      summary: template.syfte,
+      content: template.prompt_text,
+      visibility: 'private',
+      status: 'draft',
+      category: template.area_label,
+      risk_level: template.risk_level
+    });
+
+    if (error) {
+      if (error.code === '23505') {
+        throw new Error('Du har redan sparat den här mallen till dina egna prompts.');
+      }
+      throw new Error(error.message || 'Kunde inte spara mallen.');
+    }
+
+    showSaveStatus('Sparad! Du hittar den under "Mina prompts" i admin.html.');
+  } catch (error) {
+    showSaveStatus(error.message || 'Kunde inte spara mallen.', true);
+  } finally {
+    detailSaveButton.disabled = false;
+  }
 }
 
 async function copyPrompt(template, button) {
@@ -177,8 +255,8 @@ async function init() {
     return;
   }
 
-  const session = await getCurrentSession();
-  if (session) {
+  currentSession = await getCurrentSession();
+  if (currentSession) {
     authLink.href = 'admin.html';
     authLabel.textContent = 'Min workspace';
   }
