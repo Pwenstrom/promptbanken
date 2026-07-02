@@ -54,7 +54,7 @@ Föreslagen funktionsmatris (Free vs Pro):
 Status per rad (från genomgång mot koden):
 - [x] Egna sparade prompts (3/100), API-nyckel, export av egna prompts, radera egna prompts/konto — redan byggt, ingen ändring behövs.
 - [x] MCP till standardmallar / MCP till egna prompts (Free naturligt begränsat av 3-prompt-taket) — inget extra bygge behövs.
-- [ ] MCP-nycklar 1 → 3–5 för Pro — kräver migration: `enforce_mcp_key_limit()`-triggern har idag `existing_count >= 1` hårdkodat oavsett plan, måste bli plan-medveten.
+- [x] MCP-nycklar 1 → 5 för Pro — klart: migration `20260702150000_pro_mcp_key_limit.sql` körd mot Supabase, `admin.js`/`admin.html` uppdaterade (dynamisk gräns-text + felmeddelande).
 - [ ] Premium-mallar/-arbetsflöden + MCP till premium + export av premium — **stort separat projekt.** Kräver att premiuminnehåll flyttas från statiska `prompts.json`/`prompts/*.txt`-filer (öppna för alla idag) till Supabase med en `plan_required`-kolumn, nya RLS-regler och en plan-medveten gren i MCP-RPC:erna.
 - [ ] Taggar/kategorier — **beslutat, ersätter tidigare "Begränsat"-rad:** Free får en fast, låst standardkategori ("Mina prompts") på alla egna prompts. Pro kan sätta egen fritextkategori. Konkret och begripligt värde istället för en vag broms. Bygge: kategori-fältet i `admin.html`-formuläret ska vara låst/förifyllt med "Mina prompts" och inaktiverat för Free-workspaces (samma mönster som synlighetsväljaren döljs efter behörighet, se UX-punkt 1 ovan). Bör även spärras server-side i `enforce_content_access_model()` (tvinga `category = 'Mina prompts'` vid INSERT/UPDATE om `workspace.plan = 'free'`) så det inte går att kringgå klientsidan.
 - [x] Teamdelning: Nej/Nej, Kommunadmin: Nej/Nej — bekräftat beslut, betyder att inget organisations-/delningsflöde behöver byggas för Pro i den här fasen.
@@ -72,11 +72,11 @@ Idé: ge ut 30 dagars Pro-test via en unik, engångs-länk istället för att by
 - [ ] URL-form: använd `invite.html?token=xxx` (query-sträng), inte `/invite/pro/[token]` som path — sajten hostas statiskt på GitHub Pages (`kommun.promptbanken.se`, se `CNAME`), ingen server-side rewrite tillgänglig där.
 
 **Bygglista:**
-1. [ ] Supabase Dashboard: aktivera `pg_cron`-tillägget (Database → Extensions) — manuellt engångssteg, kan inte göras via migration.
-2. [ ] Migration: `workspaces.plan_source text`, `workspaces.plan_expires_at timestamptz`.
-3. [ ] Migration: ny tabell `pro_invites` (token, plan, days, status, expires_at, used_at, used_by, note) + RLS som stänger ute alla utom platform_owner/service-role.
-4. [ ] Migration: RPC `redeem_pro_invite(p_token text)` — SECURITY DEFINER, kollar giltighet/engångsbruk, sätter plan+expiry på anroparens personliga workspace, markerar token använd.
-5. [ ] Migration: pg_cron-jobb (dagligen) som nedgraderar workspaces där `plan_expires_at < now()` tillbaka till free (samma beteende som "Nedgradering Pro → Free" ovan).
+1. [x] Supabase Dashboard: aktivera `pg_cron`-tillägget — klart, migration körd (bekräftat: `cron.schedule` returnerade job-id 1).
+2. [x] Migration: `workspaces.plan_source text`, `workspaces.plan_expires_at timestamptz` — klart i `20260702130000_pro_invites.sql`.
+3. [x] Migration: ny tabell `pro_invites` (token, plan, days, status, expires_at, used_at, used_by, note) + RLS som stänger ute alla utom platform_owner/service-role — klart.
+4. [x] Migration: RPC `redeem_pro_invite(p_token text)` — klart.
+5. [x] Migration: pg_cron-jobb (dagligen 03:00) som nedgraderar workspaces där `plan_expires_at < now()` tillbaka till free — klart.
 6. [x] Ny statisk sida `invite.html` + JS: läs `?token=`, kräv inloggning (skicka till login och behåll länken om ej inloggad), anropa RPC, visa resultat.
 7. [x] Adminpanel istället för manuell SQL: ny sektion "Plattformsadmin" i `admin.html`/`admin.js` (synlig bara för platform_owner via befintlig `[data-platform-only]`-mekanism) med formulär för att skapa Pro-inbjudningar (genererar token, visar länk med kopiera-knapp) och en lista över skapade inbjudningar/status. Migration `20260702140000_promote_platform_owner.sql` lägger till RPC `promote_user_to_platform_owner(email)` så en admin kan göra andra användare till plattformsadmin via ett formulär i samma sektion, istället för att redigera `profiles`-tabellen manuellt.
    - [ ] **Bootstrap krävs en gång:** den allra första plattformsadmin måste sättas manuellt i SQL Editor (hönan-och-ägget: RPC:n kräver att anroparen redan är platform_owner). Logga in en gång på kontot som ska vara admin, kör sedan i SQL Editor: `update public.profiles set role = 'platform_owner' where user_id = (select id from auth.users where email = 'DIN-EPOST');`

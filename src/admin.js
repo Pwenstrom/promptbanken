@@ -73,6 +73,10 @@ function maxPrompts() {
   return state.workspace?.max_prompts ?? 3;
 }
 
+function mcpKeyLimit() {
+  return isPlanPro() ? 5 : 1;
+}
+
 function allowedVisibilityOptions() {
   if (isPlatformOwner()) {
     return [
@@ -206,6 +210,8 @@ function renderCapabilityState() {
   const apiUnlocked = document.querySelector('[data-api-unlocked]');
   if (apiLocked) apiLocked.hidden = apiEnabled();
   if (apiUnlocked) apiUnlocked.hidden = !apiEnabled();
+
+  setText('[data-mcp-key-limit]', mcpKeyLimit());
 
   const mcpLocked = document.querySelector('[data-mcp-locked]');
   const mcpUnlocked = document.querySelector('[data-mcp-unlocked]');
@@ -490,8 +496,9 @@ async function createMcpKey(event) {
   }
 
   const activeCount = state.mcpKeys.filter((k) => !k.revoked_at).length;
-  if (activeCount >= 1 && state.workspace?.type === 'personal') {
-    setStatus('Du har redan en aktiv MCP-nyckel. Återkalla den befintliga för att skapa en ny.', true);
+  const keyLimit = mcpKeyLimit();
+  if (activeCount >= keyLimit && state.workspace?.type === 'personal') {
+    setStatus(`Du har nått gränsen på ${keyLimit} aktiva MCP-nyckel(ar) för din plan. Återkalla en befintlig för att skapa en ny.`, true);
     return;
   }
 
