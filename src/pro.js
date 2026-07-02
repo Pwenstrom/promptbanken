@@ -6,11 +6,28 @@ const statusBanner = document.getElementById('pro-status-banner');
 const authLink = document.getElementById('pro-auth-link');
 const authLabel = document.getElementById('pro-auth-label');
 
-const modal = document.getElementById('pro-prompt-modal');
-const modalTitle = document.getElementById('pro-modal-title');
-const modalText = document.getElementById('pro-modal-text');
-const modalCopyButton = document.getElementById('pro-modal-copy');
-const modalCloseButton = document.getElementById('pro-modal-close');
+const detailPanel = document.getElementById('pro-detail-panel');
+const detailClose = document.getElementById('pro-detail-close');
+const detailTitle = document.getElementById('pro-detail-title');
+const detailRisk = document.getElementById('pro-detail-risk');
+const detailSyfte = document.getElementById('pro-detail-syfte');
+const detailArea = document.getElementById('pro-detail-area');
+const detailOutput = document.getElementById('pro-detail-output');
+const detailLockedNote = document.getElementById('pro-detail-locked-note');
+const detailPreviewSection = document.getElementById('pro-detail-preview-section');
+const detailPreview = document.getElementById('pro-detail-prompt-preview');
+const detailCopyButton = document.getElementById('pro-detail-copy-btn');
+const detailUpgradeButton = document.getElementById('pro-detail-upgrade-btn');
+
+const areaIconMap = {
+  kommunikation: 'megaphone',
+  forandringsledning: 'route',
+  processer: 'workflow',
+  beslutsberedning: 'scale',
+  visuellt: 'palette',
+  ledarskap: 'flag',
+  arbetsbank: 'layers'
+};
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -47,9 +64,11 @@ function createCard(template) {
   const card = document.createElement('article');
   card.className = 'pro-card prompt-card';
   card.classList.toggle('is-locked', !template.is_unlocked);
+  card.dataset.templateId = template.id;
 
   card.innerHTML = `
     <div class="card-title-row">
+      <span class="card-icon app-icon" aria-hidden="true" data-icon="${areaIconMap[template.area] || 'library'}"></span>
       <div>
         <span class="card-kicker">${escapeHtml(template.area_label)}</span>
         <h3>${escapeHtml(template.title)}</h3>
@@ -60,29 +79,51 @@ function createCard(template) {
     <div class="card-tags">
       <span class="risk-chip" data-risk="${escapeHtml(template.risk_level)}">${riskLabel(template.risk_level)}</span>
     </div>
-    <p class="card-example"><strong>Output:</strong> ${escapeHtml(template.output_format)}</p>
     <div class="actions card-actions">
-      ${template.is_unlocked
-        ? `<button type="button" class="secondary-btn" data-view-prompt>Visa prompt</button>
-           <button type="button" class="primary-btn" data-copy-prompt>Kopiera</button>`
-        : `<a class="primary-btn" href="admin.html">Uppgradera till Pro</a>`}
+      <button type="button" class="select-prompt-btn">Visa</button>
     </div>
   `;
 
-  if (template.is_unlocked) {
-    card.querySelector('[data-view-prompt]').addEventListener('click', () => openModal(template));
-    card.querySelector('[data-copy-prompt]').addEventListener('click', (event) => copyPrompt(template, event.target));
-  }
+  card.querySelector('.select-prompt-btn').addEventListener('click', (event) => {
+    event.stopPropagation();
+    selectTemplate(template);
+  });
+  card.addEventListener('click', () => selectTemplate(template));
 
   return card;
 }
 
-function openModal(template) {
-  if (!modal || !modalTitle || !modalText) return;
-  modalTitle.textContent = template.title;
-  modalText.textContent = template.prompt_text;
-  modal.classList.add('active');
-  modalCopyButton.onclick = () => copyPrompt(template, modalCopyButton);
+function selectTemplate(template) {
+  document.querySelectorAll('.pro-card').forEach((card) => {
+    card.classList.toggle('selected', card.dataset.templateId === template.id);
+  });
+
+  detailTitle.textContent = template.title;
+  detailRisk.textContent = riskLabel(template.risk_level);
+  detailSyfte.textContent = template.syfte;
+  detailArea.textContent = template.area_label;
+  detailOutput.textContent = template.output_format;
+
+  const icon = document.querySelector('#pro-detail-panel .detail-icon');
+  if (icon) icon.dataset.icon = areaIconMap[template.area] || 'library';
+
+  if (template.is_unlocked) {
+    detailLockedNote.hidden = true;
+    detailPreviewSection.hidden = false;
+    detailPreview.textContent = template.prompt_text;
+    detailCopyButton.hidden = false;
+    detailUpgradeButton.hidden = true;
+    detailCopyButton.onclick = () => copyPrompt(template, detailCopyButton);
+  } else {
+    detailLockedNote.hidden = false;
+    detailPreviewSection.hidden = true;
+    detailCopyButton.hidden = true;
+    detailUpgradeButton.hidden = false;
+  }
+
+  document.body.classList.add('detail-sheet-open');
+  detailPanel.hidden = false;
+  detailPanel.focus({ preventScroll: true });
 }
 
 async function copyPrompt(template, button) {
@@ -103,13 +144,13 @@ function renderAreas(templates) {
   areasContainer.innerHTML = '';
 
   const areas = groupByArea(templates);
-  for (const [, area] of areas) {
+  for (const [areaKey, area] of areas) {
     const section = document.createElement('section');
     section.className = 'workspace-section pro-area-section';
 
     const heading = document.createElement('div');
     heading.className = 'workspace-section-heading';
-    heading.innerHTML = `<h2>${escapeHtml(area.label)}</h2>`;
+    heading.innerHTML = `<h2><span class="app-icon" aria-hidden="true" data-icon="${areaIconMap[areaKey] || 'library'}"></span> ${escapeHtml(area.label)}</h2>`;
     section.appendChild(heading);
 
     const grid = document.createElement('div');
@@ -119,6 +160,13 @@ function renderAreas(templates) {
 
     areasContainer.appendChild(section);
   }
+}
+
+if (detailClose) {
+  detailClose.addEventListener('click', () => {
+    document.body.classList.remove('detail-sheet-open');
+    document.querySelectorAll('.pro-card.selected').forEach((card) => card.classList.remove('selected'));
+  });
 }
 
 async function init() {
@@ -155,15 +203,6 @@ async function init() {
   );
 
   renderAreas(templates);
-}
-
-if (modalCloseButton) {
-  modalCloseButton.addEventListener('click', () => modal.classList.remove('active'));
-}
-if (modal) {
-  modal.addEventListener('click', (event) => {
-    if (event.target === modal) modal.classList.remove('active');
-  });
 }
 
 init().catch((error) => {

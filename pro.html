@@ -36,34 +36,48 @@
             </header>
 
             <main class="workspace">
-                <div class="page-title-row">
-                    <div>
-                        <h1>Promptbibliotek och Pro-verktyg för kommunanställda</h1>
-                        <p>Free hjälper dig skriva. Pro hjälper dig strukturera, analysera, visualisera, kvalitetssäkra och återanvända arbetssätt.</p>
-                    </div>
-                </div>
+                <div class="workspace-grid">
+                    <section class="prompt-library" aria-label="Pro-mallar">
+                        <div class="page-title-row">
+                            <div>
+                                <h1>Promptbibliotek och Pro-verktyg för kommunanställda</h1>
+                                <p>Free hjälper dig skriva. Pro hjälper dig strukturera, analysera, visualisera, kvalitetssäkra och återanvända arbetssätt.</p>
+                            </div>
+                        </div>
 
-                <div id="pro-status-banner" class="pro-status-banner" hidden></div>
+                        <div id="pro-status-banner" class="pro-status-banner" hidden></div>
 
-                <div id="pro-areas" aria-label="Pro-områden">
-                    <p class="loading-message">Laddar Pro-mallar...</p>
+                        <div id="pro-areas" aria-label="Pro-områden">
+                            <p class="loading-message">Laddar Pro-mallar...</p>
+                        </div>
+                    </section>
+
+                    <aside class="prompt-detail-panel" id="pro-detail-panel" aria-label="Vald mall" tabindex="-1">
+                        <button class="detail-close" id="pro-detail-close" type="button" aria-label="Stäng detaljpanel">×</button>
+                        <div class="detail-icon app-icon" aria-hidden="true" data-icon="shield"></div>
+                        <div class="detail-heading">
+                            <h2 id="pro-detail-title">Välj en mall</h2>
+                            <span class="risk-badge" id="pro-detail-risk">Låg risk</span>
+                        </div>
+                        <p id="pro-detail-syfte">Klicka på ett kort för att se detaljer och prompttext här.</p>
+                        <div class="detail-meta">
+                            <span>Område <b id="pro-detail-area">-</b></span>
+                            <span>Output <b id="pro-detail-output">-</b></span>
+                        </div>
+                        <div class="detail-section" id="pro-detail-locked-note" hidden>
+                            <p class="plan-locked-note">Den här mallen ingår i Pro. Uppgradera för att låsa upp hela prompttexten.</p>
+                        </div>
+                        <div class="detail-section prompt-preview-section" id="pro-detail-preview-section" hidden>
+                            <h3>Prompt</h3>
+                            <pre class="prompt-preview" id="pro-detail-prompt-preview"></pre>
+                        </div>
+                        <div class="detail-actions selected-prompt-actions">
+                            <button class="primary-btn" id="pro-detail-copy-btn" type="button" hidden>Kopiera</button>
+                            <a class="primary-btn" id="pro-detail-upgrade-btn" href="admin.html" hidden>Uppgradera till Pro</a>
+                        </div>
+                    </aside>
                 </div>
             </main>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="pro-prompt-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="pro-modal-title">Prompt</h3>
-                <button class="modal-close" id="pro-modal-close">×</button>
-            </div>
-            <div class="modal-body">
-                <pre id="pro-modal-text"></pre>
-                <div class="actions">
-                    <button class="secondary-btn" id="pro-modal-copy" type="button">Kopiera</button>
-                </div>
-            </div>
         </div>
     </div>
 
