@@ -176,10 +176,10 @@ Detta ändrar tidigare antagande (att Förvaltning/Kommun = ett enda organisatio
 | Kommun | Styr och distribuera godkända AI-mallar till hela kommunen och dess agenter. |
 
 **Byggordning (uppdaterad med licens-lagret):**
-1. [x] Migration `20260703110000_pro_licenses_and_orders.sql`: `app_private.plan_limits()` (nivå→gräns-mappning), `pro_licenses`-tabell + RLS, `workspaces.license_id`, `app_private.license_group_workspace_ids()` (summera över syskon-arbetsytor), uppdaterad `enforce_content_access_model()` (mallgräns nu även för organisationer via licens), uppdaterad `enforce_mcp_key_limit()` (licens-medveten för org), ny `enforce_org_member_limit()`-trigger, breddad `list_pro_templates()`/`get_pro_templates_for_mcp_key()` (räknar `start`/`plus`/`enterprise` som premium), `pro_orders`-tabell + RLS. **Kvar: köra mot Supabase (`supabase db push`).**
-2. [x] Migration `20260703120000_create_pro_order.sql`: `app_private.slugify_candidate()`, `create_pro_order()`-RPC (personligt Pro → aktiverar direkt; Team/Förvaltning/Kommun → skapar licens + första arbetsyta + gör beställaren till `workspace_owner`), `create_workspace_under_license()`-RPC för fler arbetsytor. **Kvar: köra mot Supabase.**
+1. [x] Migration `20260703110000_pro_licenses_and_orders.sql` — körd mot Supabase.
+2. [x] Migration `20260703120000_create_pro_order.sql` — körd mot Supabase.
 3. ✅ Ingår redan i steg 1 (mall- och medlemsgränserna summeras över licensen direkt i samma migration, byggdes inte som separat steg).
-4. [ ] `invite_org_member()`-RPC (A) + `org_join_codes`-tabell + `redeem_org_join_code()`-RPC (B) + platsgräns-trigger, delat mellan båda
+4. [x] Migration `20260703130000_org_member_invites.sql`: `invite_org_member(p_workspace_id, p_email, p_role)` (A — hittar mottagaren via e-post, kräver befintligt konto, blockerar `workspace_owner`/`platform_owner`-roller via inbjudan), `org_join_codes`-tabell + RLS (bara workspace-ägare/admin/platform_owner) + `redeem_org_join_code(p_token)` (B — återanvändbar tills återkallad/utgången, hanterar redan-medlem snyggt). Platsgränsen från steg 1 (`enforce_org_member_limit`) gäller automatiskt för båda vägarna. **Kvar: köra mot Supabase.**
 5. [ ] UI: "Bjud in medlem" (e-post) + "Generera join-länk" i Medlemmar-sektionen; ny `team-invite.html`-sida (eller `?team_token=` på `invite.html`) för att lösa in join-koden; arbetsyteväxlare för konton med flera ytor
 6. [ ] "Uppgradera till Pro"-formulär i admin.html/admin.js
 7. [ ] Adminfaktura-granskning (lista + statusknappar + nedgradera-knapp)
