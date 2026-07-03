@@ -37,6 +37,8 @@ const state = {
   myPromptsSearch: '',
   expandedPromptId: null,
   expandedOrderId: null,
+  workspacesList: [],
+  expandedWorkspaceId: null,
   formIsDirty: false
 };
 
@@ -763,14 +765,22 @@ async function loadProfile(user) {
 }
 
 async function switchToWorkspace(workspaceId) {
-  const { data: profile, error: profileError } = await supabase
+  const { data: profileRow, error: profileError } = await supabase
     .from('profiles')
     .select('id, role, workspace_id')
     .eq('user_id', state.user.id)
     .eq('workspace_id', workspaceId)
-    .single();
+    .maybeSingle();
 
   if (profileError) throw profileError;
+
+  // Plattformsägare kan sakna ett eget medlemskap i en arbetsyta men
+  // ska ändå kunna växla in för att titta/administrera (bypassar RLS
+  // via current_user_is_platform_owner() i övriga policyer).
+  const profile = profileRow || (isPlatformOwner() ? { role: 'platform_owner', workspace_id: workspaceId } : null);
+  if (!profile) {
+    throw new Error('Du är inte medlem i den här arbetsytan.');
+  }
 
   const { data: workspace, error: workspaceError } = await supabase
     .from('workspaces')
@@ -793,6 +803,135 @@ async function switchToWorkspace(workspaceId) {
   renderPlanInfo();
 
   await refreshWorkspaceData();
+}
+
+async function loadWorkspaces() {
+  const list = document.querySelector('[data-workspaces-list]');
+  if (!list) return;
+
+  if (state.workspace?.type !== 'organization' && !isPlatformOwner()) {
+    state.workspacesList = [];
+    renderWorkspaces();
+    return;
+  }
+
+  let query = supabase.from('workspaces').select('id, name, type, plan, license_id');
+
+  if (isPlatformOwner()) {
+    // Plattformsägaren ser alla arbetsytor i hela systemet.
+  } else if (state.workspace?.license_id) {
+    query = query.eq('license_id', state.workspace.license_id);
+  } else {
+    query = query.eq('id', state.workspace.id);
+  }
+
+  const { data, error } = await query.order('name', { ascending: true });
+  if (error) {
+    setStatus(error.message || 'Kunde inte ladda arbetsytor.', true);
+    return;
+  }
+
+  const { data: myProfiles } = await supabase
+    .from('profiles')
+    .select('workspace_id, role')
+    .eq('user_id', state.user.id);
+
+  const roleByWorkspace = new Map((myProfiles || []).map((p) => [p.workspace_id, p.role]));
+
+  state.workspacesList = (data || []).map((w) => ({ ...w, myRole: roleByWorkspace.get(w.id) || null }));
+
+  const scopeNote = document.querySelector('[data-workspaces-scope-note]');
+  if (scopeNote) {
+    scopeNote.textContent = isPlatformOwner()
+      ? 'Alla arbetsytor i systemet (plattformsadmin-vy).'
+      : 'Arbetsytorna under er licens.';
+  }
+
+  renderWorkspaces();
+}
+
+function renderWorkspaces() {
+  const list = document.querySelector('[data-workspaces-list]');
+  if (!list) return;
+
+  if (!state.workspacesList.length) {
+    list.innerHTML = '<div class="mp-empty">Inga arbetsytor hittades.</div>';
+    return;
+  }
+
+  list.innerHTML = state.workspacesList.map((w) => `
+      <article class="mp-template">
+        <div>
+          <h3>${escapeHtml(w.name)}</h3>
+          <p>${escapeHtml(workspaceTypeLabels[w.type] || w.type)} · ${escapeHtml(planNameLabels[w.plan] || w.plan)}${w.myRole ? ` · Din roll: ${escapeHtml(roleNameLabels[w.myRole] || w.myRole)}` : ''}</p>
+        </div>
+        <div class="mp-menu">
+          ${w.id !== state.workspace.id
+            ? `<button type="button" data-switch-workspace="${w.id}">Byt till</button>`
+            : '<span class="order-status-chip" data-status="paid">Aktiv yta</span>'}
+          <button type="button" data-quick-create-toggle="${w.id}">${state.expandedWorkspaceId === w.id ? 'Stäng' : '+ Snabb prompt'}</button>
+        </div>
+      </article>
+      ${state.expandedWorkspaceId === w.id ? `
+      <div class="mp-quick-create">
+        <form class="workspace-form compact" data-quick-create-form data-workspace-id="${w.id}">
+          <label>Titel
+            <input name="title" required minlength="2">
+          </label>
+          <label>Synlighet
+            <select name="visibility">
+              <option value="private">Privat</option>
+              <option value="workspace">Delad med ytan</option>
+            </select>
+          </label>
+          <label class="workspace-form-wide">Prompttext
+            <textarea name="content" rows="3" required minlength="10"></textarea>
+          </label>
+          <div class="workspace-form-actions">
+            <button type="submit">Spara utkast</button>
+          </div>
+        </form>
+      </div>` : ''}
+    `).join('');
+}
+
+async function submitQuickCreatePrompt(event) {
+  event.preventDefault();
+  const form = event.target;
+  const workspaceId = form.dataset.workspaceId;
+  const formData = new FormData(form);
+  const title = formData.get('title')?.toString().trim();
+  const content = formData.get('content')?.toString().trim();
+  const visibility = formData.get('visibility')?.toString() || 'private';
+
+  if (!title || !content) {
+    setStatus('Titel och prompttext krävs.', true);
+    return;
+  }
+
+  const { error } = await supabase.from('content_items').insert({
+    workspace_id: workspaceId,
+    type: 'prompt',
+    title,
+    slug: slugify(title),
+    content,
+    visibility,
+    status: 'draft',
+    created_by: state.user.id
+  });
+
+  if (error) {
+    setStatus(error.message || 'Kunde inte skapa prompten.', true);
+    return;
+  }
+
+  setStatus('Prompten sparades som utkast.');
+  state.expandedWorkspaceId = null;
+  renderWorkspaces();
+
+  if (workspaceId === state.workspace.id) {
+    await loadPrompts();
+  }
 }
 
 async function loadPrompts() {
@@ -1059,7 +1198,7 @@ async function loadApiKeys() {
 
 async function refreshWorkspaceData() {
   setStatus('Uppdaterar...');
-  await Promise.all([loadPrompts(), loadMembers(), loadJoinCodes(), loadMcpKeys(), loadApiKeys(), loadProInvites(), loadProOrders()]);
+  await Promise.all([loadPrompts(), loadMembers(), loadJoinCodes(), loadMcpKeys(), loadApiKeys(), loadProInvites(), loadProOrders(), loadWorkspaces()]);
   renderOnboardingChecklist();
   setStatus('');
 }
@@ -1713,6 +1852,12 @@ refreshButtons.forEach((button) => {
   });
 });
 
+document.addEventListener('submit', (event) => {
+  if (event.target.matches('[data-quick-create-form]')) {
+    submitQuickCreatePrompt(event);
+  }
+});
+
 document.addEventListener('click', (event) => {
   const publishButton = event.target.closest('[data-publish-prompt]');
   const unpublishButton = event.target.closest('[data-unpublish-prompt]');
@@ -1727,6 +1872,8 @@ document.addEventListener('click', (event) => {
   const markInvoicedButton = event.target.closest('[data-mark-invoiced]');
   const markPaidButton = event.target.closest('[data-mark-paid]');
   const downgradeOrderButton = event.target.closest('[data-downgrade-order]');
+  const switchWorkspaceButton = event.target.closest('[data-switch-workspace]');
+  const quickCreateToggleButton = event.target.closest('[data-quick-create-toggle]');
   const copySecretButton = event.target.closest('[data-copy-secret]');
 
   if (publishButton) {
@@ -1807,6 +1954,18 @@ document.addEventListener('click', (event) => {
         }
       }, 4000);
     }
+  }
+
+  if (switchWorkspaceButton) {
+    switchToWorkspace(switchWorkspaceButton.dataset.switchWorkspace).catch((error) => {
+      setStatus(error.message || 'Kunde inte byta arbetsyta.', true);
+    });
+  }
+
+  if (quickCreateToggleButton) {
+    const workspaceId = quickCreateToggleButton.dataset.quickCreateToggle;
+    state.expandedWorkspaceId = state.expandedWorkspaceId === workspaceId ? null : workspaceId;
+    renderWorkspaces();
   }
 
   if (copySecretButton) {

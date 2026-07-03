@@ -2058,6 +2058,19 @@ body.local-chat-enabled .card-actions .local-chat-btn {
 .mp-pill.mp-risk-medium { background: #fff7e6; color: #8a5a00; }
 .mp-pill.mp-risk-high { background: #fee4e2; color: #b42318; }
 
+.mp-quick-create {
+    padding: 0.85rem 1rem;
+    margin-top: -0.3rem;
+    border: 1px solid #dfe6ee;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    background: #f8fafc;
+}
+
+.mp-quick-create .workspace-form {
+    margin-bottom: 0;
+}
+
 .mp-template-preview {
     padding: 0.85rem 1rem;
     margin-top: -0.3rem;

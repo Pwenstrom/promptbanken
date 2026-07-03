@@ -28,6 +28,7 @@
             <div class="admin-nav-group">
                 <p>Administration</p>
                 <a class="admin-nav-link" href="#medlemmar"><span class="app-icon" data-icon="users"></span>Medlemmar</a>
+                <a class="admin-nav-link" href="#arbetsytor" data-org-only hidden><span class="app-icon" data-icon="library"></span>Arbetsytor</a>
                 <a class="admin-nav-link" href="#installningar"><span class="app-icon" data-icon="settings"></span>Inställningar</a>
                 <a class="admin-nav-link" href="#plattformsadmin" data-platform-only hidden><span class="app-icon" data-icon="shield"></span>Plattformsadmin</a>
             </div>
@@ -532,6 +533,17 @@
                                 </table>
                             </div>
                         </div>
+                    </section>
+
+                    <section class="workspace-section" id="arbetsytor" data-org-only hidden>
+                        <div class="workspace-section-heading">
+                            <div>
+                                <h2>Arbetsytor</h2>
+                                <p data-workspaces-scope-note>Arbetsytorna under er licens.</p>
+                            </div>
+                            <button type="button" data-refresh>Uppdatera</button>
+                        </div>
+                        <div class="mp-templates" data-workspaces-list></div>
                     </section>
 
                     <section class="workspace-section" id="integrationer">
