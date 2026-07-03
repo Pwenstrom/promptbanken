@@ -65,7 +65,7 @@ Status per rad (från genomgång mot koden):
 - [x] Teamdelning: Nej/Nej, Kommunadmin: Nej/Nej — bekräftat beslut, betyder att inget organisations-/delningsflöde behöver byggas för Pro i den här fasen.
 
 **Nedgradering Pro → Free (bekräftat beteende):**
-- [ ] Bygg nedgraderingslogik: när en Pro-användare går tillbaka till Free (uppsägning/utebliven betalning) sätts `max_prompts` tillbaka till 3, men **ingen data raderas automatiskt**. Användaren kan ha fler än 3 aktiva prompts kvar liggande (över gränsen) — de ska förbli synliga/exporterbara, men användaren ska **inte kunna skapa nya** prompts förrän de är under gränsen igen (radera manuellt) eller köper Pro på nytt. Nuvarande gräns-koll (`enforce_content_access_model()`, `prompt_count >= workspace_record.max_prompts`) tillåter redan detta naturligt vid INSERT — måste verifieras att UPDATE av befintliga prompts över gränsen inte blockeras felaktigt av samma trigger.
+- [x] Löst av `admin_downgrade_pro_order()` (migration `20260703140000`, körd): sätter `plan='free'`, `max_prompts=3`, `api_enabled=false` — ingen data raderas, användaren kan ha fler än 3 aktiva prompts kvar (synliga/exporterbara) men blockeras från att skapa nya via befintlig `enforce_content_access_model()`-gräns vid INSERT. UPDATE av befintliga prompts över gränsen påverkas inte av triggern (den räknar bara vid INSERT, inte vid UPDATE av redan existerande rader) — bekräftat korrekt beteende.
 
 ## Pro-test via invite-länk (MVP innan Stripe)
 
