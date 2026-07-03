@@ -1942,6 +1942,18 @@ body.local-chat-enabled .card-actions .local-chat-btn {
     text-decoration: none;
 }
 
+.link-btn {
+    align-self: flex-start;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #0b63ce;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 .mp-listpanel {
     margin-top: 0.5rem;
 }

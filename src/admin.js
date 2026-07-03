@@ -933,6 +933,11 @@ function syncUpgradeWorkspacesField() {
       if (input) input.value = 1;
     }
   }
+
+  const teamNameField = document.querySelector('[data-upgrade-team-name-field]');
+  if (teamNameField) {
+    teamNameField.hidden = plan === 'pro';
+  }
 }
 
 async function submitUpgradeOrder(event) {
@@ -941,6 +946,7 @@ async function submitUpgradeOrder(event) {
   const formData = new FormData(upgradeForm);
   const plan = formData.get('plan')?.toString();
   const workspaces = Number(formData.get('workspaces')) || 1;
+  const workspaceName = formData.get('workspace_name')?.toString().trim() || null;
   const companyName = formData.get('company_name')?.toString().trim();
   const orgNumber = formData.get('org_number')?.toString().trim() || null;
   const address = formData.get('address')?.toString().trim() || null;
@@ -961,7 +967,8 @@ async function submitUpgradeOrder(event) {
     p_billing_org_number: orgNumber,
     p_billing_address: address,
     p_billing_reference: reference,
-    p_billing_email: billingEmail
+    p_billing_email: billingEmail,
+    p_workspace_name: workspaceName
   });
 
   if (error) {
@@ -979,6 +986,37 @@ async function submitUpgradeOrder(event) {
   } else {
     await loadProfile(state.user);
   }
+}
+
+async function renameWorkspace(event) {
+  event.preventDefault();
+  if (!isAdminRole(state.profile.role)) {
+    setStatus('Din roll får inte byta namn på workspacet.', true);
+    return;
+  }
+
+  const form = event.target;
+  const name = new FormData(form).get('name')?.toString().trim();
+  if (!name) {
+    setStatus('Namnet får inte vara tomt.', true);
+    return;
+  }
+
+  const { error } = await supabase.rpc('rename_workspace', {
+    p_workspace_id: state.workspace.id,
+    p_name: name
+  });
+
+  if (error) {
+    setStatus(error.message || 'Kunde inte byta namn.', true);
+    return;
+  }
+
+  state.workspace.name = name;
+  setText('[data-workspace-name]', name);
+  form.hidden = true;
+  form.reset();
+  setStatus('Namnet uppdaterades.');
 }
 
 async function loadApiKeys() {
@@ -1548,6 +1586,19 @@ if (upgradeForm) {
   upgradeForm.addEventListener('submit', submitUpgradeOrder);
   upgradeForm.querySelector('select[name="plan"]')?.addEventListener('change', syncUpgradeWorkspacesField);
   syncUpgradeWorkspacesField();
+}
+
+const renameWorkspaceForm = document.querySelector('[data-rename-workspace-form]');
+const toggleRenameButton = document.querySelector('[data-toggle-rename-workspace]');
+if (renameWorkspaceForm && toggleRenameButton) {
+  toggleRenameButton.addEventListener('click', () => {
+    renameWorkspaceForm.hidden = !renameWorkspaceForm.hidden;
+    if (!renameWorkspaceForm.hidden) {
+      renameWorkspaceForm.querySelector('input[name="name"]').value = state.workspace?.name || '';
+      renameWorkspaceForm.querySelector('input[name="name"]').focus();
+    }
+  });
+  renameWorkspaceForm.addEventListener('submit', renameWorkspace);
 }
 
 if (myPromptsSearchInput) {

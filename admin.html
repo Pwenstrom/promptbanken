@@ -156,6 +156,10 @@
                                     <option value="enterprise">Kommun (flera arbetsytor, 250+/offert)</option>
                                 </select>
                             </label>
+                            <label data-upgrade-team-name-field>
+                                Namn på teamet/arbetsytan
+                                <input name="workspace_name" placeholder="t.ex. IT-teamet">
+                            </label>
                             <label data-upgrade-workspaces-field>
                                 Antal arbetsytor att börja med
                                 <input type="number" name="workspaces" value="1" min="1">
@@ -210,6 +214,7 @@
                                 <article>
                                     <span>Workspace</span>
                                     <strong data-workspace-name>-</strong>
+                                    <button type="button" class="link-btn" data-toggle-rename-workspace data-admin-only>Byt namn</button>
                                 </article>
                                 <article>
                                     <span>Typ</span>
@@ -220,6 +225,13 @@
                                     <strong data-profile-role>-</strong>
                                 </article>
                             </div>
+                            <form class="workspace-form compact" data-rename-workspace-form hidden data-admin-only>
+                                <label>
+                                    Nytt namn
+                                    <input name="name" required minlength="2">
+                                </label>
+                                <button type="submit">Spara namn</button>
+                            </form>
                         </section>
                     </div>
 
