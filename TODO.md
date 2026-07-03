@@ -176,10 +176,10 @@ Detta ändrar tidigare antagande (att Förvaltning/Kommun = ett enda organisatio
 | Kommun | Styr och distribuera godkända AI-mallar till hela kommunen och dess agenter. |
 
 **Byggordning (uppdaterad med licens-lagret):**
-1. Migration: `pro_licenses`-tabell + `workspaces.license_id` + `pro_orders`-tabell + RLS + breddad premium-koll i befintliga funktioner + nivå→gräns-mappning
-2. `create_pro_order()`-RPC (skapar licens + första arbetsyta för Team/Förvaltning/Kommun) + `create_workspace_under_license()`-RPC för fler arbetsytor
-3. Uppdatera `enforce_content_access_model()` och medlemsgräns-triggern till att summera över alla arbetsytor med samma `license_id`, inte bara det egna workspacet
-4. `invite_org_member()`-RPC (A) + `org_join_codes`-tabell + `redeem_org_join_code()`-RPC (B) + platsgräns-trigger, delat mellan båda
-5. UI: "Bjud in medlem" (e-post) + "Generera join-länk" i Medlemmar-sektionen; ny `team-invite.html`-sida (eller `?team_token=` på `invite.html`) för att lösa in join-koden; arbetsyteväxlare för konton med flera ytor
-6. "Uppgradera till Pro"-formulär i admin.html/admin.js
-7. Adminfaktura-granskning (lista + statusknappar + nedgradera-knapp)
+1. [x] Migration `20260703110000_pro_licenses_and_orders.sql`: `app_private.plan_limits()` (nivå→gräns-mappning), `pro_licenses`-tabell + RLS, `workspaces.license_id`, `app_private.license_group_workspace_ids()` (summera över syskon-arbetsytor), uppdaterad `enforce_content_access_model()` (mallgräns nu även för organisationer via licens), uppdaterad `enforce_mcp_key_limit()` (licens-medveten för org), ny `enforce_org_member_limit()`-trigger, breddad `list_pro_templates()`/`get_pro_templates_for_mcp_key()` (räknar `start`/`plus`/`enterprise` som premium), `pro_orders`-tabell + RLS. **Kvar: köra mot Supabase (`supabase db push`).**
+2. [x] Migration `20260703120000_create_pro_order.sql`: `app_private.slugify_candidate()`, `create_pro_order()`-RPC (personligt Pro → aktiverar direkt; Team/Förvaltning/Kommun → skapar licens + första arbetsyta + gör beställaren till `workspace_owner`), `create_workspace_under_license()`-RPC för fler arbetsytor. **Kvar: köra mot Supabase.**
+3. ✅ Ingår redan i steg 1 (mall- och medlemsgränserna summeras över licensen direkt i samma migration, byggdes inte som separat steg).
+4. [ ] `invite_org_member()`-RPC (A) + `org_join_codes`-tabell + `redeem_org_join_code()`-RPC (B) + platsgräns-trigger, delat mellan båda
+5. [ ] UI: "Bjud in medlem" (e-post) + "Generera join-länk" i Medlemmar-sektionen; ny `team-invite.html`-sida (eller `?team_token=` på `invite.html`) för att lösa in join-koden; arbetsyteväxlare för konton med flera ytor
+6. [ ] "Uppgradera till Pro"-formulär i admin.html/admin.js
+7. [ ] Adminfaktura-granskning (lista + statusknappar + nedgradera-knapp)
