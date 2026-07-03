@@ -302,6 +302,53 @@
                                 <tbody data-members></tbody>
                             </table>
                         </div>
+
+                        <div data-admin-only>
+                            <div class="workspace-section-heading">
+                                <h3>Bjud in medlem via e-post</h3>
+                            </div>
+                            <form class="workspace-form compact" data-invite-member-form>
+                                <label>
+                                    E-post
+                                    <input type="email" name="email" required placeholder="kollega@exempel.se">
+                                </label>
+                                <label>
+                                    Roll
+                                    <select name="role">
+                                        <option value="editor">Editor</option>
+                                        <option value="viewer">Viewer</option>
+                                        <option value="workspace_admin">Workspace admin</option>
+                                    </select>
+                                </label>
+                                <button type="submit">Bjud in</button>
+                            </form>
+                            <p class="plan-locked-note">Personen måste redan ha ett Promptbanken-konto.</p>
+
+                            <div class="workspace-section-heading">
+                                <h3>Join-länk</h3>
+                                <button type="button" data-generate-join-code>Generera join-länk</button>
+                            </div>
+                            <div class="secret-reveal" data-new-join-link-panel hidden>
+                                <p class="secret-reveal-warning">Länken kan användas av flera personer upp till platsgränsen tills du återkallar den.</p>
+                                <div class="secret-reveal-row">
+                                    <code data-new-join-link></code>
+                                    <button type="button" data-copy-secret="new-join-link">Kopiera</button>
+                                </div>
+                            </div>
+                            <div class="workspace-table-wrap">
+                                <table class="workspace-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Roll</th>
+                                            <th>Status</th>
+                                            <th>Skapad</th>
+                                            <th>Åtgärd</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-join-codes></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </section>
 
                     <section class="workspace-section" id="integrationer">

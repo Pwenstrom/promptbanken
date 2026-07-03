@@ -18,6 +18,7 @@ const state = {
   apiKeys: [],
   mcpKeys: [],
   proInvites: [],
+  joinCodes: [],
   editingPromptId: null,
   myPromptsSearch: '',
   expandedPromptId: null,
@@ -39,6 +40,7 @@ const apiKeyForm = document.querySelector('[data-api-key-form]');
 const mcpKeyForm = document.querySelector('[data-mcp-key-form]');
 const inviteForm = document.querySelector('[data-invite-form]');
 const promoteAdminForm = document.querySelector('[data-promote-admin-form]');
+const inviteMemberForm = document.querySelector('[data-invite-member-form]');
 const myPromptsSearchInput = document.querySelector('[data-my-prompts-search]');
 const refreshButtons = document.querySelectorAll('[data-refresh]');
 const visibilitySelect = promptForm?.querySelector('select[name="visibility"]');
@@ -437,6 +439,23 @@ function renderMembers() {
   renderAdminMetrics();
 }
 
+function renderJoinCodes() {
+  const body = document.querySelector('[data-join-codes]');
+  if (!body) return;
+  body.innerHTML = state.joinCodes.length
+    ? state.joinCodes.map((code) => `
+        <tr>
+          <td>${escapeHtml(code.role)}</td>
+          <td>${escapeHtml(code.status === 'active' ? 'Aktiv' : 'Återkallad')}</td>
+          <td>${escapeHtml(code.created_at ? new Date(code.created_at).toLocaleDateString('sv-SE') : '')}</td>
+          <td>
+            ${code.status === 'active' ? `<button type="button" data-revoke-join-code="${code.id}">Återkalla</button>` : ''}
+          </td>
+        </tr>
+      `).join('')
+    : emptyRow(4, 'Ingen join-länk skapad ännu.');
+}
+
 function renderApiKeys() {
   const body = document.querySelector('[data-api-keys]');
   body.innerHTML = state.apiKeys.length
@@ -652,6 +671,102 @@ async function loadMembers() {
   renderMembers();
 }
 
+async function loadJoinCodes() {
+  if (state.workspace?.type !== 'organization' || !isAdminRole(state.profile.role)) {
+    state.joinCodes = [];
+    renderJoinCodes();
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('org_join_codes')
+    .select('id, token, role, status, created_at')
+    .eq('workspace_id', state.workspace.id)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  state.joinCodes = data || [];
+  renderJoinCodes();
+}
+
+async function inviteOrgMember(event) {
+  event.preventDefault();
+  if (!isAdminRole(state.profile.role)) {
+    setStatus('Din roll får inte bjuda in medlemmar.', true);
+    return;
+  }
+
+  const formData = new FormData(inviteMemberForm);
+  const email = formData.get('email')?.toString().trim();
+  const role = formData.get('role')?.toString() || 'editor';
+
+  if (!email) {
+    setStatus('E-post krävs.', true);
+    return;
+  }
+
+  const { error } = await supabase.rpc('invite_org_member', {
+    p_workspace_id: state.workspace.id,
+    p_email: email,
+    p_role: role
+  });
+
+  if (error) {
+    setStatus(error.message || 'Kunde inte bjuda in medlem.', true);
+    return;
+  }
+
+  inviteMemberForm.reset();
+  setStatus(`${email} har lagts till i workspacet.`);
+  await loadMembers();
+}
+
+async function generateJoinCode() {
+  if (!isAdminRole(state.profile.role)) {
+    setStatus('Din roll får inte skapa join-länkar.', true);
+    return;
+  }
+
+  const token = `team_${randomToken().slice(0, 24)}`;
+
+  const { error } = await supabase.from('org_join_codes').insert({
+    workspace_id: state.workspace.id,
+    token,
+    role: 'editor',
+    created_by: state.user.id
+  });
+
+  if (error) {
+    setStatus(error.message || 'Kunde inte skapa join-länk.', true);
+    return;
+  }
+
+  showSecret('join-link', `${window.location.origin}/team-invite.html?team_token=${token}`);
+  setStatus('Join-länk skapad. Kopiera och dela den med teamet.');
+  await loadJoinCodes();
+}
+
+async function revokeJoinCode(codeId) {
+  if (!isAdminRole(state.profile.role)) {
+    setStatus('Din roll får inte återkalla join-länkar.', true);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('org_join_codes')
+    .update({ status: 'revoked' })
+    .eq('id', codeId)
+    .eq('workspace_id', state.workspace.id);
+
+  if (error) {
+    setStatus(error.message || 'Kunde inte återkalla join-länken.', true);
+    return;
+  }
+
+  setStatus('Join-länken återkallades.');
+  await loadJoinCodes();
+}
+
 async function loadApiKeys() {
   if (!isAdminRole(state.profile.role)) {
     state.apiKeys = [];
@@ -675,7 +790,7 @@ async function loadApiKeys() {
 
 async function refreshWorkspaceData() {
   setStatus('Uppdaterar...');
-  await Promise.all([loadPrompts(), loadMembers(), loadMcpKeys(), loadApiKeys(), loadProInvites()]);
+  await Promise.all([loadPrompts(), loadMembers(), loadJoinCodes(), loadMcpKeys(), loadApiKeys(), loadProInvites()]);
   setStatus('');
 }
 
@@ -1136,6 +1251,15 @@ if (promoteAdminForm) {
   promoteAdminForm.addEventListener('submit', promoteAdmin);
 }
 
+if (inviteMemberForm) {
+  inviteMemberForm.addEventListener('submit', inviteOrgMember);
+}
+
+const generateJoinCodeButton = document.querySelector('[data-generate-join-code]');
+if (generateJoinCodeButton) {
+  generateJoinCodeButton.addEventListener('click', generateJoinCode);
+}
+
 if (myPromptsSearchInput) {
   myPromptsSearchInput.addEventListener('input', () => {
     state.myPromptsSearch = myPromptsSearchInput.value;
@@ -1240,6 +1364,7 @@ document.addEventListener('click', (event) => {
   const revokeButton = event.target.closest('[data-revoke-api-key]');
 
   const revokeMcpButton = event.target.closest('[data-revoke-mcp-key]');
+  const revokeJoinCodeButton = event.target.closest('[data-revoke-join-code]');
   const copySecretButton = event.target.closest('[data-copy-secret]');
 
   if (publishButton) {
@@ -1284,6 +1409,10 @@ document.addEventListener('click', (event) => {
 
   if (revokeMcpButton) {
     revokeMcpKey(revokeMcpButton.dataset.revokeMcpKey);
+  }
+
+  if (revokeJoinCodeButton) {
+    revokeJoinCode(revokeJoinCodeButton.dataset.revokeJoinCode);
   }
 
   if (copySecretButton) {
