@@ -88,3 +88,39 @@ Idé: ge ut 30 dagars Pro-test via en unik, engångs-länk istället för att by
 
 **Separat, upptäckt under denna genomgång (inte relaterat till invite, men värt att verifiera):**
 - [ ] `script.js`/`local-chat.js` räknar ut backend-adress som `window.location.origin` om inget annat satts — på `kommun.promptbanken.se` (GitHub Pages, statisk) betyder det att "Chatta lokalt" bara fungerar om `/api/*` på den domänen faktiskt routas vidare till VPS-backend (reverse proxy). Bör verifieras separat att detta är korrekt konfigurerat i produktion.
+
+## Pro-köp via faktura + org-nivåer (Team/Förvaltning/Kommun)
+
+**Modell:** fakturaköp, inte kortbetalning. Beställning samlar in fakturauppgifter → **Pro/org-nivå aktiveras direkt** vid beställning (inte vid betalning) → fakturan skickas/hanteras utanför systemet (t.ex. i bokföringsverktyg) → admin bevakar betalstatus manuellt och kan nedgradera om obetald i tid.
+
+**Nivåstruktur (bekräftad):**
+
+| Nivå | Typ | Målgrupp | `workspace_plan`-värde | Egna mallar (`max_prompts`) | MCP-nycklar |
+|---|---|---|---|---|---|
+| Free | Personlig | 1 användare | `free` | 3 | 1 |
+| Pro | Personlig | 1 användare | `pro` | 100 | 5 |
+| Team | Organisation | 5–10 användare, delad via en agent | `start` *(redan i enumet, oanvänt idag)* | 200 | 5 |
+| Förvaltning | Organisation | En förvaltning/avdelning, delad via en agent | `plus` *(redan i enumet, oanvänt idag)* | 500 | 5 |
+| Kommun | Organisation | Hela kommunen, delad via en agent | `enterprise` *(redan i enumet, oanvänt idag)* | 1000 | 5 |
+
+**Viktigt förtydligande (ändrar tidigare antagande):** org-nivåerna handlar **inte** om flera inloggade medlemmar i admin.html — de handlar om att *workspacet* får en starkare API/MCP-nyckel som kopplas in i en delad agent (t.ex. Copilot Studio-bot eller intern chatbot) som många anställda använder utan att själva logga in i Promptbanken. Alltså: **ingen medlemsinbjudan/platsgräns-funktion behövs** — det kritiska gapet vi först flaggade (att "Medlemmar"-sektionen bara listar, aldrig bjuder in) är **inte** relevant för den här funktionen och stryks från scopet.
+
+**Datamodell:**
+- [ ] Ny tabell `pro_orders`: `id`, `workspace_id`, `user_id`, `status` (`pending`→`invoiced`→`paid`|`overdue`|`cancelled`), `requested_plan` (workspace_plan-enum), `billing_company_name`, `billing_org_number`, `billing_address`, `billing_reference`, `billing_email`, `created_at`, `due_date`, `note`. RLS: platform_owner ser allt, beställaren ser sin egen order.
+- [ ] Bredda "har premiumåtkomst"-kollen i `list_pro_templates()`, `get_pro_templates_for_mcp_key()` och `enforce_mcp_key_limit()` så `start`/`plus`/`enterprise` räknas som premium, inte bara `pro` (idag hårdkodat till exakt `plan = 'pro'`).
+- [ ] Nivå→gräns-mappning (`max_prompts` per plan enligt tabellen ovan) i samma triggrar som redan sätter `max_prompts` vid planbyte.
+
+**Beställningsflöde:**
+- [ ] `create_pro_order(p_workspace_id, p_requested_plan, billing-fält...)`-RPC: kollar behörighet (ägare för personligt Pro; `workspace_owner`/`workspace_admin`/`platform_owner` för org-nivåer), **skapar ett nytt organisations-workspace** om beställningen gäller Team/Förvaltning/Kommun och beställaren inte redan äger ett (namn från `billing_company_name`), sätter `plan`/`max_prompts`/`api_enabled`/`mcp_enabled` direkt, skapar `pro_orders`-raden med `status='pending'`, `plan_source='invoice'`.
+- [ ] Ny sektion "Uppgradera till Pro" i `admin.html` (synlig för Free-workspaces) — formulär: företagsnamn/kommun, org.nr, fakturaadress, referens/kostnadsställe, fakturamejl, samt val av nivå (Pro/Team/Förvaltning/Kommun).
+- [ ] Bekräftelsetext efter beställning: "Pro är redan aktiverat. Faktura skickas till [e-post]."
+
+**Admin-granskningsläge (ny flik under Plattformsadmin):**
+- [ ] Lista alla `pro_orders`: workspace/kommunnamn, nivå, **fakturamejl (tydligt synligt/kopierbart för påminnelser)**, status (färgkodad), förfallodatum.
+- [ ] Åtgärder: "Markera fakturerad" (sätt `due_date`), "Markera betald", **"Nedgradera till Free"** (sätter `plan='free'` direkt på workspacet — samma säkra nedgraderingsbeteende som redan gäller: data ligger kvar, bara nya prompts blockeras över gränsen). Ingen automatisk cron-nedgradering — du sa uttryckligen att nedgradering vid obetald faktura ska vara ett manuellt beslut du tar, eftersom ingen automatik kan veta om en extern faktura faktiskt betalats.
+
+**Byggordning:**
+1. Migration: `pro_orders`-tabell + RLS + breddad premium-koll i befintliga funktioner + nivå→gräns-mappning
+2. `create_pro_order()`-RPC (inkl. organisations-workspace-skapande för Team/Förvaltning/Kommun)
+3. "Uppgradera till Pro"-formulär i admin.html/admin.js
+4. Adminfaktura-granskning (lista + statusknappar + nedgradera-knapp)
