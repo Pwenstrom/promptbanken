@@ -103,7 +103,12 @@ Idé: ge ut 30 dagars Pro-test via en unik, engångs-länk istället för att by
 | Förvaltning | Organisation | En förvaltning/avdelning, delad via en agent | `plus` *(redan i enumet, oanvänt idag)* | 500 | 5 |
 | Kommun | Organisation | Hela kommunen, delad via en agent | `enterprise` *(redan i enumet, oanvänt idag)* | 1000 | 5 |
 
-**Viktigt förtydligande (ändrar tidigare antagande):** org-nivåerna handlar **inte** om flera inloggade medlemmar i admin.html — de handlar om att *workspacet* får en starkare API/MCP-nyckel som kopplas in i en delad agent (t.ex. Copilot Studio-bot eller intern chatbot) som många anställda använder utan att själva logga in i Promptbanken. Alltså: **ingen medlemsinbjudan/platsgräns-funktion behövs** — det kritiska gapet vi först flaggade (att "Medlemmar"-sektionen bara listar, aldrig bjuder in) är **inte** relevant för den här funktionen och stryks från scopet.
+**Viktigt förtydligande:** org-nivåerna handlar om att *workspacet* får en starkare API/MCP-nyckel som kan kopplas in i en delad agent (t.ex. Copilot Studio-bot) — **men** ett Team ska även kunna dela prompts mellan sina egna, riktigt inloggade medlemmar (5–10 personer), inte bara agera nyckel-till-en-bot. Det innebär att medlemsinbjudan **återinförs i scopet** (jag strök det för snabbt tidigare) — åtminstone för Team, sannolikt även Förvaltning/Kommun.
+
+- **Delning i sig fungerar redan tekniskt:** `content_items.visibility = 'workspace'` finns redan, och "Promptbibliotek"-listan i `admin.html` visar redan sådana prompts för alla i samma organisation (`enforce_content_access_model()` kräver redan `visibility='workspace'` för organisationsprompts). Inget nytt behövs där.
+- **Det som faktiskt saknas:** ett sätt att **bjuda in en kollega** till workspacet. Idag skapas `profiles`-rader bara automatiskt för personliga workspaces (`ensure_personal_workspace()`) — det finns ingen "bjud in via e-post"-funktion för organisationer alls.
+- [ ] **Ny funktion att bygga:** `invite_org_member(p_workspace_id, p_email, p_role)`-RPC (SECURITY DEFINER, kollar att anroparen är `workspace_owner`/`workspace_admin`/`platform_owner` i det workspacet) som hittar mottagarens `user_id` via e-post (de måste redan ha ett Promptbanken-konto — enklast för v1, ingen e-postutskicksfunktion behövs då) och skapar en `profiles`-rad åt dem i organisationens workspace. UI: formulär i "Medlemmar"-sektionen i `admin.html` (som idag bara listar, aldrig bjuder in).
+- [ ] Platsgräns per nivå (Team max ~10 medlemmar) — enkel räkne-trigger på `profiles`-insert, samma mönster som `enforce_mcp_key_limit()`.
 
 **Datamodell:**
 - [ ] Ny tabell `pro_orders`: `id`, `workspace_id`, `user_id`, `status` (`pending`→`invoiced`→`paid`|`overdue`|`cancelled`), `requested_plan` (workspace_plan-enum), `billing_company_name`, `billing_org_number`, `billing_address`, `billing_reference`, `billing_email`, `created_at`, `due_date`, `note`. RLS: platform_owner ser allt, beställaren ser sin egen order.
@@ -122,5 +127,6 @@ Idé: ge ut 30 dagars Pro-test via en unik, engångs-länk istället för att by
 **Byggordning:**
 1. Migration: `pro_orders`-tabell + RLS + breddad premium-koll i befintliga funktioner + nivå→gräns-mappning
 2. `create_pro_order()`-RPC (inkl. organisations-workspace-skapande för Team/Förvaltning/Kommun)
-3. "Uppgradera till Pro"-formulär i admin.html/admin.js
-4. Adminfaktura-granskning (lista + statusknappar + nedgradera-knapp)
+3. `invite_org_member()`-RPC + "Bjud in medlem"-formulär i Medlemmar-sektionen + platsgräns-trigger
+4. "Uppgradera till Pro"-formulär i admin.html/admin.js
+5. Adminfaktura-granskning (lista + statusknappar + nedgradera-knapp)
