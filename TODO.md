@@ -25,6 +25,7 @@
 8. [x] Riktig sidnavigering — `IntersectionObserver`-baserad scroll-spy (`initNavScrollSpy()`) uppdaterar `.active`-klass på rätt nav-länk vid scroll.
 9. [x] Slå ihop MCP-nyckel och API-nycklar visuellt — ny gemensam sektion "Integrationer" (`#integrationer`) med flikar (`.integration-tab`/`.integration-panel`); nav-länken pekar dit och klick på flikarna växlar panel utan sidladdning.
 10. [x] Mobilanpassning av tabellerna — ny media query (`max-width: 640px`) minskar padding/font-storlek, gör knappar i tabellceller fullbredd/staplade, och tar bort sökfältets maxbredd på smala skärmar.
+11. [x] **Helt omgjord "Mina prompts"-yta** (2026-07-03, efter konkret HTML-mockup från användaren): rad-kort istället för tabell (`.mp-template`, ersätter `<table>`), statistikkort högst upp (Plan/Användning med progressbar/Status/Säkerhetspåminnelse), tvåkolumns skapa-formulär med sidopanel ("Bra att veta" + uppgraderingstips), riskförklaringsboxar (låg/medel/hög), hopfällbart "Avancerat"-fält för slug, statuspills (utkast/granskning/publicerad, färgkodade). Medvetna avsteg: steg-indikatorn (1–4) är bara visuell, ingen klickbar wizard; "Kontroll före användning"-fältet från mockupen byggdes inte (ingen motsvarande kolumn i `content_items`).
 
 ## Pro-läget: vad som ska ingå
 

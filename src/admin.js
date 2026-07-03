@@ -309,14 +309,49 @@ function renderPromptFormRules() {
   }
 }
 
-function renderPromptCounter(ownActivePrompts) {
-  const note = document.querySelector('[data-prompt-count-note]');
-  if (!note) return;
+const planNameLabels = { free: 'Free', pro: 'Pro', start: 'Team', plus: 'Förvaltning', enterprise: 'Kommun' };
 
+function renderPromptCounter(ownActivePrompts) {
   const limit = maxPrompts();
-  note.hidden = false;
-  note.textContent = `${ownActivePrompts} av ${limit} prompts använda`;
-  note.classList.toggle('is-at-limit', ownActivePrompts >= limit);
+  const atLimit = ownActivePrompts >= limit;
+  const plan = state.workspace?.plan ?? 'free';
+
+  setText('[data-mp-plan-name]', planNameLabels[plan] || plan);
+  setText('[data-mp-used-count]', ownActivePrompts);
+  setText('[data-mp-max-count]', limit);
+
+  const bar = document.querySelector('[data-mp-usage-bar]');
+  if (bar) {
+    bar.style.width = `${Math.min(100, Math.round((ownActivePrompts / limit) * 100))}%`;
+    bar.parentElement?.classList.toggle('is-at-limit', atLimit);
+  }
+
+  const statusMetric = document.querySelector('[data-mp-status-metric]');
+  const statusNote = document.querySelector('[data-mp-status-note]');
+  if (statusMetric) {
+    statusMetric.textContent = atLimit ? 'Fullt' : 'OK';
+    statusMetric.classList.toggle('mp-bad', atLimit);
+    statusMetric.classList.toggle('mp-ok', !atLimit);
+  }
+  if (statusNote) {
+    statusNote.textContent = atLimit
+      ? 'Ta bort en mall för att skapa ny'
+      : 'Du kan skapa fler mallar';
+  }
+
+  const limitNotice = document.querySelector('[data-mp-limit-notice]');
+  const limitNoticeText = document.querySelector('[data-mp-limit-notice-text]');
+  if (limitNotice) {
+    limitNotice.hidden = !atLimit;
+    if (limitNoticeText) {
+      limitNoticeText.textContent = `Du har skapat max antal prompts (${limit} st). Ta bort en mall eller uppgradera för att skapa fler.`;
+    }
+  }
+
+  const upgradeTip = document.querySelector('[data-mp-upgrade-tip]');
+  if (upgradeTip) {
+    upgradeTip.hidden = plan !== 'free';
+  }
 }
 
 function renderPrompts() {
@@ -337,19 +372,23 @@ function renderPrompts() {
       ))
     : allOwnPrompts;
 
+  const statusLabels = { draft: 'Utkast', review: 'Granskning', published: 'Publicerad', archived: 'Arkiverad' };
+
   if (!allOwnPrompts.length) {
-    mineBody.innerHTML = emptyRow(6, 'Du har inga prompts än. Fyll i formuläret ovan för att skapa din första!');
+    mineBody.innerHTML = '<div class="mp-empty">Du har inga prompts än. Fyll i formuläret ovan för att skapa din första!</div>';
   } else if (!ownPrompts.length) {
-    mineBody.innerHTML = emptyRow(6, `Inga prompts matchar "${escapeHtml(state.myPromptsSearch)}".`);
+    mineBody.innerHTML = `<div class="mp-empty">Inga prompts matchar "${escapeHtml(state.myPromptsSearch)}".</div>`;
   } else {
     mineBody.innerHTML = ownPrompts.map((item) => `
-        <tr>
-          <td>${escapeHtml(item.title)}</td>
-          <td>${escapeHtml(item.status)}</td>
-          <td>${escapeHtml(item.visibility)}</td>
-          <td>${escapeHtml(riskLabels[item.risk_level] || riskLabels.low)}</td>
-          <td>${escapeHtml(item.updated_at ? new Date(item.updated_at).toLocaleDateString('sv-SE') : '')}</td>
-          <td>
+        <article class="mp-template">
+          <div>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>${escapeHtml(item.summary || item.category || 'Ingen sammanfattning.')}</p>
+          </div>
+          <div><span class="mp-pill mp-status-${escapeHtml(item.status)}">${escapeHtml(statusLabels[item.status] || item.status)}</span></div>
+          <div class="mp-small">${escapeHtml(item.category || '-')}</div>
+          <div><span class="mp-pill mp-risk-${escapeHtml(item.risk_level)}">${escapeHtml(riskLabels[item.risk_level] || riskLabels.low)}</span></div>
+          <div class="mp-menu">
             <button type="button" data-preview-prompt="${item.id}">${state.expandedPromptId === item.id ? 'Dölj' : 'Visa'}</button>
             ${item.status !== 'published'
               ? `<button type="button" data-edit-prompt="${item.id}">Redigera</button>`
@@ -360,12 +399,9 @@ function renderPrompts() {
             ${item.status !== 'published'
               ? `<button type="button" data-delete-prompt="${item.id}" data-delete-confirm="0">Ta bort</button>`
               : ''}
-          </td>
-        </tr>
-        ${state.expandedPromptId === item.id ? `
-        <tr class="prompt-preview-row">
-          <td colspan="6">${escapeHtml(item.content)}</td>
-        </tr>` : ''}
+          </div>
+        </article>
+        ${state.expandedPromptId === item.id ? `<div class="mp-template-preview">${escapeHtml(item.content)}</div>` : ''}
       `).join('');
   }
 

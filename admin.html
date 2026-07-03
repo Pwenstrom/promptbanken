@@ -237,80 +237,162 @@
                             <div>
                                 <h2>Mina prompts</h2>
                                 <p>Skapa utkast och publicera när rollen tillåter det.</p>
-                                <p data-prompt-limit-note>Free-läge: du kan skapa upp till 3 privata prompts.</p>
-                                <p class="prompt-count-note" data-prompt-count-note hidden></p>
                             </div>
                             <div class="workspace-section-actions">
                                 <button type="button" data-export-my-prompts>Exportera mina prompts</button>
                                 <button type="button" data-refresh>Uppdatera</button>
                             </div>
                         </div>
-                        <form class="workspace-form" data-prompt-form>
-                            <label>
-                                Titel
-                                <input name="title" required minlength="2">
-                                <small class="field-error" data-field-error="title" hidden></small>
-                            </label>
-                            <label>
-                                Slug
-                                <input name="slug" placeholder="skapas från titel om tom">
-                            </label>
-                            <label>
-                                Synlighet
-                                <select name="visibility">
-                                    <option value="workspace">Workspace</option>
-                                    <option value="private">Privat</option>
-                                    <option value="public">Publik efter publicering</option>
-                                </select>
-                            </label>
-                            <label>
-                                Kategori
-                                <input name="category">
-                            </label>
-                            <label>
-                                Målgrupp
-                                <input name="audience">
-                            </label>
-                            <label>
-                                Risknivå
-                                <select name="risk_level">
-                                    <option value="low">Låg risk</option>
-                                    <option value="medium">Medelrisk</option>
-                                    <option value="high">Hög risk</option>
-                                </select>
-                            </label>
-                            <label class="workspace-form-wide">
-                                Sammanfattning
-                                <input name="summary">
-                            </label>
-                            <label class="workspace-form-wide">
-                                Prompttext
-                                <textarea name="content" rows="5" required minlength="10"></textarea>
-                                <small class="field-error" data-field-error="content" hidden></small>
-                            </label>
-                            <div class="workspace-form-actions">
-                                <button type="submit" data-prompt-form-submit>Spara utkast</button>
-                                <button type="button" data-prompt-form-cancel hidden>Avbryt redigering</button>
+
+                        <div class="mp-cards">
+                            <div class="mp-card">
+                                <h3>Plan</h3>
+                                <div class="mp-metric" data-mp-plan-name>Free</div>
+                                <div class="mp-small" data-prompt-limit-note>Upp till 3 privata mallar</div>
                             </div>
-                        </form>
-                        <label class="prompt-search-field">
-                            <span class="app-icon" aria-hidden="true" data-icon="search"></span>
-                            <input type="search" data-my-prompts-search placeholder="Sök bland dina prompts (titel eller kategori)...">
-                        </label>
-                        <div class="workspace-table-wrap">
-                            <table class="workspace-table">
-                                <thead>
-                                    <tr>
-                                        <th>Titel</th>
-                                        <th>Status</th>
-                                        <th>Synlighet</th>
-                                        <th>Risknivå</th>
-                                        <th>Uppdaterad</th>
-                                        <th>Åtgärd</th>
-                                    </tr>
-                                </thead>
-                                <tbody data-my-prompts></tbody>
-                            </table>
+                            <div class="mp-card">
+                                <h3>Användning</h3>
+                                <div class="mp-metric" data-mp-usage-metric><span data-mp-used-count>0</span> <span>av <span data-mp-max-count>3</span></span></div>
+                                <div class="mp-bar"><span data-mp-usage-bar></span></div>
+                            </div>
+                            <div class="mp-card">
+                                <h3>Status</h3>
+                                <div class="mp-metric" data-mp-status-metric>OK</div>
+                                <div class="mp-small" data-mp-status-note>Du kan skapa fler mallar</div>
+                            </div>
+                            <div class="mp-card">
+                                <h3>Säkerhet</h3>
+                                <div class="mp-metric mp-ok">Kom ihåg</div>
+                                <div class="mp-small">Anonymisera personuppgifter innan du sparar</div>
+                            </div>
+                        </div>
+
+                        <div class="mp-grid">
+                            <div class="mp-panel">
+                                <h2 data-mp-form-heading>Skapa mall manuellt</h2>
+                                <p>Guidat formulär för egna prompts.</p>
+
+                                <p class="mp-notice" data-mp-limit-notice hidden>
+                                    <strong>Gränsen är nådd</strong>
+                                    <span data-mp-limit-notice-text>Ta bort en mall eller uppgradera för att skapa fler.</span>
+                                </p>
+
+                                <div class="mp-steps" aria-hidden="true">
+                                    <span class="mp-step">1. Behov</span>
+                                    <span class="mp-step">2. Prompt</span>
+                                    <span class="mp-step">3. Risk</span>
+                                    <span class="mp-step">4. Spara</span>
+                                </div>
+
+                                <form class="mp-form" data-prompt-form>
+                                    <div class="mp-formgrid">
+                                        <div class="mp-field">
+                                            <label>Titel
+                                                <input name="title" required minlength="2">
+                                            </label>
+                                            <small class="field-error" data-field-error="title" hidden></small>
+                                        </div>
+                                        <div class="mp-field">
+                                            <label>Kategori
+                                                <input name="category">
+                                            </label>
+                                        </div>
+                                        <div class="mp-field">
+                                            <label>Målgrupp
+                                                <input name="audience">
+                                            </label>
+                                        </div>
+                                        <div class="mp-field">
+                                            <label>Synlighet
+                                                <select name="visibility">
+                                                    <option value="workspace">Workspace</option>
+                                                    <option value="private">Privat</option>
+                                                    <option value="public">Publik efter publicering</option>
+                                                </select>
+                                            </label>
+                                        </div>
+                                        <div class="mp-field mp-full">
+                                            <label>Kort beskrivning
+                                                <input name="summary">
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="mp-field">
+                                        <label>Prompttext
+                                            <textarea name="content" rows="5" required minlength="10"></textarea>
+                                        </label>
+                                        <small class="field-error" data-field-error="content" hidden></small>
+                                        <div class="mp-hint">Tips: bygg prompten med roll, uppgift, kontext, format och kontrollpunkter.</div>
+                                    </div>
+
+                                    <div class="mp-formgrid">
+                                        <div class="mp-field">
+                                            <label>Risknivå
+                                                <select name="risk_level">
+                                                    <option value="low">Låg risk</option>
+                                                    <option value="medium">Medelrisk</option>
+                                                    <option value="high">Hög risk</option>
+                                                </select>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="mp-riskbox">
+                                        <div class="mp-risk"><b>Låg risk</b><p>Idéer, struktur, generella texter och visuella förslag.</p></div>
+                                        <div class="mp-risk"><b>Medelrisk</b><p>Kommunikation, rutiner, sammanfattningar och interna arbetsflöden.</p></div>
+                                        <div class="mp-risk"><b>Hög risk</b><p>Beslut, ekonomi, juridik, personalärenden och individärenden.</p></div>
+                                    </div>
+
+                                    <details class="mp-advanced">
+                                        <summary>Avancerat</summary>
+                                        <div class="mp-field" style="margin-top:12px">
+                                            <label>Slug
+                                                <input name="slug" placeholder="skapas från titel om tom">
+                                            </label>
+                                            <div class="mp-hint">Slug används för export, API/MCP eller interna länkar. Du behöver oftast inte ändra detta.</div>
+                                        </div>
+                                    </details>
+
+                                    <div class="mp-footer-actions">
+                                        <div class="workspace-form-actions">
+                                            <button type="submit" data-prompt-form-submit>Spara utkast</button>
+                                            <button type="button" data-prompt-form-cancel hidden>Avbryt redigering</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <aside class="mp-panel mp-aside">
+                                <h2>Bra att veta</h2>
+                                <div class="mp-sideitem">
+                                    <h3>Innan du sparar</h3>
+                                    <ul>
+                                        <li>Anonymisera personuppgifter innan du sparar mallen</li>
+                                        <li>Kontrollera fakta innan mallen används skarpt</li>
+                                        <li>Exportera regelbundet som säkerhetskopia</li>
+                                    </ul>
+                                </div>
+                                <div class="mp-sideitem" data-mp-upgrade-tip hidden>
+                                    <h3>Fler mallar</h3>
+                                    <p>Uppgradera till Pro för fler mallar, fler MCP-nycklar och premiummallar.</p>
+                                    <a class="mp-locked-link" href="#uppgradera">Uppgradera till Pro</a>
+                                </div>
+                            </aside>
+                        </div>
+
+                        <div class="mp-listpanel">
+                            <div class="mp-toolbar">
+                                <div>
+                                    <h2>Mina sparade mallar</h2>
+                                    <p>Sök, förhandsgranska och hantera dina mallar.</p>
+                                </div>
+                                <label class="mp-search">
+                                    <span class="app-icon" aria-hidden="true" data-icon="search"></span>
+                                    <input type="search" data-my-prompts-search placeholder="Sök titel, kategori eller målgrupp...">
+                                </label>
+                            </div>
+                            <div class="mp-templates" data-my-prompts></div>
                         </div>
                     </section>
 
