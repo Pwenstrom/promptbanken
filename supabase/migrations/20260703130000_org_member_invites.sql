@@ -85,7 +85,8 @@ create table if not exists public.org_join_codes (
     created_by   uuid references auth.users(id) on delete set null,
     created_at   timestamptz not null default now(),
     expires_at   timestamptz,
-    constraint org_join_codes_token_key unique (token)
+    constraint org_join_codes_token_key unique (token),
+    constraint org_join_codes_role_check check (role not in ('workspace_owner', 'platform_owner'))
 );
 
 alter table public.org_join_codes enable row level security;
@@ -103,11 +104,14 @@ using (
     or app_private.current_user_is_platform_owner()
 )
 with check (
-    app_private.current_user_has_workspace_role(
-        workspace_id,
-        array['workspace_owner', 'workspace_admin']::public.profile_role[]
+    (
+        app_private.current_user_has_workspace_role(
+            workspace_id,
+            array['workspace_owner', 'workspace_admin']::public.profile_role[]
+        )
+        or app_private.current_user_is_platform_owner()
     )
-    or app_private.current_user_is_platform_owner()
+    and role not in ('workspace_owner', 'platform_owner')
 );
 
 create or replace function public.redeem_org_join_code(p_token text)
@@ -139,6 +143,10 @@ begin
 
     if code_record.expires_at is not null and code_record.expires_at < now() then
         raise exception 'Länken har gått ut.';
+    end if;
+
+    if code_record.role in ('workspace_owner', 'platform_owner') then
+        raise exception 'Ogiltig roll för join-länk.';
     end if;
 
     if exists (
