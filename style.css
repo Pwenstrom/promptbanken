@@ -2457,6 +2457,9 @@ body.local-chat-enabled .card-actions .local-chat-btn {
     border-radius: 6px;
     color: #fff;
     font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .admin-nav,
@@ -2530,6 +2533,17 @@ body.local-chat-enabled .card-actions .local-chat-btn {
 .admin-topbar span {
     display: block;
     color: #667085;
+}
+
+.admin-topbar > div:first-child {
+    min-width: 0;
+}
+
+.admin-topbar > div:first-child strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .admin-topbar-actions {

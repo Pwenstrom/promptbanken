@@ -126,8 +126,17 @@ function setStatus(message, isError = false) {
 }
 
 function setText(selector, value) {
+  const text = value === undefined || value === null || value === '' ? '-' : value;
   document.querySelectorAll(selector).forEach((element) => {
-    element.textContent = value === undefined || value === null || value === '' ? '-' : value;
+    element.textContent = text;
+  });
+}
+
+function setTextWithTitle(selector, value) {
+  setText(selector, value);
+  const text = value === undefined || value === null || value === '' ? '-' : value;
+  document.querySelectorAll(selector).forEach((element) => {
+    element.title = text;
   });
 }
 
@@ -749,7 +758,7 @@ async function loadProfile(user) {
   state.workspace = workspace;
 
   setText('[data-user-email]', user.email);
-  setText('[data-workspace-name]', workspace.name);
+  setTextWithTitle('[data-workspace-name]', workspace.name);
   setText('[data-workspace-type]', workspaceTypeLabels[workspace.type] || workspace.type);
   setText('[data-workspace-plan]', workspace.plan);
   setText('[data-profile-role]', roleNameLabels[profile.role] || profile.role);
@@ -793,7 +802,7 @@ async function switchToWorkspace(workspaceId) {
   state.profile = profile;
   state.workspace = workspace;
 
-  setText('[data-workspace-name]', workspace.name);
+  setTextWithTitle('[data-workspace-name]', workspace.name);
   setText('[data-workspace-type]', workspaceTypeLabels[workspace.type] || workspace.type);
   setText('[data-workspace-plan]', workspace.plan);
   setText('[data-profile-role]', roleNameLabels[profile.role] || profile.role);
@@ -1169,7 +1178,7 @@ async function renameWorkspace(event) {
   }
 
   state.workspace.name = name;
-  setText('[data-workspace-name]', name);
+  setTextWithTitle('[data-workspace-name]', name);
   form.hidden = true;
   form.reset();
   setStatus('Namnet uppdaterades.');
