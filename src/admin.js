@@ -1154,7 +1154,7 @@ const upgradePlanLabels = {
 // via offert och aktiveras först efter godkännande (se B2).
 // TODO: bekräfta beloppen innan publik release.
 const planPricing = {
-  pro: { amount: 'PRIS SAKNAS kr/år', note: 'per användare, faktureras årsvis', selfService: true },
+  pro: { amount: '849 kr/år', note: 'eller 89 kr/mån · faktureras i efterskott', selfService: true },
   start: { amount: 'PRIS SAKNAS kr/år', note: 'per team, faktureras årsvis', selfService: true },
   plus: { amount: 'Pris enligt offert', note: 'vi kontaktar er innan avtal och fakturering', selfService: false },
   enterprise: { amount: 'Pris enligt offert', note: 'vi kontaktar er innan avtal och fakturering', selfService: false }
