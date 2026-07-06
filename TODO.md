@@ -194,3 +194,29 @@ Detta ändrar tidigare antagande (att Förvaltning/Kommun = ett enda organisatio
 - [x] **Godkännandesteg för Förvaltning/Kommun (plus/enterprise):** ny migration `20260704150000_org_order_approval.sql` — `create_pro_order()` aktiverar bara Pro (personlig) och Team (`start`) direkt; `plus`/`enterprise` skapar bara en väntande förfrågan (ingen licens/arbetsyta/rolländring) med anti-spam (max 3 öppna förfrågningar/användare), och ny returkolumn `activated`. Plattformsadmin aktiverar via ny `admin_activate_pro_order(p_order_id)` som gör samma provisioning som Team-grenen efter granskning/avtal. Frontend (`src/admin.js`/`admin.html`/`style.css`) uppdaterad: `reviewUpgradeOrder()`/`confirmUpgradeOrder()` läser `activated`, ny `activateProOrder()`-åtgärd i Fakturor-tabellen. Migrationen körd mot Supabase.
 - [x] **Ny publik "Planer och priser"-sida** (`planer.html`): översikt över Free/Pro/Team/Förvaltning/Kommun, registrerad i `vite.config.js`, länkad från `pro.html`/`promptbanken.html`.
 - [x] **Ny "Arbetsytor"-sida:** syns för Team/Förvaltning/Kommun (ser alla arbetsytor under sin egen licens) och för plattformsägaren (ser alla arbetsytor i hela systemet) — återanvänder befintlig `data-org-only`-synlighetsregel. Varje rad: namn/typ/plan/egen roll, "Byt till"-knapp (`switchToWorkspace()` tål nu att plattformsägaren tittar in i en yta utan eget medlemskap), och en "+ Snabb prompt"-knapp som fäller ut ett litet formulär för att skapa ett utkast direkt i just den arbetsytan utan att behöva byta aktiv yta först. Ny migration `20260704120000_license_sibling_workspaces_rls.sql` fixar en RLS-lucka: gamla policyn lät dig bara se arbetsytor du själv skapat eller redan var medlem i, inte syskon-ytor en kollega skapat under samma licens. Migrationen körd mot Supabase.
+
+## Ompositionering av planmodellen: "Pro + Delad arbetsyta" (2026-07-06)
+
+Efter release-granskning och prisbeslut ändrades planmodellen. **`start` fasas ut som org-licens (Team)** och blir istället en **liten delad addon-yta ovanpå personlig Pro**. Detta ersätter det tidigare Team-som-org-licens-antagandet i noterna ovan (2026-07-03/04). Två världar, hårt åtskilda:
+- **Personlig värld:** Free (0 kr) / Pro (89 kr/mån) / **Pro + Delad arbetsyta** (Pro + 199 kr/mån, ägaren betalar ytan).
+- **Organisationsvärld:** Förvaltning (`plus`) / Kommun (`enterprise`) — oförändrad org-licensmodell via `pro_licenses`, offert.
+
+Beslut/priser: Free 0, Pro 89 kr/mån, Delad arbetsyta = Pro + 199 kr/mån, max **5** medlemmar inkl. ägare, 200 delade mallar, **inga egna arbetsyte-nycklar** (nås via medlemmarnas personliga Pro-nycklar). Pro MCP-tak sänkt **5 → 3**. API=Nej i MVP. Premium styrs som boolean, antal (42) inte hårdkodat i regler.
+
+Spec: `docs/superpowers/specs/2026-07-06-delad-arbetsyta-addon-design.md`. Plan: `docs/superpowers/plans/2026-07-06-delad-arbetsyta-addon.md`.
+
+- [x] **Migrationer byggda och körda mot staging** (`20260706100000`–`103500`, +fix `…103500` som droppar `create_pro_order` före recreate):
+  - `shared_workspace_addons`-tabell + RLS (skild från `pro_licenses`).
+  - `has_active_pro_entitlement(user_id)` — abstraktion, MVP-källa = egen aktiv personlig Pro-yta; framtidssäker för ägar-/org-/avtalstilldelad Pro.
+  - `create_shared_workspace(p_name)` — Pro-gated, `license_id=null` + addon-rad, ägaren blir `workspace_owner`. Enda vägen till ny delad yta.
+  - Join-spärr (`enforce_org_member_limit` förgrenad): addon-ytor kräver Pro per medlem + max 5 via `shared_workspace_addons`; org-licensytor kör kvar på `pro_licenses`.
+  - Mallgräns 200 för addon-ytor (`enforce_content_access_model` ny gren).
+  - Blockera egna MCP-nycklar på addon-ytor + Pro-tak 5→3 (`enforce_mcp_key_limit`, `plan_limits`).
+  - **Kontextstyrd MCP** (`get_workspace_prompts_for_key(p_key_hash, p_scope, p_workspace_id)`): default = bara privat yta; delade ytor kräver explicit `workspace_id` efter medlemskapskontroll; **hård gräns** — personlig Pro-nyckel når aldrig `plus`/`enterprise`. Ersätter den gamla enparameter-funktionen. Ny discovery-RPC `list_shared_workspaces_for_key`. Gamla `list_my_workspace_prompts`-modellen (nod 193 ovan) är därmed ersatt.
+  - `create_pro_order` avvisar `start` (pekar mot `create_shared_workspace`); gamla start-licensgrenen borttagen.
+- [x] **MCP-server (lokal)** `mcp-server/server/`: nya verktyg `list_my_private_prompts`, `list_my_shared_workspaces`, `list_shared_workspace_prompts(workspace_id)`.
+- [x] **Frontend-copy**: `planer.html`/`admin.html`/`pro.html`/`src/admin.js` — Delad arbetsyta som Pro-tillägg, Pro 3 nycklar, API borttaget, "hela premiumbiblioteket" i stället för hårdkodat antal. `create_shared_workspace` anropas för `start`-valet i uppgraderingsflödet.
+- [x] **Seed-scriptet** omskrivet till addon-modellen (personliga Pro-ytor för medlemmar, addon-rad, licensierade org-ytor). **Kvar: verifiera mot staging** (`npm run seed:test-users`) — kunde bara syntax-kontrolleras, inte köras.
+- [ ] **Kvar att verifiera mot staging:** hårda MCP-gränsen (`supabase/tests/context_mcp_scope.sql` query 4 → 0 rader) samt seed-körningen.
+- [ ] **Hostad `mcp_promptbanken`-server** (separat repo): bygg motsvarande kontextverktyg (`list_my_private_prompts`/`list_my_shared_workspaces`/`list_shared_workspace_prompts`) så kontext-MCP funkar via publika adressen. Den droppade enparameter-funktionen ersattes av en 3-parametersvariant med defaults, så hostade servern slutar **inte** fungera — den får bara inte de nya verktygen ännu.
+- [ ] **Löpande månadsdebitering** (Stripe/prenumeration/cron) — utanför MVP-scope. Idag skickas en engångsfaktura vid aktivering; "89 kr/mån" / "Pro + 199 kr/mån" faktureras i praktiken i efterskott.
