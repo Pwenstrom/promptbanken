@@ -1,7 +1,11 @@
 -- create_pro_order hanterar bara pro (direkt) och plus/enterprise (förfrågan).
 -- start hör nu till create_shared_workspace och avvisas här. Den gamla
 -- start-grenen (som skapade pro_licenses + org-workspace) tas bort helt.
--- Signaturen är oförändrad -> create or replace räcker (ingen drop behövs).
+--
+-- Droppa först: PostgreSQL tillåter inte att en funktions returtyp ändras via
+-- create or replace, och den utplacerade versionen kan ha en annan returtyp
+-- (t.ex. utan kolumnen activated). Drop + create ger rätt sluttillstånd oavsett.
+drop function if exists public.create_pro_order(public.workspace_plan, integer, text, text, text, text, text, text);
 
 create or replace function public.create_pro_order(
     p_requested_plan       public.workspace_plan,
