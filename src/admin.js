@@ -428,7 +428,7 @@ function renderPromptFormRules() {
   }
 }
 
-const planNameLabels = { free: 'Free', pro: 'Pro', start: 'Arbetsyta', plus: 'Förvaltning', enterprise: 'Kommun' };
+const planNameLabels = { free: 'Free', pro: 'Pro', start: 'Delad arbetsyta', plus: 'Förvaltning', enterprise: 'Kommun' };
 
 function renderPromptCounter(ownActivePrompts) {
   const limit = maxPrompts();
@@ -1144,7 +1144,7 @@ async function revokeJoinCode(codeId) {
 
 const upgradePlanLabels = {
   pro: 'Pro',
-  start: 'Arbetsyta',
+  start: 'Delad arbetsyta',
   plus: 'Förvaltning',
   enterprise: 'Kommun'
 };
@@ -1155,7 +1155,7 @@ const upgradePlanLabels = {
 // TODO: bekräfta beloppen innan publik release.
 const planPricing = {
   pro: { amount: '89 kr/mån', note: 'faktureras i efterskott', selfService: true },
-  start: { amount: '99 kr/användare/mån', note: 'minst 3 användare · faktureras i efterskott', selfService: true },
+  start: { amount: 'Pro + 199 kr/mån', note: 'delad yta, upp till 5 Pro-användare · faktureras i efterskott', selfService: true },
   plus: { amount: 'Pris enligt offert', note: 'vi kontaktar er innan avtal och fakturering', selfService: false },
   enterprise: { amount: 'Pris enligt offert', note: 'vi kontaktar er innan avtal och fakturering', selfService: false }
 };
@@ -1286,6 +1286,27 @@ async function confirmUpgradeOrder() {
 
   setUpgradeStatus('Skickar beställning...');
   hideUpgradeConfirm();
+
+  // Delad arbetsyta är ett Pro-tillägg med egen väg (skapar ingen pro_order/licens).
+  if (order.plan === 'start') {
+    const { data: sharedData, error: sharedError } = await supabase.rpc('create_shared_workspace', {
+      p_name: order.workspaceName || order.companyName
+    });
+    if (sharedError) {
+      setUpgradeStatus(sharedError.message || 'Kunde inte skapa den delade arbetsytan.', true);
+      return;
+    }
+    const created = Array.isArray(sharedData) ? sharedData[0] : sharedData;
+    setUpgradeStatus('Delad arbetsyta skapad. Faktura på 199 kr/mån skickas.');
+    upgradeForm.reset();
+    syncUpgradeWorkspacesField();
+    if (created?.workspace_id) {
+      await switchToWorkspace(created.workspace_id);
+    } else {
+      await loadProfile(state.user);
+    }
+    return;
+  }
 
   const { data, error } = await supabase.rpc('create_pro_order', {
     p_requested_plan: order.plan,
