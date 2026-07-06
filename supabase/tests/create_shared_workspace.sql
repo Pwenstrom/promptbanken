@@ -1,0 +1,12 @@
+-- Kör som en inloggad Pro-användare (via frontend, eller sätt request.jwt
+-- i en Supabase-klient). Manuell kontroll efter anrop:
+--   select * from public.create_shared_workspace('Testyta');
+--   select * from public.workspaces where plan='start' and license_id is null;
+--     -> ny rad, type='organization', api_enabled=false, mcp_enabled=true
+--   select * from public.shared_workspace_addons order by created_at desc limit 1;
+--     -> max_members=5, max_prompts=200, price_per_month=199
+--   select role from public.profiles where workspace_id=<ny yta> and user_id=<anropare>;
+--     -> workspace_owner
+-- Negativt: en Free-användare som anropar create_shared_workspace ska få
+--   'Du behöver en aktiv Pro-plan för att skapa en delad arbetsyta.'
+select 'se kommentarer' as note;
