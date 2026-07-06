@@ -86,19 +86,40 @@ def list_pro_templates() -> dict[str, Any]:
 
 
 @mcp.tool()
-def list_my_workspace_prompts() -> dict[str, Any]:
-    """List the caller's own workspace prompts via PROMPTBANKEN_MCP_KEY
-    (env var): published prompts shared with the whole workspace, plus --
-    only for the first/primary MCP key created for a team workspace --
-    the workspace owner's own private prompts. Additional keys created
-    later for a team only see workspace-shared prompts, not anyone's
-    private ones."""
+def list_my_private_prompts() -> dict[str, Any]:
+    """List the caller's own private Pro prompts (personal workspace) via
+    PROMPTBANKEN_MCP_KEY. Never returns other members' private prompts or
+    organization prompts."""
     try:
         client = ProTemplatesClient.from_env()
     except ProTemplatesNotConfigured as exc:
         return {"error": str(exc), "prompts": []}
 
-    return {"prompts": client.list_workspace_prompts()}
+    return {"prompts": client.list_private_prompts()}
+
+
+@mcp.tool()
+def list_my_shared_workspaces() -> dict[str, Any]:
+    """List the shared workspaces the caller's personal Pro key can access
+    (id + name). Use a returned workspace_id with list_shared_workspace_prompts."""
+    try:
+        client = ProTemplatesClient.from_env()
+    except ProTemplatesNotConfigured as exc:
+        return {"error": str(exc), "workspaces": []}
+
+    return {"workspaces": client.list_shared_workspaces()}
+
+
+@mcp.tool()
+def list_shared_workspace_prompts(workspace_id: str) -> dict[str, Any]:
+    """List shared prompts from ONE shared workspace the caller is a member of.
+    Requires an explicit workspace_id (from list_my_shared_workspaces)."""
+    try:
+        client = ProTemplatesClient.from_env()
+    except ProTemplatesNotConfigured as exc:
+        return {"error": str(exc), "prompts": []}
+
+    return {"prompts": client.list_shared_prompts(workspace_id)}
 
 
 if __name__ == "__main__":

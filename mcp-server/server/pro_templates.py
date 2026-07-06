@@ -37,9 +37,12 @@ class ProTemplatesClient:
     def _key_hash(self) -> str:
         return hashlib.sha256(self.mcp_key.encode("utf-8")).hexdigest()
 
-    def _call_rpc(self, function_name: str) -> list[dict[str, Any]]:
+    def _call_rpc(self, function_name: str, extra: dict[str, Any] | None = None) -> list[dict[str, Any]]:
         url = f"{self.supabase_url}/rest/v1/rpc/{function_name}"
-        body = json.dumps({"p_key_hash": self._key_hash()}).encode("utf-8")
+        payload: dict[str, Any] = {"p_key_hash": self._key_hash()}
+        if extra:
+            payload.update(extra)
+        body = json.dumps(payload).encode("utf-8")
         request = urllib.request.Request(
             url,
             data=body,
@@ -63,9 +66,18 @@ class ProTemplatesClient:
     def list_templates(self) -> list[dict[str, Any]]:
         return self._call_rpc("get_pro_templates_for_mcp_key")
 
-    def list_workspace_prompts(self) -> list[dict[str, Any]]:
-        """Egna/team-delade prompts. Endast den första/primära MCP-nyckeln
-        för ett team-workspace ser workspacets privata (ägarens) prompts --
-        ytterligare nycklar ser bara workspace-delade prompts. Se
-        migration 20260704110000_team_mcp_key_scope.sql."""
-        return self._call_rpc("get_workspace_prompts_for_key")
+    def list_private_prompts(self) -> list[dict[str, Any]]:
+        """Användarens egna privata Pro-prompts (personlig yta). Returnerar
+        aldrig andra medlemmars privata prompts eller organisationsprompts.
+        Kontextstyrt: default-scope = privat. Se migration
+        20260706103000_context_mcp_scope.sql."""
+        return self._call_rpc("get_workspace_prompts_for_key", {"p_scope": "private", "p_workspace_id": None})
+
+    def list_shared_prompts(self, workspace_id: str) -> list[dict[str, Any]]:
+        """Delade prompts från EN delad arbetsyta där användaren är medlem.
+        Kräver explicit workspace_id (från list_shared_workspaces)."""
+        return self._call_rpc("get_workspace_prompts_for_key", {"p_scope": None, "p_workspace_id": workspace_id})
+
+    def list_shared_workspaces(self) -> list[dict[str, Any]]:
+        """Discovery: vilka delade arbetsytor nyckelns ägare kan välja mellan."""
+        return self._call_rpc("list_shared_workspaces_for_key")
