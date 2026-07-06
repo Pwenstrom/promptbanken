@@ -117,22 +117,43 @@ Den gamla `pro_licenses`-baserade medlemsgränsen gäller alltså **bara** ytor 
 
 ## 7. MCP-scope (låst säkerhetsmodell)
 
-Ändring i `app_private.get_workspace_prompts_for_key(p_key_hash)`.
+**Behörighet skiljs från hämtning.** En personlig Pro-nyckel är *behörig* till:
+- användarens privata Pro-yta,
+- delade addon-ytor (`plan='start'`, `license_id IS NULL`) där nyckelns ägare är
+  aktiv medlem.
 
-En **personlig Pro-nyckel** (nyckel på en `type='personal'`, `plan='pro'`-workspace)
-returnerar:
-1. Användarens egna personliga mallar (privata + egna) i den personliga Pro-ytan — som idag.
-2. Delade mallar (`visibility='workspace'`, `status='published'`) från **delade
-   addon-ytor** (`plan='start'`, `license_id IS NULL`) där **nyckelns ägare är
-   medlem** (`profiles`-koppling).
+Men nyckeln blandar **aldrig** ihop kontexter automatiskt. Hämtning är **kontextstyrd**
+via parametrar på `get_workspace_prompts_for_key(p_key_hash, p_scope, p_workspace_id)`:
 
-Får **aldrig** returnera:
-3. Andra medlemmars privata personliga mallar.
-4. Mallar från Förvaltning/Kommun-ytor (`plan IN ('plus','enterprise')` eller
-   `license_id IS NOT NULL`). **Hård gräns.**
+- **`scope='private'`** (eller inga parametrar = default): returnera bara användarens
+  privata Pro-mallar (privata + egna i den personliga Pro-ytan). Aldrig delade ytor.
+- **`workspace_id=<id>`**: returnera bara delade mallar (`visibility='workspace'`,
+  `status='published'`) från den angivna addon-ytan, **efter medlemskapskontroll**
+  (nyckelägaren måste vara aktiv medlem, och ytan måste vara en addon-yta:
+  `plan='start'`, `license_id IS NULL`). Aldrig privata mallar, aldrig andra ytor.
+- **Default (varken scope eller workspace_id)**: returnera privat kontext (som
+  `scope='private'`). Returnera **aldrig** privat + alla delade ytor i samma svar.
+
+Får **aldrig** returnera, oavsett parametrar:
+- Andra medlemmars privata personliga mallar.
+- Mallar från Förvaltning/Kommun-ytor (`plan IN ('plus','enterprise')` eller
+  `license_id IS NOT NULL`). **Hård gräns.**
+
+**Discovery:** separat funktion `list_shared_workspaces_for_key(p_key_hash)` returnerar
+vilka delade addon-ytor nyckelägaren är medlem i (id + namn — metadata, inte
+mallinnehåll), så klienten kan välja `workspace_id`. Hämtning av mallar sker sedan
+kontextstyrt enligt ovan.
+
+**Säkerhetsmotivering:** default-anropet blandar aldrig ytor. Det minskar risken att
+en agent råkar använda mallar från fel arbetsyta och gör beteendet förutsägbart när
+en power user är medlem i flera delade ytor. Nyckeln är personlig; kontexten avgör
+vad den hämtar.
 
 **Organisationsnycklar** (nycklar på `plus`/`enterprise`-ytor) — oförändrad logik,
 gäller bara sin egen org-yta. Personliga och organisationsnycklar blandas aldrig.
+
+**MCP-server:** de lokala/hostade MCP-verktygen exponerar val av kontext (privat vs
+en vald delad yta) plus ett discovery-verktyg som listar valbara delade ytor.
 
 Att flytta en kommun-/förvaltningsmall in i en personlig Pro-yta kräver aktiv
 kopiering/export/import (befintlig "spara till Mina prompts"-funktion), aldrig
@@ -177,7 +198,18 @@ Delad arbetsyta:
 
 ## 11. Migrering och seed (pre-launch)
 
-Inga skarpa kunder finns → ingen produktionsdatamigrering krävs.
+Inga skarpa kunder finns → ingen produktionsdatamigrering krävs. **Men verifiera
+före patch** (säker förkontroll, ska ingå i planen som ett tidigt steg):
+
+- Sök efter `pro_licenses` med `plan='start'`.
+- Sök efter `workspaces` med `plan='start'` och `license_id IS NOT NULL`.
+- Om sådana rader finns: **stoppa och rapportera** innan någon ändring görs — då
+  finns oväntad `start`-org-licensdata som måste hanteras medvetet först.
+
+Antag alltså ingen skarp migrering, men bekräfta antagandet mot databasen innan
+migrationen körs. För MVP räcker det annars att hantera: seed-data, demo-/testdata,
+eventuell intern testlicens, och UI-copy där `start` tidigare betydde Team/Arbetsyta
+som org-licens.
 
 - Befintliga test-/seed-`start`-ytor med `license_id` är enbart testdata.
   `scripts/seed-test-users.mjs` uppdateras så delade ytor skapas via den nya
@@ -197,11 +229,17 @@ Inga skarpa kunder finns → ingen produktionsdatamigrering krävs.
 6. Join-triggern skiljer korrekt mellan addon-yta (`license_id null` + addon-rad)
    och org-licensyta (`license_id` finns).
 7. MCP-scope följer låst modell:
-   - personlig Pro-nyckel *får* nå delad addon-yta där användaren är medlem,
-   - personlig Pro-nyckel *får inte* nå `plus`/`enterprise`-ytor,
+   - personlig Pro-nyckel *får* nå delad addon-yta där användaren är medlem —
+     men bara kontextstyrt (`workspace_id`), aldrig i default-svaret,
+   - default-anrop (utan scope/workspace_id) returnerar bara privat yta, aldrig
+     privat + delade blandat,
+   - personlig Pro-nyckel *får inte* nå `plus`/`enterprise`-ytor oavsett parametrar,
    - organisationsnycklar gäller bara `plus`/`enterprise`.
-8. Addon-yta kan inte skapa egna MCP-nycklar (0 egna).
-9. Medlemsgräns 4 och mallgräns 200 läses från `shared_workspace_addons`, inte `pro_licenses`.
+8. `list_shared_workspaces_for_key` returnerar bara metadata (id + namn) för ytor
+   där nyckelägaren är aktiv medlem, inte mallinnehåll.
+9. Addon-yta kan inte skapa egna MCP-nycklar (0 egna).
+10. Medlemsgräns 4 och mallgräns 200 läses från `shared_workspace_addons`, inte `pro_licenses`.
+11. Säker förkontroll (avsnitt 11) körs och är grön innan migrationen appliceras.
 
 ## 13. Utanför scope (MVP)
 
