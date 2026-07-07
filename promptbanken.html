@@ -323,6 +323,21 @@
                     </div>
                 </div>
 
+                <section class="my-prompts-rail" id="my-prompts-rail" hidden aria-label="Dina egna prompter">
+                    <div class="my-prompts-header">
+                        <h2>Dina prompter</h2>
+                        <div class="plan-meter my-prompts-meter" id="my-prompts-meter" hidden>
+                            <div class="plan-meter-row">
+                                <span class="plan-meter-label">Aktiva prompter</span>
+                                <span class="plan-meter-value" id="my-prompts-meter-value">0 / 3</span>
+                            </div>
+                            <div class="plan-meter-track"><div class="plan-meter-fill" id="my-prompts-meter-fill" style="width:0%"></div></div>
+                        </div>
+                        <a class="my-prompts-manage-link" href="admin.html">Hantera i workspace →</a>
+                    </div>
+                    <div id="my-prompts-body"></div>
+                </section>
+
                 <ol class="workflow-strip" aria-label="Arbetsflöde">
                     <li class="is-current">
                         <span>1</span>
@@ -643,15 +658,152 @@
     <script src="script.js?v=mobile-ux-panel" defer></script>
     <script type="module">
       import { supabase, hasSupabaseConfig } from '/src/supabaseClient.js';
-      if (hasSupabaseConfig) {
-        supabase.auth.getSession().then(({ data }) => {
-          const link = document.getElementById('auth-nav-link');
-          const label = document.getElementById('auth-nav-label');
-          if (data?.session) {
-            link.href = 'admin.html';
-            label.textContent = 'Min workspace';
-          }
+
+      const riskLabels = { low: 'Låg risk', medium: 'Medelrisk', high: 'Hög risk' };
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function renderMyPromptsEmpty(body) {
+        body.innerHTML = `
+          <div class="my-prompts-empty">
+            <p>Du har inga egna prompter ännu. Skapa en i din workspace för att hitta den snabbt här.</p>
+            <a class="secondary-btn" href="admin.html">Skapa prompt</a>
+          </div>
+        `;
+      }
+
+      function renderMyPromptsTiles(body, items) {
+        body.innerHTML = `<div class="my-prompts-track"></div>`;
+        const track = body.querySelector('.my-prompts-track');
+        items.forEach((item) => {
+          const tile = document.createElement('button');
+          tile.type = 'button';
+          tile.className = 'my-prompt-tile';
+          tile.dataset.myPromptId = item.id;
+          tile.innerHTML = `
+            <span class="my-prompt-tile-badge">${item.visibility === 'workspace' ? 'Delad' : 'Privat'}</span>
+            <span class="my-prompt-tile-title">${escapeHtml(item.title)}</span>
+            <span class="my-prompt-tile-desc">${escapeHtml(item.description)}</span>
+          `;
+          tile.addEventListener('click', () => {
+            window.selectWorkflowPrompt?.(item.id, { reveal: true });
+          });
+          track.appendChild(tile);
         });
+      }
+
+      function renderMyPromptsMeter(usedCount, maxCount) {
+        const meter = document.getElementById('my-prompts-meter');
+        const value = document.getElementById('my-prompts-meter-value');
+        const fill = document.getElementById('my-prompts-meter-fill');
+        if (!meter || !value || !fill || !maxCount) return;
+
+        const pct = Math.min(100, Math.round((usedCount / maxCount) * 100));
+        meter.hidden = false;
+        meter.classList.toggle('is-at-limit', usedCount >= maxCount);
+        value.textContent = `${usedCount} / ${maxCount}`;
+        fill.style.width = `${pct}%`;
+      }
+
+      async function loadMyPrompts() {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const session = sessionData?.session;
+
+        const link = document.getElementById('auth-nav-link');
+        const label = document.getElementById('auth-nav-label');
+        if (session) {
+          link.href = 'admin.html';
+          label.textContent = 'Min workspace';
+        }
+
+        if (!session) {
+          return;
+        }
+
+        let { data: profile } = await supabase
+          .from('profiles')
+          .select('workspace_id')
+          .eq('user_id', session.user.id)
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (!profile) {
+          const { error: ensureError } = await supabase.rpc('ensure_personal_workspace');
+          if (ensureError) {
+            console.error('Kunde inte skapa personlig workspace', ensureError);
+            return;
+          }
+          ({ data: profile } = await supabase
+            .from('profiles')
+            .select('workspace_id')
+            .eq('user_id', session.user.id)
+            .order('created_at', { ascending: true })
+            .limit(1)
+            .maybeSingle());
+        }
+
+        if (!profile?.workspace_id) {
+          return;
+        }
+
+        const { data: workspace } = await supabase
+          .from('workspaces')
+          .select('id, max_prompts')
+          .eq('id', profile.workspace_id)
+          .maybeSingle();
+
+        const { data: items, error: itemsError } = await supabase
+          .from('content_items')
+          .select('id, title, summary, content, status, visibility, category, audience, risk_level, updated_at')
+          .eq('workspace_id', profile.workspace_id)
+          .order('updated_at', { ascending: false });
+
+        if (itemsError) {
+          console.error('Kunde inte hämta dina prompter', itemsError);
+          return;
+        }
+
+        const rail = document.getElementById('my-prompts-rail');
+        const body = document.getElementById('my-prompts-body');
+        if (!rail || !body) return;
+
+        rail.hidden = false;
+
+        const activeItems = items || [];
+        if (!activeItems.length) {
+          renderMyPromptsEmpty(body);
+          return;
+        }
+
+        if (workspace?.max_prompts) {
+          renderMyPromptsMeter(activeItems.filter((item) => item.status !== 'archived').length, workspace.max_prompts);
+        }
+
+        const mappedItems = activeItems.map((item) => ({
+          id: item.id,
+          title: item.title,
+          description: item.summary || (item.content || '').slice(0, 140),
+          content: item.content,
+          visibility: item.visibility,
+          category: item.category,
+          audience: item.audience,
+          risk: riskLabels[item.risk_level] || riskLabels.low
+        }));
+
+        renderMyPromptsTiles(body, mappedItems);
+        window.registerOwnPrompts?.(mappedItems);
+      }
+
+      if (hasSupabaseConfig) {
+        loadMyPrompts();
       }
     </script>
     <script>
@@ -786,6 +938,8 @@
                     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             }
+
+            window.selectWorkflowPrompt = selectPrompt;
 
             function enhanceCard(card) {
                 if (!card || card.dataset.workflowEnhanced === 'true') {

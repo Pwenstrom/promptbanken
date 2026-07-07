@@ -9,6 +9,9 @@
     <link rel="canonical" href="https://kommun.promptbanken.se/">
     <link rel="alternate" type="application/json" href="prompts.json" title="Promptbanken promptmanifest">
     <link rel="alternate" type="text/plain" href="llms.txt" title="Promptbanken för AI-agenter">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="landing-page">
@@ -49,7 +52,7 @@
                             <path d="M4 15V5"></path>
                             <path d="M8 9h6"></path>
                         </svg>
-                        Öppna Promptbanken
+                        Hitta en prompt
                     </a>
                     <a class="landing-secondary" href="mcp.html">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -59,117 +62,65 @@
                             <path d="M9.6 6.6 14.4 17.4"></path>
                             <path d="M14 5H10"></path>
                         </svg>
-                        Läs MCP how-to
+                        Koppla till din AI-klient
                     </a>
                 </div>
             </div>
 
-            <div class="landing-visual" aria-label="Översikt av Promptbanken">
-                <div class="landing-window">
-                    <div class="landing-window-bar">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+            <div class="landing-visual" aria-label="Exempel: samma besked skrivet i myndighetssvenska och i klarspråk">
+                <div class="klarsprak-card">
+                    <div class="klarsprak-row klarsprak-before">
+                        <span class="klarsprak-label">Före</span>
+                        <p>Med anledning av rådande omständigheter kommer handläggning av ärenden avseende bygglovsansökningar inom förevarande tidsperiod att vidtas i enlighet med gällande delegationsordning, varvid sökande äger rätt att inkomma med kompletterande handlingar senast trettio (30) dagar efter det att underrättelse om beslut expedierats.</p>
                     </div>
-                    <div class="landing-window-grid">
-                        <aside>
-                            <span class="is-active"></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </aside>
-                        <div class="landing-window-main">
-                            <div class="landing-search-line">
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="m21 21-4.3-4.3"></path>
-                                    <circle cx="11" cy="11" r="7"></circle>
-                                </svg>
-                                <span>Sök bland kommunala promptmallar</span>
-                            </div>
-                            <div class="landing-card-row">
-                                <article>
-                                    <span class="mini-icon" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24">
-                                            <path d="M12 20h9"></path>
-                                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>
-                                        </svg>
-                                    </span>
-                                    <b>Klarspråk</b>
-                                    <p>Skriv enklare för invånare</p>
-                                </article>
-                                <article>
-                                    <span class="mini-icon" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24">
-                                            <path d="M9 5h6"></path>
-                                            <path d="M9 12l2 2 4-4"></path>
-                                            <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"></path>
-                                        </svg>
-                                    </span>
-                                    <b>Beslut</b>
-                                    <p>Sammanfatta underlag</p>
-                                </article>
-                            </div>
-                            <div class="landing-safety-row">
-                                <span aria-hidden="true">
-                                    <svg viewBox="0 0 24 24">
-                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
-                                        <path d="m9 12 2 2 4-4"></path>
-                                    </svg>
-                                </span>
-                                <p>Säker användning med anonymiserad och öppen information.</p>
-                            </div>
-                            <div class="landing-mcp-panel">
-                                <span>
-                                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
-                                        <path d="M17 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
-                                        <path d="M17 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
-                                        <path d="M9.6 6.6 14.4 17.4"></path>
-                                        <path d="M14 5H10"></path>
-                                    </svg>
-                                    MCP
-                                </span>
-                                <p>Koppla promptkatalogen till AI-klienter</p>
-                            </div>
-                        </div>
+                    <div class="klarsprak-divider" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4v16"></path>
+                            <path d="m6 14 6 6 6-6"></path>
+                        </svg>
+                        <span>Klarspråk-prompten</span>
                     </div>
+                    <div class="klarsprak-row klarsprak-after">
+                        <span class="klarsprak-label">Efter</span>
+                        <p>Vi handlägger din bygglovsansökan enligt våra vanliga rutiner. Behöver du komplettera ansökan har du 30 dagar på dig från det att du fått vårt beslut.</p>
+                    </div>
+                    <p class="klarsprak-foot">
+                        <span class="klarsprak-foot-dot" aria-hidden="true"></span>
+                        Texten stannar i din webbläsare – Promptbanken lagrar den aldrig.
+                    </p>
                 </div>
             </div>
         </section>
 
-        <section class="landing-choice-section" aria-label="Välj vad du vill göra">
-            <a class="landing-choice-card" href="promptbanken.html">
-                <span class="choice-icon" aria-hidden="true">
+        <section class="landing-trust-strip" aria-label="Så hanteras din text">
+            <div>
+                <span class="trust-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24">
-                        <path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 0-4-4V4Z"></path>
-                        <path d="M5 16V4"></path>
-                        <path d="M9 8h6"></path>
-                        <path d="M9 12h5"></path>
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+                        <path d="m9 12 2 2 4-4"></path>
                     </svg>
                 </span>
-                <div>
-                    <h2>Gå till promptkatalogen</h2>
-                    <p>Bläddra, filtrera och kopiera kvalitetssäkrade promptmallar för kommunala arbetsuppgifter.</p>
-                </div>
-                <span class="choice-arrow" aria-hidden="true">→</span>
-            </a>
-
-            <a class="landing-choice-card" href="mcp.html">
-                <span class="choice-icon mcp" aria-hidden="true">
+                <p><strong>Ingen text lagras.</strong> Det du klistrar in försvinner när du lämnar sidan.</p>
+            </div>
+            <div>
+                <span class="trust-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24">
-                        <path d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
-                        <path d="M17 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
-                        <path d="M17 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
-                        <path d="M9.6 6.6 14.4 17.4"></path>
-                        <path d="M14 5H10"></path>
+                        <path d="M9 5h6"></path>
+                        <path d="M9 12l2 2 4-4"></path>
+                        <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"></path>
                     </svg>
                 </span>
-                <div>
-                    <h2>Lär dig använda MCP</h2>
-                    <p>Se hur Promptbanken kan exponeras för AI-agenter och klienter som stödjer Model Context Protocol.</p>
-                </div>
-                <span class="choice-arrow" aria-hidden="true">→</span>
-            </a>
+                <p><strong>Du anonymiserar innan du kör.</strong> Varje prompt påminner om att ta bort personuppgifter.</p>
+            </div>
+            <div>
+                <span class="trust-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"></path>
+                    </svg>
+                </span>
+                <p><strong>Du beslutar.</strong> AI-texten är ett underlag som du läser igenom och godkänner.</p>
+            </div>
         </section>
     </main>
 </body>

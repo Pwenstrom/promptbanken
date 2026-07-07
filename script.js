@@ -64,6 +64,8 @@
         let favoritesModeEnabled = false;
         let localChatEnabled = false;
         let allPrompts = []; // Store all loaded prompts for favorites menu
+        let resolvePromptbankenReady;
+        window.promptbankenReady = new Promise((resolve) => { resolvePromptbankenReady = resolve; });
         let selectedPromptId = null;
         let activeCategoryFilter = 'all';
         let activeAudienceFilter = 'all';
@@ -315,10 +317,12 @@
                 }
 
                 grid.classList.remove('loading');
+                resolvePromptbankenReady();
             } catch (error) {
                 console.error('Error loading prompts:', error);
                 grid.innerHTML = `<div class="error-message">⚠️ Kunde inte ladda promptmallar. Kontrollera att prompts.json och prompt-filer finns.</div>`;
                 grid.classList.remove('loading');
+                resolvePromptbankenReady();
             }
         }
 
@@ -637,17 +641,39 @@
             }
         }
 
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function createPromptCard(prompt, promptText, originalOrder = 0) {
             const card = document.createElement('div');
-            card.className = 'prompt-card';
+            card.className = prompt.own ? 'prompt-card own-prompt-card' : 'prompt-card';
             card.setAttribute('data-prompt-id', prompt.id);
             card.dataset.originalOrder = String(originalOrder);
-            const meta = getPromptMeta(prompt);
-            const title = stripLeadingIcon(prompt.title);
+            const rawMeta = getPromptMeta(prompt);
+            const meta = {
+                ...rawMeta,
+                category: escapeHtml(rawMeta.category),
+                audience: escapeHtml(rawMeta.audience),
+                role: escapeHtml(rawMeta.role),
+                risk: escapeHtml(rawMeta.risk),
+                phrase: escapeHtml(rawMeta.phrase)
+            };
+            const title = escapeHtml(stripLeadingIcon(prompt.title));
+            const description = escapeHtml(prompt.description);
 
             // Include user input dynamically
             const userInput = document.getElementById('quick-input-textarea')?.value || '';
             const combinedText = userInput ? `${userInput}\n\n${promptText}` : promptText;
+
+            const ownChip = prompt.own
+                ? `<span class="own-chip">${prompt.ownVisibility === 'workspace' ? 'Din prompt · Delad' : 'Din prompt · Privat'}</span>`
+                : '';
 
             // Build card HTML
             card.innerHTML = `
@@ -660,8 +686,9 @@
                         <h3>${title}</h3>
                     </div>
                 </div>
-                <p>${prompt.description}</p>
+                <p>${description}</p>
                 <div class="card-tags">
+                    ${ownChip}
                     <span class="risk-chip" data-risk="${meta.risk.toLowerCase()}">${meta.risk}</span>
                     <span>${meta.audience}</span>
                     <span>${meta.role}</span>
@@ -680,6 +707,51 @@
             `;
             return card;
         }
+
+        async function registerOwnPrompts(items) {
+            await window.promptbankenReady;
+
+            if (!Array.isArray(items) || !items.length) {
+                return;
+            }
+
+            items.forEach((item) => {
+                if (allPrompts.some((existing) => existing.id === item.id)) {
+                    return;
+                }
+
+                promptUiMeta[item.id] = {
+                    icon: '✎',
+                    category: item.category || 'Alla kategorier',
+                    audience: item.audience || 'Intern',
+                    role: 'Egen prompt',
+                    risk: item.risk || 'Låg risk',
+                    example: 'Din egen sparade prompt.',
+                    phrase: 'Använd din egen prompt.'
+                };
+
+                const promptEntry = {
+                    id: item.id,
+                    title: item.title,
+                    description: item.description || '',
+                    own: true,
+                    ownVisibility: item.visibility
+                };
+
+                allPrompts.push(promptEntry);
+
+                const card = createPromptCard(promptEntry, item.content || '', allPrompts.length);
+                grid.appendChild(card);
+            });
+
+            populateFilterOptions(allPrompts);
+            updateLibraryStats(allPrompts);
+            loadFavoriteStates();
+            applyPromptSort();
+            applyPromptFilters();
+        }
+
+        window.registerOwnPrompts = registerOwnPrompts;
 
         function setupEventDelegation() {
             // Toggle examples - event delegation

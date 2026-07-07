@@ -3811,16 +3811,20 @@ body.favorites-mode-on .favorites-menu.hidden {
     color: #0b63ce;
     font-size: 0.9rem;
     font-weight: 850;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
     text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
 .landing-hero h1 {
     max-width: 13ch;
     margin: 0;
     color: #101828;
-    font-size: clamp(3rem, 5.8vw, 5.15rem);
-    line-height: 1.02;
-    letter-spacing: 0;
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: clamp(2.9rem, 5.4vw, 4.7rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
 }
 
 .landing-lead {
@@ -3873,243 +3877,153 @@ body.favorites-mode-on .favorites-menu.hidden {
     min-width: 0;
 }
 
-.landing-window {
-    max-width: 560px;
+/* Signaturmoment: samma myndighetsbesked, före och efter klarspråk.
+   Ersätter en generisk app-mockup med det produkten faktiskt gör. */
+.klarsprak-card {
+    max-width: 480px;
     margin-left: auto;
-    overflow: hidden;
+    padding: 1.5rem 1.6rem;
     border: 1px solid #d8e2ee;
-    border-radius: 10px;
+    border-radius: 12px;
     background: #fff;
-    box-shadow: 0 28px 70px rgba(16, 24, 40, 0.14);
+    box-shadow: 0 28px 70px rgba(16, 24, 40, 0.12);
 }
 
-.landing-window-bar {
-    display: flex;
-    gap: 0.45rem;
-    padding: 0.9rem 1rem;
-    border-bottom: 1px solid #e6eaf0;
-    background: #fbfcff;
-}
-
-.landing-window-bar span {
-    width: 0.7rem;
-    height: 0.7rem;
-    border-radius: 999px;
-    background: #d0d5dd;
-}
-
-.landing-window-bar span:first-child {
-    background: #0b63ce;
-}
-
-.landing-window-grid {
-    display: grid;
-    grid-template-columns: 112px minmax(0, 1fr);
-    min-height: 350px;
-}
-
-.landing-window-grid aside {
+.klarsprak-row {
     display: flex;
     flex-direction: column;
-    gap: 0.7rem;
-    padding: 1rem;
-    border-right: 1px solid #e6eaf0;
-    background: #f8fafc;
+    gap: 0.55rem;
 }
 
-.landing-window-grid aside span {
-    position: relative;
-    height: 32px;
-    border-radius: 7px;
-    background: #e6eaf0;
+.klarsprak-label {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
-.landing-window-grid aside .is-active {
-    background: #dbeafe;
+.klarsprak-before .klarsprak-label {
+    color: #97684a;
 }
 
-.landing-window-main {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1.1rem;
+.klarsprak-before p {
+    margin: 0;
+    color: #8a8378;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    text-decoration: line-through;
+    text-decoration-color: rgba(151, 104, 74, 0.35);
+    text-decoration-thickness: 1px;
 }
 
-.landing-search-line {
+.klarsprak-divider {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
-    height: 44px;
-    padding: 0 0.85rem;
-    border: 1px solid #d8e2ee;
-    border-radius: 8px;
-    background: #fff;
+    gap: 0.5rem;
+    margin: 1.1rem 0;
+    color: #0b63ce;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.klarsprak-divider svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.klarsprak-after .klarsprak-label {
+    color: #0b63ce;
+}
+
+.klarsprak-after p {
+    margin: 0;
+    color: #101828;
+    font-size: 1.02rem;
+    font-weight: 500;
+    line-height: 1.55;
+}
+
+.klarsprak-foot {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1.25rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid #eef1f4;
     color: #667085;
-    font-weight: 700;
+    font-size: 0.82rem;
 }
 
-.landing-search-line svg {
-    color: #0b63ce;
-}
-
-.landing-card-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.8rem;
-}
-
-.landing-card-row article,
-.landing-mcp-panel {
-    min-height: 126px;
-    padding: 1rem;
-    border: 1px solid #dfe6ee;
-    border-radius: 8px;
-    background: #fff;
-}
-
-.landing-card-row article {
-    display: flex;
-    flex-direction: column;
-}
-
-.mini-icon {
-    display: inline-grid;
-    place-items: center;
-    width: 2rem;
-    height: 2rem;
-    margin-bottom: 0.8rem;
-    border-radius: 8px;
-    background: #edf4ff;
-    color: #0b63ce;
-}
-
-.landing-card-row b {
-    display: block;
-    margin-bottom: 0.4rem;
-    color: #0b3a82;
-}
-
-.landing-card-row p,
-.landing-mcp-panel p {
-    margin: 0;
-    color: #475467;
-}
-
-.landing-mcp-panel {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 118px;
-    border-color: #cfe8d5;
-    background: #f1faf4;
-}
-
-.landing-mcp-panel span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    width: max-content;
-    margin-bottom: 0.5rem;
-    padding: 0.25rem 0.55rem;
+.klarsprak-foot-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: 0 0 auto;
     border-radius: 999px;
-    background: #dcf5e4;
-    color: #067647;
-    font-weight: 850;
+    background: #15803d;
 }
 
-.landing-mcp-panel svg {
-    width: 1rem;
-    height: 1rem;
+@media (prefers-reduced-motion: no-preference) {
+    .klarsprak-after {
+        animation: klarsprak-reveal 0.6s ease-out 0.35s backwards;
+    }
 }
 
-.landing-safety-row {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    padding: 0.75rem 0.85rem;
-    border: 1px solid #cfe8d5;
-    border-radius: 8px;
-    background: #f8fffb;
-    color: #166534;
+@keyframes klarsprak-reveal {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.landing-safety-row span {
-    display: inline-grid;
-    place-items: center;
-    width: 2rem;
-    height: 2rem;
-    flex: 0 0 2rem;
-    border-radius: 8px;
-    background: #dcf5e4;
-}
-
-.landing-safety-row p {
-    margin: 0;
-    color: #166534;
-    font-weight: 700;
-}
-
-.landing-choice-section {
+.landing-trust-strip {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
     padding: 0 clamp(1.25rem, 5vw, 5rem) 3rem;
 }
 
-.landing-choice-card {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 1rem;
-    min-height: 150px;
-    padding: 1.15rem;
-    border: 1px solid #dfe6ee;
-    border-radius: 8px;
-    background: #fff;
-    color: #182230;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+.landing-trust-strip > div {
+    display: flex;
+    gap: 0.75rem;
 }
 
-.landing-choice-card:hover {
-    border-color: #bfd7ff;
-    box-shadow: 0 14px 32px rgba(16, 24, 40, 0.1);
-}
-
-.choice-icon {
+.trust-icon {
     display: inline-grid;
     place-items: center;
-    width: 3rem;
-    height: 3rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: 0 0 2.25rem;
     border-radius: 8px;
-    background: #edf4ff;
-    color: #0b63ce;
-    font-weight: 850;
+    background: #eaf4ee;
+    color: #15803d;
 }
 
-.choice-icon svg {
-    width: 1.45rem;
-    height: 1.45rem;
+.trust-icon svg {
+    width: 1.2rem;
+    height: 1.2rem;
 }
 
-.choice-icon.mcp {
-    background: #e8f7ee;
-    color: #067647;
-}
-
-.landing-choice-card h2 {
-    margin: 0 0 0.35rem;
-    font-size: 1.15rem;
-}
-
-.landing-choice-card p {
+.landing-trust-strip p {
     margin: 0;
     color: #475467;
+    font-size: 0.92rem;
+    line-height: 1.5;
 }
 
-.choice-arrow {
-    color: #0b63ce;
-    font-size: 1.4rem;
-    font-weight: 850;
+.landing-trust-strip strong {
+    color: #101828;
 }
 
 @media (max-width: 900px) {
@@ -4134,38 +4048,21 @@ body.favorites-mode-on .favorites-menu.hidden {
         max-width: 12ch;
     }
 
-    .landing-window {
+    .klarsprak-card {
         max-width: none;
         margin-left: 0;
     }
 
-    .landing-choice-section {
+    .landing-trust-strip {
         grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 560px) {
-    .landing-card-row,
-    .landing-window-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .landing-window-grid aside {
-        display: none;
-    }
-
     .landing-actions,
     .landing-primary,
     .landing-secondary {
         width: 100%;
-    }
-
-    .landing-choice-card {
-        grid-template-columns: 1fr auto;
-    }
-
-    .landing-choice-card .choice-icon {
-        grid-column: 1 / -1;
     }
 }
 
@@ -5240,4 +5137,141 @@ body.detail-panel-closed .prompt-detail-panel {
     background: #16a34a;
     border-color: #16a34a;
     color: #fff;
+}
+
+/* Mina prompter: egna content_items visas i katalogen med en amber-accent
+   (blå = officiell katalog, grön = säkerhet/MCP, amber = ditt eget). */
+.own-prompt-card {
+    border-left: 3px solid #b7791f;
+}
+
+.own-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: #fffaf0;
+    color: #b7791f;
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.my-prompts-rail {
+    margin: 0 0 1.1rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid #f3ddb0;
+    border-radius: 10px;
+    background: #fffaf0;
+}
+
+.my-prompts-rail[hidden] {
+    display: none;
+}
+
+.my-prompts-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+}
+
+.my-prompts-header h2 {
+    margin: 0;
+    color: #7c4a03;
+    font-size: 1.05rem;
+}
+
+.my-prompts-meter {
+    min-width: 190px;
+}
+
+.my-prompts-manage-link {
+    color: #7c4a03;
+    font-weight: 700;
+    font-size: 0.86rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.my-prompts-manage-link:hover {
+    text-decoration: underline;
+}
+
+.my-prompts-track {
+    display: flex;
+    gap: 0.7rem;
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
+}
+
+.my-prompt-tile {
+    display: flex;
+    flex: 0 0 220px;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid #f3ddb0;
+    border-radius: 8px;
+    background: #fff;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+}
+
+.my-prompt-tile:hover {
+    border-color: #d99a2b;
+    box-shadow: 0 4px 14px rgba(183, 121, 31, 0.14);
+}
+
+.my-prompt-tile-badge {
+    align-self: flex-start;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: #fef0d5;
+    color: #92620c;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.my-prompt-tile-title {
+    color: #1f2937;
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.my-prompt-tile-desc {
+    color: #6b5426;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.my-prompts-empty {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.my-prompts-empty p {
+    margin: 0;
+    color: #7c4a03;
+}
+
+@media (max-width: 700px) {
+    .my-prompts-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .my-prompt-tile {
+        flex-basis: 200px;
+    }
 }
