@@ -603,6 +603,8 @@
             }
         }
 
+        window.selectWorkflowPrompt = selectPrompt;
+
         function closePromptDetailPanel() {
             selectedPromptId = null;
             document.body.classList.add('detail-panel-closed');
