@@ -140,7 +140,7 @@ function maxPrompts() {
 
 function mcpKeyLimit() {
   if (state.planUsage) return state.planUsage.max_mcp_keys;
-  return isPlanPro() ? 5 : 1;
+  return isPlanPro() ? 3 : 1;
 }
 
 async function loadPlanUsage() {
@@ -477,8 +477,12 @@ const planNameLabels = { free: 'Free', pro: 'Pro', start: 'Delad arbetsyta', plu
 
 function renderPromptCounter(ownActivePrompts) {
   const limit = maxPrompts();
-  const isOrgLicense = state.workspace?.type === 'organization' && state.planUsage?.has_license;
-  const usedCount = isOrgLicense ? state.planUsage.used_prompts : ownActivePrompts;
+  const isOrg = state.workspace?.type === 'organization';
+  const isOrgLicense = isOrg && state.planUsage?.has_license;
+  // Både licensorganisationer och delade addon-ytor har en poolad gräns
+  // (över syskonytor respektive över hela ytans medlemmar) -- bara sant
+  // personliga workspaces räknar enbart den inloggades egna prompts.
+  const usedCount = isOrg ? (state.planUsage?.used_prompts ?? ownActivePrompts) : ownActivePrompts;
   const atLimit = usedCount >= limit;
   const plan = state.workspace?.plan ?? 'free';
 
@@ -488,7 +492,11 @@ function renderPromptCounter(ownActivePrompts) {
 
   const usedLabel = document.querySelector('[data-mp-used-label]');
   if (usedLabel) {
-    usedLabel.textContent = isOrgLicense ? 'hela licensen (alla arbetsytor)' : 'dina egna';
+    usedLabel.textContent = isOrgLicense
+      ? 'hela licensen (alla arbetsytor)'
+      : isOrg
+        ? 'hela den delade arbetsytan'
+        : 'dina egna';
   }
 
   const bar = document.querySelector('[data-mp-usage-bar]');
@@ -634,8 +642,9 @@ function renderPlanMeters() {
 
   const isOrg = state.workspace.type === 'organization';
   const promptLimit = maxPrompts();
-  const isOrgLicense = isOrg && state.planUsage?.has_license;
-  const promptsUsed = isOrgLicense
+  // Poolad räkning gäller alla organisationstyper (licens- och addon-ytor),
+  // inte bara licensorganisationer -- se renderPromptCounter ovan.
+  const promptsUsed = isOrg
     ? (state.planUsage?.used_prompts ?? 0)
     : state.prompts.filter((item) => (
         (item.owner_user_id === state.user?.id || item.created_by === state.user?.id) && item.status !== 'archived'
