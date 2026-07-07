@@ -5039,6 +5039,13 @@ body.detail-panel-closed .prompt-detail-panel {
     gap: 0.5rem;
 }
 
+.auth-legal-links {
+    margin: 0.75rem 0 0;
+    color: #667085;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
 /* ── Login plan comparison ─────────────────────────────────── */
 .auth-plan-compare {
     display: grid;
