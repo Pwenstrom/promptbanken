@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Promptbanken MCP</title>
-    <meta name="description" content="Så använder du Promptbanken som webbsida, remote MCP-server eller lokal MCP-server i AI-klienter.">
+    <meta name="description" content="Så använder du Promptbanken som webbsida eller som MCP-server i ett AI-verktyg — öppet utan konto, eller med din personliga Free- eller Pro-nyckel.">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="https://kommun.promptbanken.se/mcp.html">
     <link rel="stylesheet" href="style.css">
@@ -39,7 +39,7 @@
                 <article class="article-page">
                     <p class="article-kicker">Guide</p>
                     <h1>Hur använder man Promptbanken i praktiken?</h1>
-                    <p class="article-lead">Det finns två ganska olika sätt att använda Promptbanken: som vanlig webbsida eller som MCP-server i ett AI-verktyg.</p>
+                    <p class="article-lead">Det finns tre sätt att använda Promptbanken: som vanlig webbsida, som öppen MCP-server utan konto, eller med din egen MCP-nyckel för sparade mallar och premium-innehåll.</p>
 
                     <section>
                         <h2>Det enkla sättet</h2>
@@ -48,8 +48,8 @@
                     </section>
 
                     <section>
-                        <h2>Det mer tekniska sättet</h2>
-                        <p>Lägg till Promptbanken som en MCP-server i en AI-klient som stödjer MCP. Då kan klienten hämta promptmallar när du behöver stöd för exempelvis klarspråk, informationsutskick, checklistor, FAQ:er eller beslutsunderlag.</p>
+                        <h2>Öppen MCP — utan konto eller nyckel</h2>
+                        <p>Lägg till Promptbanken som en MCP-server i en AI-klient som stödjer MCP. Då kan klienten hämta de öppna promptmallarna när du behöver stöd för exempelvis klarspråk, informationsutskick, checklistor, FAQ:er eller beslutsunderlag — inget konto krävs.</p>
                         <p>I klienter som stödjer remote MCP via Streamable HTTP kan konfigurationen ofta se ut ungefär så här:</p>
                         <pre><code>{
   "mcpServers": {
@@ -58,12 +58,12 @@
     }
   }
 }</code></pre>
-                        <p>Vissa klienter har ett grafiskt gränssnitt där man lägger till en ny MCP-server och klistrar in adressen. Andra använder en konfigurationsfil. Vissa klienter stödjer bara lokala MCP-servrar. Då behöver man i stället köra Promptbanken MCP lokalt.</p>
+                        <p>Vissa klienter har ett grafiskt gränssnitt där man lägger till en ny MCP-server och klistrar in adressen. Andra använder en konfigurationsfil — se de verktygsspecifika avsnitten längre ner på sidan.</p>
                     </section>
 
                     <section>
-                        <h2>Testa gratis</h2>
-                        <p>Skapa ett gratis konto om du vill testa Promptbanken med MCP. Med Free får du:</p>
+                        <h2>Skapa ett gratis konto för egen nyckel</h2>
+                        <p><a href="login.html">Skapa ett gratis konto</a> om du vill gå längre än de öppna mallarna. Med Free får du:</p>
                         <ul>
                             <li>tillgång till öppna mallar</li>
                             <li>möjlighet att spara upp till 3 egna mallar</li>
@@ -86,31 +86,30 @@
                     </section>
 
                     <section>
-                        <h2>Lokal eller remote MCP?</h2>
+                        <h2>Vilken väg passar dig?</h2>
                         <div class="article-table">
                             <div><strong>Vill du läsa och kopiera manuellt?</strong><span>Använd kommun.promptbanken.se.</span></div>
-                            <div><strong>Vill du komma igång snabbt via publik MCP?</strong><span>Använd den publika remote MCP-servern.</span></div>
-                            <div><strong>Vill du använda egna mallar eller känsligt material?</strong><span>Använd lokal MCP eller kontrollerad intern server.</span></div>
-                            <div><strong>Vill du dela en kurerad promptbank till flera användare?</strong><span>Remote MCP kan passa, men kräver tydlig styrning.</span></div>
+                            <div><strong>Vill du komma igång snabbt utan konto?</strong><span>Använd den publika MCP-servern utan nyckel — ger de öppna mallarna.</span></div>
+                            <div><strong>Vill du använda dina egna sparade mallar eller premium-mallar?</strong><span><a href="login.html">Skapa ett gratis konto</a>, skapa en MCP-nyckel och lägg till den i ditt AI-verktyg.</span></div>
                         </div>
-                        <p>Den publika remote MCP-servern är <a href="https://mcp.promptbanken.se/mcp">https://mcp.promptbanken.se/mcp</a>.</p>
+                        <p>Den publika MCP-servern är <a href="https://mcp.promptbanken.se/mcp">https://mcp.promptbanken.se/mcp</a>.</p>
                     </section>
 
                     <section>
                         <h2>Vilka verktyg stödjer MCP?</h2>
-                        <p>Jobbar du i VS Code, Cursor, Windsurf, Codex eller Claude Code kan du ofta använda lokal eller remote MCP, beroende på upplägg.</p>
+                        <p>Jobbar du i VS Code, Cursor, Windsurf, Codex eller Claude Code kan du ofta använda MCP via en remote-server, beroende på verktyg.</p>
                         <p>Microsoft-delen behöver särskiljas:</p>
                         <div class="article-table">
                             <div><strong>Microsoft 365 Copilot</strong><span>MCP blir relevant genom connectors eller motsvarande kopplingar. Ta detta med IT.</span></div>
                             <div><strong>Copilot Studio</strong><span>Här bygger man en agent som kan använda en MCP-server som verktyg.</span></div>
-                            <div><strong>VS Code med GitHub Copilot</strong><span>Utvecklaren kan lägga till lokala eller remote MCP-servrar.</span></div>
+                            <div><strong>VS Code med GitHub Copilot</strong><span>Utvecklaren kan lägga till Promptbankens remote MCP-server i sina MCP-inställningar.</span></div>
                             <div><strong>Visual Studio med Copilot</strong><span>Liknar VS Code-spåret, men är mer kopplat till Visual Studio och kodnära arbete.</span></div>
                         </div>
                     </section>
 
                     <section>
                         <h2>Så lägger du till din MCP-nyckel (Free och Pro)</h2>
-                        <p>Alla konton — både Free och Pro — kan skapa en egen MCP-nyckel under <a href="admin.html">Min workspace → MCP-nyckel</a>. Free-konton kan ha 1 aktiv nyckel, Pro-konton upp till 3.</p>
+                        <p>Har du inget konto än, <a href="login.html">skapa ett gratis konto</a> först. Alla konton — både Free och Pro — kan sedan skapa en egen MCP-nyckel under <a href="admin.html">Min workspace → MCP-nyckel</a>. Free-konton kan ha 1 aktiv nyckel, Pro-konton upp till 3.</p>
                         <div class="article-table">
                             <div><strong>1. Skapa nyckel</strong><span>Gå till admin.html → MCP-nyckel → ge den ett namn → "Skapa MCP-nyckel". Nyckeln visas bara en gång, spara den direkt (t.ex. i en lösenordshanterare).</span></div>
                             <div><strong>2. Anslut ditt AI-verktyg</strong><span>Använd något av alternativen nedan beroende på vilket verktyg du kör.</span></div>
@@ -170,28 +169,13 @@
     }
   }
 }</code></pre>
-                        <p>Vill du även nå dina egna sparade mallar och (med Pro) premium-mallarna via samma publika server, lägg till din nyckel som ett <code>headers</code>-fält enligt avsnittet "Koppla din nyckel till ett AI-verktyg" ovan.</p>
-                        <p><em>Lokal server (kräver att du klonat repot och kört <code>npm run setup:python</code> i <code>mcp-server/</code>):</em></p>
-                        <pre><code>{
-  "mcpServers": {
-    "promptbanken-lokal": {
-      "command": "node",
-      "args": ["/sokvag/till/promptbanken/mcp-server/scripts/run-mcp.js"],
-      "env": {
-        "SUPABASE_URL": "https://ditt-projekt.supabase.co",
-        "SUPABASE_ANON_KEY": "din-publishable-anon-nyckel",
-        "PROMPTBANKEN_MCP_KEY": "din-mcp-nyckel-fran-admin.html"
-      }
-    }
-  }
-}</code></pre>
-                        <p>Starta om Claude Desktop efter att du sparat filen. I Claude Code fungerar samma <code>mcpServers</code>-block i projektets <code>.claude</code>-konfiguration.</p>
-                        <p><code>SUPABASE_URL</code> och <code>SUPABASE_ANON_KEY</code> hittar du i Supabase-projektets inställningar (samma publika nyckel som webbsidan redan använder — inte hemlig). <code>PROMPTBANKEN_MCP_KEY</code> är din egen nyckel från <a href="admin.html">admin.html → MCP-nyckel</a>. Med de tre satta får AI-verktyget även tillgång till verktyget <code>list_pro_templates</code>, som visar Promptbanken Pros 42 premium-mallar — full prompttext om din workspace har aktiv Pro-plan, annars bara en förhandsvisning.</p>
+                        <p>Vill du även nå dina egna sparade mallar och (med Pro) premium-mallarna via samma publika server, lägg till din nyckel som ett <code>headers</code>-fält enligt avsnittet "Koppla din nyckel till ett AI-verktyg" ovan. Starta om Claude Desktop efter att du sparat filen. I Claude Code fungerar samma <code>mcpServers</code>-block i projektets <code>.claude</code>-konfiguration.</p>
+                        <p>Med din nyckel inkopplad får AI-verktyget även tillgång till verktyget <code>list_pro_templates</code>, som visar Promptbanken Pros 42 premium-mallar — full prompttext om din workspace har aktiv Pro-plan, annars bara en förhandsvisning.</p>
                     </section>
 
                     <section>
                         <h2>OpenAI / ChatGPT</h2>
-                        <p>ChatGPT-appen kör inte lokala MCP-servrar på samma sätt som Claude Desktop. MCP stöds istället via OpenAIs API (Responses API/Agents SDK) eller via ChatGPTs Connectors (Team/Enterprise-planer), och kräver då en <strong>remote</strong> MCP-adress:</p>
+                        <p>MCP stöds i ChatGPT via OpenAIs API (Responses API/Agents SDK) eller via ChatGPTs Connectors (Team/Enterprise-planer), och kräver en <strong>remote</strong> MCP-adress:</p>
                         <figure class="article-figure">
                             <img src="docs/bilder/mcp-openai-setup.png" alt="ChatGPTs dialog 'Ny app' med Server-URL ifylld till https://mcp.promptbanken.se/mcp, Autentisering satt till Åtkomsttoken/API-nyckel och Sidhuvudsschema satt till Bearer-token.">
                             <figcaption>Så här ser det ut när du lägger till Promptbanken som en anpassad connector i ChatGPT: klistra in serveradressen, välj "Åtkomsttoken/API-nyckel" som autentisering och "Bearer-token" som sidhuvudsschema, och klistra sedan in din MCP-nyckel.</figcaption>
@@ -218,8 +202,8 @@
                     <section>
                         <h2>Praktisk slutsats</h2>
                         <p>Vill man testa de öppna promptarna som vanlig webbsida är <a href="https://kommun.promptbanken.se">kommun.promptbanken.se</a> enklast.</p>
-                        <p>Vill man testa den publika MCP-servern är <a href="https://mcp.promptbanken.se/mcp">mcp.promptbanken.se/mcp</a> rätt väg.</p>
-                        <p>Vill man använda egna mallar, interna texter eller mer verksamhetsnära material bör man hellre köra lokalt eller i en kontrollerad intern miljö.</p>
+                        <p>Vill man komma igång direkt utan konto är den publika MCP-servern <a href="https://mcp.promptbanken.se/mcp">mcp.promptbanken.se/mcp</a> rätt väg — den ger de öppna mallarna.</p>
+                        <p>Vill man använda egna sparade mallar eller premium-innehåll behöver man <a href="login.html">skapa ett gratis konto</a>, skapa en MCP-nyckel och lägga till den i sitt AI-verktyg.</p>
                         <p>Free ger 1 MCP-nyckel för enklare test och användning. Pro ger 3 MCP-nycklar och tillgång till din privata Pro-yta och premium-mallar.</p>
                     </section>
                 </article>
