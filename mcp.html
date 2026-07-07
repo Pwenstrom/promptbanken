@@ -62,6 +62,18 @@
                     </section>
 
                     <section>
+                        <h2>Testa gratis</h2>
+                        <p>Skapa ett gratis konto om du vill testa Promptbanken med MCP. Med Free får du:</p>
+                        <ul>
+                            <li>tillgång till öppna mallar</li>
+                            <li>möjlighet att spara upp till 3 egna mallar</li>
+                            <li>1 personlig MCP-nyckel</li>
+                            <li>möjlighet att testa hur Promptbanken fungerar i ett AI-verktyg</li>
+                        </ul>
+                        <p>Vill du ha fler egna mallar, premium-mallar och fler MCP-nycklar kan du <a href="pro.html">uppgradera till Pro</a>.</p>
+                    </section>
+
+                    <section>
                         <h2>Ett sätt att få AI-verktyget att använda Promptbanken</h2>
                         <p>Man kan lägga in en enkel anvisning i sina Custom Instructions, så att AI-verktyget vet när Promptbanken ska användas.</p>
                         <blockquote>När jag ber om svenska texter, kommunala underlag, mejl, rutiner, checklistor, informationsutskick, FAQ eller beslutsunderlag ska du först kontrollera om Promptbanken har en relevant mall. Om en mall passar ska du använda den och säga vilken mall du valt.</blockquote>
@@ -98,13 +110,53 @@
 
                     <section>
                         <h2>Så lägger du till din MCP-nyckel (Free och Pro)</h2>
-                        <p>Alla konton — både Free och Pro — kan skapa en egen MCP-nyckel under <a href="admin.html">Min workspace → MCP-nyckel</a>. Free-konton kan ha 1 aktiv nyckel, Pro-konton upp till 5.</p>
+                        <p>Alla konton — både Free och Pro — kan skapa en egen MCP-nyckel under <a href="admin.html">Min workspace → MCP-nyckel</a>. Free-konton kan ha 1 aktiv nyckel, Pro-konton upp till 3.</p>
                         <div class="article-table">
                             <div><strong>1. Skapa nyckel</strong><span>Gå till admin.html → MCP-nyckel → ge den ett namn → "Skapa MCP-nyckel". Nyckeln visas bara en gång, spara den direkt (t.ex. i en lösenordshanterare).</span></div>
                             <div><strong>2. Anslut ditt AI-verktyg</strong><span>Använd något av alternativen nedan beroende på vilket verktyg du kör.</span></div>
                             <div><strong>3. Återkalla vid behov</strong><span>Tappat bort nyckeln eller misstänker läckage? Återkalla den direkt i admin.html och skapa en ny.</span></div>
                         </div>
-                        <p><strong>Viktigt att veta just nu:</strong> nyckelbaserad åtkomst till dina egna och Pro:s premiummallar via den publika, hostade MCP-servern är under utveckling och inte driftsatt ännu. Idag fungerar nyckeln för att administrera din workspace, medan själva MCP-anslutningen (nedan) sker på ett av två sätt: den öppna publika servern (standardmallar, ingen nyckel behövs) eller en lokal server du kör själv (kan kopplas mot dina egna prompts).</p>
+                        <p>Med nyckeln inkopplad kan AI-verktyget även nå dina egna sparade mallar och, om din workspace har Pro, premium-mallarna — inte bara de öppna standardmallarna.</p>
+                    </section>
+
+                    <section>
+                        <h2>Vad får MCP-nyckeln komma åt?</h2>
+                        <p>Din MCP-nyckel är personlig. Det betyder att den bara ska ge åtkomst till det din plan tillåter.</p>
+                        <div class="article-table">
+                            <div><strong>Free</strong><span>Öppna mallar och dina egna Free-mallar.</span></div>
+                            <div><strong>Pro</strong><span>Öppna mallar, premium-mallar och dina egna Pro-mallar.</span></div>
+                        </div>
+                        <p>Nyckeln ger inte åtkomst till andra användares privata mallar.</p>
+                        <p>Är du medlem i en delad arbetsyta kan en personlig Pro-nyckel användas mot den delade ytan där du är medlem, men anropet ska vara kontextstyrt — AI-verktyget behöver veta om det ska använda din privata yta eller en viss delad arbetsyta.</p>
+                        <p>Personliga MCP-nycklar används inte för Förvaltning eller Kommun. De nivåerna använder organisationsägda MCP-nycklar.</p>
+                    </section>
+
+                    <section>
+                        <h2>Koppla din nyckel till ett AI-verktyg</h2>
+                        <p>I ett AI-verktyg som stödjer remote MCP lägger du till Promptbankens MCP-server på <code>https://mcp.promptbanken.se/mcp</code> och skickar med din nyckel som ett Bearer-token. En konfiguration kan ofta se ut ungefär så här:</p>
+                        <pre><code>{
+  "mcpServers": {
+    "promptbanken": {
+      "url": "https://mcp.promptbanken.se/mcp",
+      "headers": {
+        "Authorization": "Bearer DIN_MCP_NYCKEL"
+      }
+    }
+  }
+}</code></pre>
+                        <p>Byt ut <code>DIN_MCP_NYCKEL</code> mot din egen nyckel från admin.html. Vissa klienter använder ett annat fält än <code>headers</code>, eller har ett särskilt fält för token/API-nyckel — följ då verktygets egen instruktion och använd samma MCP-adress och samma nyckel.</p>
+                    </section>
+
+                    <section>
+                        <h2>Säkerhet</h2>
+                        <p>Behandla MCP-nyckeln som ett lösenord. Gör inte detta:</p>
+                        <ul>
+                            <li>klistra inte in nyckeln i offentliga chattar</li>
+                            <li>lägg inte nyckeln i GitHub</li>
+                            <li>dela inte nyckeln med andra</li>
+                            <li>skicka inte nyckeln i mejl om det kan undvikas</li>
+                        </ul>
+                        <p>Om du misstänker att nyckeln har läckt: gå till <a href="admin.html">MCP-nyckel i Promptbanken</a>, återkalla nyckeln och skapa en ny.</p>
                     </section>
 
                     <section>
@@ -118,6 +170,7 @@
     }
   }
 }</code></pre>
+                        <p>Vill du även nå dina egna sparade mallar och (med Pro) premium-mallarna via samma publika server, lägg till din nyckel som ett <code>headers</code>-fält enligt avsnittet "Koppla din nyckel till ett AI-verktyg" ovan.</p>
                         <p><em>Lokal server (kräver att du klonat repot och kört <code>npm run setup:python</code> i <code>mcp-server/</code>):</em></p>
                         <pre><code>{
   "mcpServers": {
@@ -163,6 +216,7 @@
                         <p>Vill man testa de öppna promptarna som vanlig webbsida är <a href="https://kommun.promptbanken.se">kommun.promptbanken.se</a> enklast.</p>
                         <p>Vill man testa den publika MCP-servern är <a href="https://mcp.promptbanken.se/mcp">mcp.promptbanken.se/mcp</a> rätt väg.</p>
                         <p>Vill man använda egna mallar, interna texter eller mer verksamhetsnära material bör man hellre köra lokalt eller i en kontrollerad intern miljö.</p>
+                        <p>Free ger 1 MCP-nyckel för enklare test och användning. Pro ger 3 MCP-nycklar och tillgång till din privata Pro-yta och premium-mallar.</p>
                     </section>
                 </article>
             </main>
