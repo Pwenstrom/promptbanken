@@ -151,55 +151,68 @@
                         <div class="workspace-section-heading">
                             <div>
                                 <h2>Uppgradera</h2>
-                                <p>Pro och Delad arbetsyta aktiveras direkt mot faktura. Förvaltning och Kommun är en förfrågan — vi kontaktar er med offert innan avtal och aktivering.</p>
                                 <p class="mp-small" data-upgrade-current-plan-note></p>
                             </div>
                         </div>
                         <p class="plan-locked-note" data-upgrade-maxed hidden>Ni har redan högsta nivån (Kommun). Kontakta oss om ni behöver fler arbetsytor, medlemmar eller mallar än vad planen ger.</p>
-                        <form class="workspace-form" data-upgrade-form>
-                            <label>
-                                Nivå
-                                <select name="plan">
-                                    <option value="pro">Pro (personlig, 100 mallar, 3 MCP-nycklar)</option>
-                                    <option value="start">Delad arbetsyta (Pro-tillägg, upp till 5 medlemmar)</option>
-                                    <option value="plus">Förvaltning (flera arbetsytor, upp till 50 medlemmar)</option>
-                                    <option value="enterprise">Kommun (flera arbetsytor, 250+/offert)</option>
-                                </select>
-                            </label>
-                            <div class="upgrade-price-box" data-upgrade-price>
-                                <span class="upgrade-price-amount" data-upgrade-price-amount>—</span>
-                                <span class="upgrade-price-note" data-upgrade-price-note></span>
+                        <form class="upgrade-layout" data-upgrade-form>
+                            <div class="order-card" data-order-card>
+                                <span class="order-card-mode-badge" data-order-mode-badge>Aktiveras direkt</span>
+                                <label class="order-card-level-label">
+                                    Nivå
+                                    <select name="plan">
+                                        <option value="pro">Pro</option>
+                                        <option value="start">Delad arbetsyta</option>
+                                        <option value="plus">Förvaltning</option>
+                                        <option value="enterprise">Kommun</option>
+                                    </select>
+                                </label>
+                                <div class="order-card-price">
+                                    <span data-upgrade-price-amount>—</span>
+                                    <span data-upgrade-price-note></span>
+                                </div>
+                                <p class="order-card-blurb" data-order-blurb></p>
                             </div>
-                            <label data-upgrade-team-name-field>
-                                Namn på teamet/arbetsytan
-                                <input name="workspace_name" placeholder="t.ex. IT-teamet">
-                            </label>
-                            <label data-upgrade-workspaces-field>
-                                Antal arbetsytor att börja med
-                                <input type="number" name="workspaces" value="1" min="1">
-                            </label>
-                            <label>
-                                Företag/kommun
-                                <input name="company_name" required placeholder="t.ex. Sävsjö kommun">
-                            </label>
-                            <label>
-                                Organisationsnummer
-                                <input name="org_number">
-                            </label>
-                            <label class="workspace-form-wide">
-                                Fakturaadress
-                                <input name="address">
-                            </label>
-                            <label>
-                                Referens/kostnadsställe
-                                <input name="reference">
-                            </label>
-                            <label>
-                                Fakturamejl
-                                <input type="email" name="billing_email" required placeholder="faktura@exempel.se">
-                            </label>
-                            <div class="workspace-form-actions">
-                                <button type="submit" data-upgrade-submit>Granska beställning</button>
+
+                            <div class="upgrade-fields">
+                                <label>
+                                    Företag/kommun
+                                    <input name="company_name" required placeholder="t.ex. Sävsjö kommun">
+                                </label>
+                                <label>
+                                    Fakturamejl
+                                    <input type="email" name="billing_email" required placeholder="faktura@exempel.se">
+                                </label>
+                                <label data-upgrade-team-name-field>
+                                    Namn på teamet/arbetsytan
+                                    <input name="workspace_name" placeholder="t.ex. IT-teamet">
+                                </label>
+                                <label data-upgrade-workspaces-field>
+                                    Antal arbetsytor att börja med
+                                    <input type="number" name="workspaces" value="1" min="1">
+                                </label>
+
+                                <details class="upgrade-more-fields">
+                                    <summary>Fler uppgifter (org.nr, adress, referens)</summary>
+                                    <div class="upgrade-more-fields-grid">
+                                        <label>
+                                            Organisationsnummer
+                                            <input name="org_number">
+                                        </label>
+                                        <label class="workspace-form-wide">
+                                            Fakturaadress
+                                            <input name="address">
+                                        </label>
+                                        <label>
+                                            Referens/kostnadsställe
+                                            <input name="reference">
+                                        </label>
+                                    </div>
+                                </details>
+
+                                <div class="workspace-form-actions">
+                                    <button type="submit" data-upgrade-submit>Granska beställning</button>
+                                </div>
                             </div>
                         </form>
 

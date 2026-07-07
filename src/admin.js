@@ -1275,6 +1275,16 @@ function renderUpgradePrice() {
   if (submitBtn) {
     submitBtn.textContent = planIsSelfService(plan) ? 'Granska beställning' : 'Skicka förfrågan';
   }
+
+  const selfService = planIsSelfService(plan);
+  const badgeEl = document.querySelector('[data-order-mode-badge]');
+  if (badgeEl) {
+    badgeEl.textContent = selfService ? 'Aktiveras direkt' : 'Förfrågan — ej bindande';
+    badgeEl.classList.toggle('is-request', !selfService);
+  }
+
+  const blurbEl = document.querySelector('[data-order-blurb]');
+  if (blurbEl) blurbEl.textContent = planNextStepBlurbs[plan] || '';
 }
 
 function setUpgradeStatus(message, isError = false) {
