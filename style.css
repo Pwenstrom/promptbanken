@@ -2567,14 +2567,15 @@ body.local-chat-enabled .card-actions .local-chat-btn {
 }
 
 .admin-user-avatar {
-    display: inline-grid !important;
+    display: inline-grid;
     place-items: center;
     width: 34px;
     height: 34px;
     border-radius: 50%;
     background: #dce9ff;
-    color: #0b63ce !important;
+    color: #0b63ce;
     font-weight: 850;
+    font-size: 0.85rem;
 }
 
 .admin-content {

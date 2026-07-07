@@ -49,6 +49,46 @@ const riskLabels = {
   high: 'Hög risk'
 };
 
+// Ingen bilduppladdning för avatarer (GDPR) -- initialer + en
+// deterministisk färg ur denna palett, härledd ur user.id.
+const avatarPalette = [
+  { background: '#dce9ff', color: '#0b63ce' },
+  { background: '#dcf5e4', color: '#067647' },
+  { background: '#fef0d5', color: '#92620c' },
+  { background: '#f3e8ff', color: '#7c3aed' },
+  { background: '#ffe4e6', color: '#be123c' },
+  { background: '#e0f2fe', color: '#0369a1' }
+];
+
+function getUserInitials(user) {
+  const name = user.user_metadata?.full_name || user.user_metadata?.name;
+  if (name) {
+    const parts = name.trim().split(/\s+/);
+    const first = parts[0]?.[0] || '';
+    const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+    return (first + last).toUpperCase();
+  }
+
+  return (user.email?.[0] || '?').toUpperCase();
+}
+
+function getUserAvatarStyle(user) {
+  let hash = 0;
+  for (const char of user.id) {
+    hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  }
+  return avatarPalette[hash % avatarPalette.length];
+}
+
+function renderUserAvatar(user) {
+  const el = document.querySelector('.admin-user-avatar');
+  if (!el) return;
+  el.textContent = getUserInitials(user);
+  const style = getUserAvatarStyle(user);
+  el.style.background = style.background;
+  el.style.color = style.color;
+}
+
 const statusElement = document.querySelector('[data-admin-status]');
 const dashboardElement = document.querySelector('[data-admin-dashboard]');
 const noProfileElement = document.querySelector('[data-no-profile]');
@@ -929,6 +969,7 @@ async function loadProfile(user) {
   state.workspace = workspace;
 
   setText('[data-user-email]', user.email);
+  renderUserAvatar(user);
   setTextWithTitle('[data-workspace-name]', workspace.name);
   setText('[data-workspace-type]', workspaceTypeLabels[workspace.type] || workspace.type);
   setText('[data-workspace-plan]', planNameLabels[workspace.plan] || workspace.plan);
