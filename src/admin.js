@@ -1099,8 +1099,25 @@ async function loadWorkspaces() {
   renderWorkspaces();
 }
 
+function renderWorkspaceSwitch() {
+  const select = document.querySelector('[data-workspace-switch]');
+  if (!select) return;
+
+  if (state.workspacesList.length <= 1) {
+    select.hidden = true;
+    select.innerHTML = '';
+    return;
+  }
+
+  select.innerHTML = state.workspacesList.map((w) => (
+    `<option value="${w.id}"${w.id === state.workspace.id ? ' selected' : ''}>${escapeHtml(w.name)} (${escapeHtml(planNameLabels[w.plan] || w.plan)})</option>`
+  )).join('');
+  select.hidden = false;
+}
+
 function renderWorkspaces() {
   updateOrgOnlyVisibility();
+  renderWorkspaceSwitch();
 
   const list = document.querySelector('[data-workspaces-list]');
   if (!list) return;
@@ -2088,6 +2105,15 @@ async function init() {
 
 if (logoutButton) {
   logoutButton.addEventListener('click', logout);
+}
+
+const workspaceSwitchSelect = document.querySelector('[data-workspace-switch]');
+if (workspaceSwitchSelect) {
+  workspaceSwitchSelect.addEventListener('change', () => {
+    switchToWorkspace(workspaceSwitchSelect.value).catch((error) => {
+      setStatus(error.message || 'Kunde inte byta arbetsyta.', true);
+    });
+  });
 }
 
 if (promptForm) {
