@@ -4852,6 +4852,10 @@ body.detail-panel-closed .prompt-detail-panel {
     font-weight: 700;
 }
 
+.upgrade-fields label[hidden] {
+    display: none;
+}
+
 .upgrade-fields input {
     width: 100%;
     border: 1px solid #cbd5e1;
