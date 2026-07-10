@@ -1039,15 +1039,27 @@ async function testMcpConnection(rawKey) {
     }
 
     const body = await response.json();
+
+    if (body?.error) {
+      statusEl.textContent = `Servern svarade med ett oväntat fel (${body.error.message || body.error.code}).`;
+      statusEl.classList.add('is-error');
+      return;
+    }
+
     const resultText = body?.result?.content?.[0]?.text;
-    const parsed = resultText ? JSON.parse(resultText) : null;
+    let parsed = null;
+    try {
+      parsed = resultText ? JSON.parse(resultText) : null;
+    } catch {
+      parsed = null;
+    }
     const workspaceStatus = parsed?.workspace_status;
 
     if (workspaceStatus === 'invalid_key' || workspaceStatus === 'no_key') {
       statusEl.textContent = 'Servern avvisade nyckeln. Kontrollera att du kopierade hela nyckeln.';
       statusEl.classList.add('is-error');
-    } else if (body?.error) {
-      statusEl.textContent = `Servern svarade med ett oväntat fel (${body.error.message || body.error.code}).`;
+    } else if (body?.result?.isError || !parsed || !Array.isArray(parsed.prompts)) {
+      statusEl.textContent = 'Kunde inte tolka svaret från servern. Försök igen om en stund.';
       statusEl.classList.add('is-error');
     } else {
       statusEl.textContent = 'Anslutningen fungerar. Nyckeln accepterades av servern.';
