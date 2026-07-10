@@ -405,6 +405,43 @@ function renderOnboardingChecklist() {
   section.hidden = hasMembers && hasMcpKey && hasSharedPrompt;
 }
 
+function renderPersonalOnboarding() {
+  const section = document.getElementById('kom-igang-personlig');
+  if (!section || state.workspace?.type !== 'personal') {
+    if (section) section.hidden = true;
+    return;
+  }
+
+  const ownPrompts = state.prompts.filter((item) => (
+    (item.owner_user_id === state.user?.id || item.created_by === state.user?.id) && item.status !== 'archived'
+  )).length;
+  const hasMcpKey = state.mcpKeys.some((key) => !key.revoked_at);
+
+  // Once the user has done at least one of the three things, the banner
+  // has served its purpose -- stop showing it so the dashboard doesn't
+  // nag a returning user forever.
+  if (ownPrompts > 0 || hasMcpKey) {
+    section.hidden = true;
+    return;
+  }
+
+  section.hidden = false;
+
+  const steps = {
+    'first-prompt': ownPrompts > 0,
+    'mcp-key': hasMcpKey,
+    'explore-pro': false
+  };
+
+  Object.entries(steps).forEach(([step, done]) => {
+    const item = section.querySelector(`[data-onboarding-step="${step}"]`);
+    if (!item) return;
+    item.classList.toggle('is-done', done);
+    const check = item.querySelector('.onboarding-check');
+    if (check) check.textContent = done ? '✓' : '○';
+  });
+}
+
 function renderPlanExpiry() {
   const element = document.querySelector('[data-plan-expiry]');
   if (!element) return;
@@ -1742,6 +1779,7 @@ async function refreshWorkspaceData() {
   renderCapabilityState();
   await Promise.all([loadPrompts(), loadMembers(), loadJoinCodes(), loadMcpKeys(), loadApiKeys(), loadProInvites(), loadProOrders(), loadWorkspaces()]);
   renderOnboardingChecklist();
+  renderPersonalOnboarding();
   setStatus('');
 }
 
