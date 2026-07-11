@@ -643,6 +643,9 @@ function renderPrompts() {
     mineBody.innerHTML = `<div class="mp-empty">Inga prompts matchar "${escapeHtml(state.myPromptsSearch)}".</div>`;
   } else {
     mineBody.innerHTML = ownPrompts.map((item) => `
+        ${item.status === 'draft' && item.review_note
+          ? `<p class="mp-hint is-error">Skickades tillbaka: ${escapeHtml(item.review_note)}</p>`
+          : ''}
         <article class="mp-template">
           <div>
             <h3>${escapeHtml(item.title)}</h3>
@@ -653,8 +656,11 @@ function renderPrompts() {
           <div><span class="mp-pill mp-risk-${escapeHtml(item.risk_level)}">${escapeHtml(riskLabels[item.risk_level] || riskLabels.low)}</span></div>
           <div class="mp-menu">
             <button type="button" data-preview-prompt="${item.id}">${state.expandedPromptId === item.id ? 'Dölj' : 'Visa'}</button>
-            ${item.status !== 'published'
+            ${item.status === 'draft'
               ? `<button type="button" data-edit-prompt="${item.id}">Redigera</button>`
+              : ''}
+            ${item.status === 'draft'
+              ? `<button type="button" data-submit-review-prompt="${item.id}">Skicka för granskning</button>`
               : ''}
             ${isAdminRole(state.profile.role) && item.status !== 'published'
               ? `<button type="button" data-publish-prompt="${item.id}">Publicera</button>`
@@ -1366,7 +1372,7 @@ async function submitQuickCreatePrompt(event) {
 async function loadPrompts() {
   const { data, error } = await supabase
     .from('content_items')
-    .select('id, title, slug, summary, content, status, visibility, category, audience, risk_level, owner_user_id, created_by, published_at, updated_at')
+    .select('id, title, slug, summary, content, status, visibility, category, audience, risk_level, owner_user_id, created_by, published_at, updated_at, review_note')
     .eq('workspace_id', state.workspace.id)
     .order('updated_at', { ascending: false });
 
@@ -2061,6 +2067,22 @@ async function publishPrompt(promptId) {
   await loadPrompts();
 }
 
+async function submitPromptForReview(promptId) {
+  const { error } = await supabase
+    .from('content_items')
+    .update({ status: 'review', review_note: null })
+    .eq('id', promptId)
+    .eq('workspace_id', state.workspace.id);
+
+  if (error) {
+    setErrorStatus(error, 'Kunde inte skicka prompten för granskning.');
+    return;
+  }
+
+  setStatus('Prompten skickades för granskning.');
+  await loadPrompts();
+}
+
 async function sha256Hex(value) {
   const data = new TextEncoder().encode(value);
   const hash = await crypto.subtle.digest('SHA-256', data);
@@ -2559,9 +2581,14 @@ document.addEventListener('click', (event) => {
   const deleteWorkspaceButton = event.target.closest('[data-delete-workspace]');
   const copySecretButton = event.target.closest('[data-copy-secret]');
   const testMcpConnectionButton = event.target.closest('[data-test-mcp-connection]');
+  const submitReviewButton = event.target.closest('[data-submit-review-prompt]');
 
   if (publishButton) {
     publishPrompt(publishButton.dataset.publishPrompt);
+  }
+
+  if (submitReviewButton) {
+    submitPromptForReview(submitReviewButton.dataset.submitReviewPrompt);
   }
 
   if (unpublishButton) {
