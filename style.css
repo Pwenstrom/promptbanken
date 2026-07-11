@@ -2489,6 +2489,7 @@ body.local-chat-enabled .card-actions .local-chat-btn {
 
 .admin-workspace-switch option {
     color: #101828;
+    background: #fff;
 }
 
 .admin-nav,
