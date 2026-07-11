@@ -1319,12 +1319,13 @@ function renderWorkspaces() {
             <input type="email" name="email" required placeholder="kollega@exempel.se">
           </label>
           <label>Roll
-            <select name="role">
+            <select name="role" data-invite-role-select>
               <option value="editor">Redigerare</option>
               <option value="viewer">Läsare</option>
               <option value="workspace_admin">Administratör</option>
             </select>
           </label>
+          <p class="mp-hint" data-invite-role-hint>${escapeHtml(roleLabels.editor)}</p>
           <div class="workspace-form-actions">
             <button type="submit">Bjud in till ${escapeHtml(w.name)}</button>
           </div>
@@ -1334,6 +1335,14 @@ function renderWorkspaces() {
       </div>` : ''}
     `;
   }).join('');
+
+  list.querySelectorAll('[data-invite-role-select]').forEach((select) => {
+    const hint = select.closest('form')?.querySelector('[data-invite-role-hint]');
+    if (!hint) return;
+    select.addEventListener('change', () => {
+      hint.textContent = roleLabels[select.value] || '';
+    });
+  });
 }
 
 async function submitQuickCreatePrompt(event) {
