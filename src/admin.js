@@ -2050,7 +2050,7 @@ async function unpublishPrompt(promptId) {
 
   const { error } = await supabase
     .from('content_items')
-    .update({ status: 'draft' })
+    .update({ status: 'draft', review_note: null })
     .eq('id', promptId)
     .eq('workspace_id', state.workspace.id);
 
@@ -2071,7 +2071,7 @@ async function publishPrompt(promptId) {
 
   const { error } = await supabase
     .from('content_items')
-    .update({ status: 'published' })
+    .update({ status: 'published', review_note: null })
     .eq('id', promptId)
     .eq('workspace_id', state.workspace.id);
 
