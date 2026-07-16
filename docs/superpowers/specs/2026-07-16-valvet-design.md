@@ -39,8 +39,14 @@ inbäddning i kommun-sidan) finns beskriven men är **inte** del av Fas 1 — se
      `enforce_content_access_model`) avvisar UPDATE där
      `new.module is distinct from old.module`. Förhindrar att en post
      omklassas för att kringgå en gräns.
-3. **`workspaces.max_vault_items`** (ny kolumn, integer). Free = 50,
-   Pro = 1000.
+3. **Vault-tak beräknas, lagras inte**: 50 (free) / 1000 (pro), avläst
+   direkt från `workspaces.plan` i samma sats som gränskontrollen (samma
+   mönster som `app_private.has_active_pro_entitlement()` redan använder —
+   härlett tillstånd, inte en synkad kolumn). Undviker att behöva uppdatera
+   alla befintliga upp-/nedgraderings-RPC:er (`create_pro_order`,
+   `admin_downgrade_pro_order`, `redeem_pro_invite`, m.fl.) som sätter
+   `max_prompts` men skulle annars behöva sättas om även för en ny
+   `max_vault_items`-kolumn.
 4. **Ny gräns-trigger-gren** (bredvid befintlig, oförändrad
    `enforce_content_access_model` som fortsätter styra `module='kommun'`):
    - Räknar `module='valvet' AND status<>'archived' AND owner_user_id=auth.uid()`
