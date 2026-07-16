@@ -30,7 +30,9 @@ There are no automated tests; manual verification uses the browser dev console (
 
 1. **Web app** — a multi-page static site (Vite, no framework). HTML pages are in the root (`index.html`, `admin.html`, `login.html`, `local-chat.html`, etc.). JS modules live in `src/` (Supabase auth/admin) and the main prompt-browsing logic is entirely in `script.js` (vanilla, loaded directly into `index.html`). CSS is in `style.css`. Vite bundles `src/*.js` for the admin/auth pages only; `script.js` and `style.css` are served as-is.
 
-2. **MCP server** — a Python stdio server in `mcp-server/server/` built with `FastMCP`. It exposes five tools to MCP clients: `list_skills`, `get_skill`, `route_skill`, `compile_skill_prompt`, `check_input_risk`. The Node.js scripts in `mcp-server/scripts/` only handle Python venv discovery and spawning — they contain no business logic.
+2. **MCP server** — a Python stdio server in `mcp-server/server/` built with `FastMCP`. Runs locally, one process per user, started by the user's own MCP client (nyckel via env var, not HTTP header). It exposes tools including `list_skills`, `get_skill`, `route_skill`, `compile_skill_prompt`, `check_input_risk`, and Pro-gated read tools (`list_pro_templates`, `list_my_private_prompts`, `list_my_shared_workspaces`, `list_shared_workspace_prompts`). The Node.js scripts in `mcp-server/scripts/` only handle Python venv discovery and spawning — they contain no business logic.
+
+**Separat repo `mcp_promptbanken`** hostar en egen, delad MCP-server i Docker på VPS:en (`mcp.promptbanken.se`) — samma Supabase-databas, men annan kodbas/process, nyckel via `X-MCP-Key`-header per anrop istället för env var. Write-verktyg (`save_workspace_prompt`) byggs där, inte i detta repos `mcp-server/`.
 
 ### Data flow for prompt cards
 
