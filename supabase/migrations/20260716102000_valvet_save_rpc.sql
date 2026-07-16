@@ -1,10 +1,20 @@
 -- 20260716102000_valvet_save_rpc.sql
 
 -- Bredda den befintliga log_write_attempt (byggd för save_workspace_prompt,
--- 20260712110000) med en valfri p_tool-parameter. create or replace på en
--- funktion med ENDAST tillagda parametrar med default-värden är
--- bakåtkompatibelt -- befintliga 3-parameters-anrop matchar fortfarande
--- och får tool='save_workspace_prompt' automatiskt.
+-- 20260712110000) med en valfri p_tool-parameter.
+--
+-- OBS: en `create or replace` med en ANNAN argumenttyp-lista (3 -> 4
+-- parametrar) skapar en NY, samexisterande overload -- den ersätter INTE
+-- 3-parametersfunktionen. Med båda kvar blir befintliga 3-parameters-anrop
+-- (t.ex. `pro_templates.py`s PostgREST-anrop till `log_write_attempt` med
+-- p_key_hash/p_outcome/p_risk_check_passed) tvetydiga: Postgres ser två
+-- giltiga kandidater (en exakt, en via default för p_tool) och kastar
+-- "function ... is not unique" (PostgREST: PGRST203). Måste därför droppa
+-- 3-parametersversionen explicit innan den bredare skapas, så bara EN
+-- overload finns kvar och 3-parametersanrop matchar den via default-värdet.
+drop function if exists public.log_write_attempt(text, text, boolean);
+drop function if exists app_private.log_write_attempt(text, text, boolean);
+
 create or replace function app_private.log_write_attempt(
     p_key_hash           text,
     p_outcome            text,
