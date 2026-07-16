@@ -16,3 +16,6 @@ supabase/.temp/
 *.log
 .vite-preview.log
 .vite-preview.err.log
+
+# Subagent-driven-development scratch (progress ledger, task briefs/reports)
+.superpowers/
