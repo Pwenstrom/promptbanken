@@ -456,7 +456,7 @@ where module = 'valvet' and status = 'archived'
 -- Förväntat: ERROR 'Du har nått gränsen på 50 insättningar i Valvet.'
 ```
 
-- [ ] **Step 3: Applicera mot staging, kör verifieringsskriptet, bekräfta alla V1–V5 gav förväntat resultat**
+- [x] **Step 3: Applicera mot staging, kör verifieringsskriptet, bekräfta alla V1–V5 gav förväntat resultat** — kört 2026-07-16 mot staging via Supabase MCP (`test-free-user`-workspacet; seed-scriptets slug `test-free-personal` stämmer inte längre med faktisk slug i DB). V1–V5 alla gav förväntat resultat, testrader städade.
 
 - [ ] **Step 4: Commit**
 
@@ -1241,7 +1241,7 @@ select * from public.archive_my_item_for_key(
 -- 3 module='kommun'-prompts -- ska gå bra, ingen ERROR om kommun-taket).
 ```
 
-- [ ] **Step 2: Kör mot staging, bekräfta alla punkter**
+- [x] **Step 2: Kör mot staging, bekräfta alla punkter** — kört 2026-07-16 via Supabase MCP. Steg 1–5 verifierade mot staging (Free-nyckel för `test-free-user`, en temporär test-nyckel skapad+borttagen för Pro-workspacet `test-owner-personal` eftersom det saknade en befintlig). Steg 6 verifierad genom kodgranskning av `enforce_content_access_model` (`if new.type <> 'prompt' then return new;` undantar alla `assistant`-rader innan någon räkning sker — strukturellt garanterat, ingen levande testrad behövdes). All testdata städad efteråt.
 
 - [ ] **Step 3: Commit**
 
@@ -1252,9 +1252,9 @@ git commit -m "test: add end-to-end verification script for Valvet RPCs"
 
 ---
 
-## Klart-kriterier för Plan A
+## Klart-kriterier för Plan A — UPPFYLLDA (2026-07-16)
 
-- Alla sex migrationsfiler applicerade och verifierade mot staging (inte bara lokalt granskade).
-- `verify_valvet_limits_and_locking.sql` och `verify_valvet_rpcs.sql` båda körda med förväntat resultat.
-- Kommunens befintliga 3/100-tak fortfarande verifierat oförändrat för `module='kommun'`-rader (Task 2, Step 3).
-- Klart för Plan B (`mcp_promptbanken`-repot) och Plan C (`valvet_promptbanken`-repot) att bygga mot de sex `public.*_for_key`-funktionerna.
+- [x] Alla sex migrationsfiler applicerade och verifierade mot staging (inte bara lokalt granskade).
+- [x] `verify_valvet_limits_and_locking.sql` och `verify_valvet_rpcs.sql` båda körda med förväntat resultat.
+- [x] Kommunens befintliga 3/100-tak fortfarande verifierat oförändrat för `module='kommun'`-rader (Task 2, Step 3).
+- [x] Klart för Plan B (`mcp_promptbanken`-repot) och Plan C (`valvet_promptbanken`-repot) att bygga mot de sex `public.*_for_key`-funktionerna.
