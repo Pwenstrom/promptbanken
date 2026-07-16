@@ -2,7 +2,7 @@
 
 Status: godkänd för planering (Fas 1)
 Datum: 2026-07-16
-Berör repon: `promptbanken` (denna spec bor här — äger datamodellen), `mcp_promptbanken` (nya MCP-verktyg), nytt repo `valvet` (webbapp, skapas under implementation)
+Berör repon: `promptbanken` (denna spec bor här — äger datamodellen), `mcp_promptbanken` (nya MCP-verktyg), `valvet_promptbanken` (webbapp, nytt repo på `C:\Users\petwen\OneDrive - Höglandsförbundet\Projekt\valvet_promptbanken`)
 
 ## Bakgrund
 
@@ -130,7 +130,7 @@ Alla verktyg är bundna till anropande nyckels workspace via befintlig
 2. **Månadskvot** (affärsgräns, bara Free, bara `save_my_item`): 5/kalendermånad
    per workspace, se ovan. Oberoende av (1) — båda kontrollerna måste passera.
 
-## Webbapp (nytt repo `valvet`, egen GitHub Pages-site, `valvet.promptbanken.se`)
+## Webbapp (repo `valvet_promptbanken`, egen GitHub Pages-site, `valvet.promptbanken.se`)
 
 Sju sidor: Logga in, Mina insättningar, Ny insättning, Sök, Redigera, Arkiv,
 MCP-nyckel + installationsguide.
@@ -175,7 +175,7 @@ MCP-nyckel + installationsguide.
 
 ## Deployment
 
-- Nytt repo `valvet` på GitHub, egen GitHub Pages-site (samma bygg-mönster
+- Repo `valvet_promptbanken` på GitHub, egen GitHub Pages-site (samma bygg-mönster
   som `promptbanken`: `npm run build` → `actions/deploy-pages`), egen
   `CNAME` = `valvet.promptbanken.se`.
 - Ingen VPS-hosting i Fas 1 — VPS:en (`mcp.promptbanken.se`) har 96% disk
