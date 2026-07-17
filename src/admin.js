@@ -200,7 +200,8 @@ const RAW_DB_ERROR_PATTERNS = [
   'failed to fetch',
   'networkerror',
   'relation "',
-  'column "'
+  'column "',
+  'does not exist'
 ];
 
 function isRawDatabaseError(message) {
