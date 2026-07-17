@@ -188,6 +188,10 @@ function setStatus(message, isError = false) {
   statusElement.classList.toggle('is-error', isError);
 }
 
+// All user-facing messages in this app are Swedish, so an English phrase
+// here is a reliable signal of raw DB/network text rather than a message
+// meant to reach the user. Don't add English strings to custom RPC
+// exceptions -- they'd get swallowed by 'does not exist' or similar.
 const RAW_DB_ERROR_PATTERNS = [
   'row-level security',
   'permission denied',
@@ -201,9 +205,7 @@ const RAW_DB_ERROR_PATTERNS = [
   'networkerror',
   'relation "',
   'column "',
-  'column reference',
-  'is ambiguous',
-  'invalid input syntax'
+  'does not exist'
 ];
 
 function isRawDatabaseError(message) {
