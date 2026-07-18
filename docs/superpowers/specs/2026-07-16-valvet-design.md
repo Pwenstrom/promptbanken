@@ -74,10 +74,15 @@ inbäddning i kommun-sidan) finns beskriven men är **inte** del av Fas 1 — se
 | Skapa/redigera i webbapp | ja | ja |
 | Läsa/lista/söka/hämta via MCP | ja | ja |
 | Skapa via MCP (`save_my_item`) | ja, 5/kalendermånad | ja, ingen månadskvot |
-| Uppdatera via MCP (`update_my_item`) | nej | ja |
-| Arkivera/återställa via MCP (`archive_my_item`) | nej | ja |
+| Uppdatera via MCP (`update_my_item`) | ~~nej~~ ja (sedan 2026-07-18) | ja |
+| Arkivera/återställa via MCP (`archive_my_item`) | ~~nej~~ ja (sedan 2026-07-18) | ja |
 | MCP-nycklar (delad pool med kommun) | 1 | 3 |
 | Export | ja (JSON, se nedan) | ja (samma format) |
+
+> **Ersatt 2026-07-18:** Pro-gaten för `update_my_item`/`archive_my_item` togs
+> bort genom produktbeslut — se migration
+> `20260718090000_valvet_free_update_archive_via_mcp.sql` och
+> `docs/superpowers/specs/2026-07-18-plan-usage-sync-design.md`.
 
 ## MCP-verktyg (`mcp_promptbanken`-repot, nya tools bredvid befintliga — inget byts ut eller byter beteende)
 
