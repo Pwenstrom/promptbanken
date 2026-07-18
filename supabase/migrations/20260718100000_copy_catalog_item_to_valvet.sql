@@ -49,14 +49,15 @@ security definer
 set search_path = ''
 as $$
 declare
-    v_ws          public.workspaces%rowtype;
-    v_source      public.content_items%rowtype;
-    v_existing    public.content_items%rowtype;
-    v_row         public.content_items%rowtype;
-    v_copy_count  integer;
-    v_mapped_type public.content_item_type;
-    v_slug        text;
-    v_is_pro      boolean;
+    v_ws              public.workspaces%rowtype;
+    v_source          public.content_items%rowtype;
+    v_existing        public.content_items%rowtype;
+    v_row             public.content_items%rowtype;
+    v_copy_count      integer;
+    v_mapped_type     public.content_item_type;
+    v_slug            text;
+    v_is_pro          boolean;
+    v_constraint_name text;
 begin
     if auth.uid() is null then
         raise exception 'Authentication required';
@@ -137,6 +138,9 @@ begin
     -- 7. Insert: bara title/content/category/typ kopieras -- summary/audience
     -- finns på källraden men Valvets UI visar dem aldrig. Race-safe via
     -- unique index on (workspace_id, source_content_item_id) where active.
+    -- The slug collision loop before insert is non-atomic; if two concurrent
+    -- calls hit the same slug, only the dedup index (our new constraint) is
+    -- meant to be caught; slug collisions are re-raised.
     begin
         insert into public.content_items (
             workspace_id, owner_user_id, created_by, type, module, title, slug,
@@ -149,18 +153,27 @@ begin
         returning * into v_row;
 
         -- Log the copy only if a new row was actually created (not in the
-        -- unique_violation branch below, where another concurrent call won the race).
+        -- exception handler below, which only handles dedup index collisions).
         insert into app_private.valvet_catalog_copies (workspace_id, source_content_item_id)
         values (v_ws.id, p_source_item_id);
 
     exception when unique_violation then
-        -- Another concurrent call already inserted the copy. Re-select and return it.
-        select * into v_row
-          from public.content_items
-         where workspace_id = v_ws.id
-           and module = 'valvet'
-           and source_content_item_id = p_source_item_id
-           and status <> 'archived';
+        -- Determine which constraint fired. Only handle the dedup index case;
+        -- re-raise slug collisions and any other unique violations.
+        get stacked diagnostics v_constraint_name = constraint_name;
+        if v_constraint_name = 'content_items_valvet_active_copy_per_source_idx' then
+            -- Another concurrent call already inserted the copy for this source.
+            -- Re-select and return it.
+            select * into v_row
+              from public.content_items
+             where workspace_id = v_ws.id
+               and module = 'valvet'
+               and source_content_item_id = p_source_item_id
+               and status <> 'archived';
+        else
+            -- Slug collision or other unique violation; re-raise as-is.
+            raise;
+        end if;
     end;
 
     return v_row;
