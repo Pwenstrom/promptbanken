@@ -18,6 +18,7 @@ select * from public.copy_catalog_item_to_valvet('<public-item-1>');
 -- Förväntat (FÖRE migrationen): ERROR function public.copy_catalog_item_to_valvet(uuid) does not exist.
 -- Förväntat (EFTER migrationen): 1 rad. module='valvet', visibility='private',
 -- status='draft', source='catalog_copy', source_content_item_id='<public-item-1>'.
+-- Dessutom: title/content/category matchar källraden exakt, summary/audience är NULL.
 
 -- 2. Som Free: samma anrop igen, utan att arkivera kopian -> dubblettskydd.
 select * from public.copy_catalog_item_to_valvet('<public-item-1>');
