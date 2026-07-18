@@ -170,6 +170,10 @@ begin
                and module = 'valvet'
                and source_content_item_id = p_source_item_id
                and status <> 'archived';
+
+            if not found then
+                raise exception 'Kunde inte hitta den befintliga kopian efter en samtidig skrivning — försök igen.';
+            end if;
         else
             -- Slug collision or other unique violation; re-raise as-is.
             raise;
@@ -193,3 +197,60 @@ $$;
 
 revoke all on function public.copy_catalog_item_to_valvet(uuid) from public;
 grant execute on function public.copy_catalog_item_to_valvet(uuid) to authenticated;
+
+-- 8. Quota-read RPC for the UI to display monthly copy limits.
+-- Returns (used, monthly_limit) where monthly_limit is null for Pro (unlimited).
+create or replace function app_private.valvet_catalog_copy_quota()
+returns table(used integer, monthly_limit integer)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+    v_ws    public.workspaces%rowtype;
+    v_used  integer;
+begin
+    if auth.uid() is null then
+        raise exception 'Authentication required';
+    end if;
+
+    select w.* into v_ws
+      from public.workspaces w
+      join public.profiles p on p.workspace_id = w.id
+     where p.user_id = auth.uid()
+       and w.type = 'personal'
+       and w.status = 'active'
+     order by p.created_at
+     limit 1;
+
+    if not found then
+        raise exception 'Inget personligt workspace hittades.';
+    end if;
+
+    if app_private.has_active_pro_entitlement(v_ws.owner_user_id) then
+        return query select 0, null::integer;
+        return;
+    end if;
+
+    select count(*) into v_used
+      from app_private.valvet_catalog_copies
+     where workspace_id = v_ws.id
+       and created_at >= date_trunc('month', now());
+
+    return query select v_used, 5;
+end;
+$$;
+
+revoke all on function app_private.valvet_catalog_copy_quota() from public;
+
+create or replace function public.valvet_catalog_copy_quota()
+returns table(used integer, monthly_limit integer)
+language sql
+security definer
+set search_path = ''
+as $$
+    select * from app_private.valvet_catalog_copy_quota();
+$$;
+
+revoke all on function public.valvet_catalog_copy_quota() from public;
+grant execute on function public.valvet_catalog_copy_quota() to authenticated;

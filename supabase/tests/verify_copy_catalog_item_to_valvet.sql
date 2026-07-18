@@ -44,7 +44,7 @@ select * from public.copy_catalog_item_to_valvet('<workspace-visible-item>');
 -- Förväntat: 1 rad, samma fält som steg 1 fast source_content_item_id pekar
 -- på <workspace-visible-item>.
 
--- 6. Som Pro: upprepa kopiering 6+ gånger (unika kilder) -- ingen kvotfel.
+-- 6. Som Pro: upprepa kopiering 6+ gånger (unika källor) -- ingen kvotfel.
 -- Förväntat: alla lyckas, ingen ERROR om månadskvot.
 
 -- 7. Typmappning: kopiera en katalogpost med type='guide' eller
@@ -55,3 +55,11 @@ select * from public.copy_catalog_item_to_valvet('<guide-or-checklist-item>');
 -- 8. Typmappning: kopiera en katalogpost med type='assistant'.
 select * from public.copy_catalog_item_to_valvet('<assistant-item>');
 -- Förväntat: den nya raden har type='assistant'.
+
+-- 9. Kvotavläsning: RPC för UI-display.
+-- Som Free-användare som redan gjort 2 kopior denna månad:
+select * from public.valvet_catalog_copy_quota();
+-- Förväntat: used=2, monthly_limit=5.
+-- Som Pro-användare:
+select * from public.valvet_catalog_copy_quota();
+-- Förväntat: used=0, monthly_limit=null (unlimited).
