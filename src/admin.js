@@ -522,13 +522,13 @@ function renderPlanInfo() {
         { label: 'Dela prompts med hela teamet', ok: true },
         { label: `${mcpKeyLimit()} MCP-nycklar för agenter/integrationer`, ok: mcpEnabled() },
         { label: 'API-nycklar för externa integrationer', ok: apiEnabled() },
-        { label: 'Premium-mallar (Pro-biblioteket)', ok: true }
+        { label: 'Hela promptbiblioteket (öppet för alla)', ok: true }
       ]
     : [
         { label: `${maxP} egna mallar`, ok: true },
         { label: 'MCP-nyckel (egna + publika prompts)', ok: mcpEnabled() },
         { label: 'API-nycklar för externa integrationer', ok: apiEnabled() },
-        { label: 'Premium-mallar (Pro-biblioteket)', ok: isPlanPro() }
+        { label: 'Hela promptbiblioteket (öppet för alla)', ok: true }
       ];
 
   if (featureList) {
@@ -781,7 +781,7 @@ const nextStepsByPlan = {
 };
 
 const planNextStepBlurbs = {
-  pro: 'Hela premiumbiblioteket, 100 egna mallar, 3 MCP-nycklar.',
+  pro: '100 egna mallar, 3 MCP-nycklar och större Valv-gränser.',
   start: 'Dela mallar i en gemensam yta. Upp till 5 Pro-användare.',
   plus: 'Flera arbetsytor under en gemensam licens, upp till 50 medlemmar.',
   enterprise: 'Central styrning för hela kommunen, 250+ medlemmar.'

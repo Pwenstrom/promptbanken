@@ -69,10 +69,9 @@ def check_input_risk(text: str) -> dict[str, object]:
 
 @mcp.tool()
 def list_pro_templates() -> dict[str, Any]:
-    """List Promptbanken Pro premium templates. Full prompt text is only
-    included if PROMPTBANKEN_MCP_KEY (env var) belongs to a workspace with
-    an active Pro plan -- otherwise a teaser (title/syfte/output only) is
-    returned for each template."""
+    """List the full Promptbanken template library (name kept for backwards
+    compatibility -- the catalog is open since 2026-07-19, no Pro plan
+    required; full prompt text is always included)."""
     try:
         client = ProTemplatesClient.from_env()
     except ProTemplatesNotConfigured as exc:

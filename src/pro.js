@@ -271,14 +271,8 @@ async function init() {
   }
 
   const templates = data || [];
-  const anyUnlocked = templates.some((t) => t.is_unlocked);
 
-  setStatusBanner(
-    anyUnlocked
-      ? 'Din plan har Pro aktiverat — alla mallar nedan är upplåsta.'
-      : 'Du ser en förhandsvisning av Pro-mallarna. Uppgradera till Pro för att låsa upp hela biblioteket.',
-    anyUnlocked
-  );
+  setStatusBanner('Hela promptbiblioteket är öppet — alla mallar nedan är upplåsta.', true);
 
   renderAreas(templates);
 }

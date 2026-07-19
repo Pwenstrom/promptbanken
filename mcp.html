@@ -72,7 +72,7 @@
                             <li>1 personlig MCP-nyckel</li>
                             <li>möjlighet att testa hur Promptbanken fungerar i ett AI-verktyg</li>
                         </ul>
-                        <p>Vill du ha fler egna mallar, premium-mallar och fler MCP-nycklar kan du <a href="pro.html">uppgradera till Pro</a>.</p>
+                        <p>Vill du ha fler egna mallar och fler MCP-nycklar kan du <a href="pro.html">uppgradera till Pro</a>.</p>
                     </section>
 
                     <section>
@@ -92,7 +92,7 @@
                         <div class="article-table">
                             <div><strong>Vill du läsa och kopiera manuellt?</strong><span>Använd kommun.promptbanken.se.</span></div>
                             <div><strong>Vill du komma igång snabbt utan konto?</strong><span>Använd den publika MCP-servern utan nyckel — ger de öppna mallarna.</span></div>
-                            <div><strong>Vill du använda dina egna sparade mallar eller premium-mallar?</strong><span><a href="login.html">Skapa ett gratis konto</a>, skapa en MCP-nyckel och lägg till den i ditt AI-verktyg.</span></div>
+                            <div><strong>Vill du använda dina egna sparade mallar?</strong><span><a href="login.html">Skapa ett gratis konto</a>, skapa en MCP-nyckel och lägg till den i ditt AI-verktyg.</span></div>
                         </div>
                         <p>Den publika MCP-servern är <a href="https://mcp.promptbanken.se/mcp">https://mcp.promptbanken.se/mcp</a>.</p>
                     </section>
@@ -117,15 +117,15 @@
                             <div><strong>2. Anslut ditt AI-verktyg</strong><span>Använd något av alternativen nedan beroende på vilket verktyg du kör.</span></div>
                             <div><strong>3. Återkalla vid behov</strong><span>Tappat bort nyckeln eller misstänker läckage? Återkalla den direkt i admin.html och skapa en ny.</span></div>
                         </div>
-                        <p>Med nyckeln inkopplad kan AI-verktyget även nå dina egna sparade mallar och, om din workspace har Pro, premium-mallarna — inte bara de öppna standardmallarna.</p>
+                        <p>Med nyckeln inkopplad kan AI-verktyget även nå dina egna sparade mallar — hela promptbiblioteket är öppet för alla, med eller utan nyckel.</p>
                     </section>
 
                     <section>
                         <h2>Vad får MCP-nyckeln komma åt?</h2>
                         <p>Din MCP-nyckel är personlig. Det betyder att den bara ska ge åtkomst till det din plan tillåter.</p>
                         <div class="article-table">
-                            <div><strong>Free</strong><span>Öppna mallar och dina egna Free-mallar.</span></div>
-                            <div><strong>Pro</strong><span>Öppna mallar, premium-mallar och dina egna Pro-mallar.</span></div>
+                            <div><strong>Free</strong><span>Hela promptbiblioteket och dina egna Free-mallar.</span></div>
+                            <div><strong>Pro</strong><span>Hela promptbiblioteket och dina egna Pro-mallar.</span></div>
                         </div>
                         <p>Nyckeln ger inte åtkomst till andra användares privata mallar.</p>
                         <p>Är du medlem i en delad arbetsyta kan en personlig Pro-nyckel användas mot den delade ytan där du är medlem, men anropet ska vara kontextstyrt — AI-verktyget behöver veta om det ska använda din privata yta eller en viss delad arbetsyta.</p>
@@ -171,8 +171,8 @@
     }
   }
 }</code></pre>
-                        <p>Vill du även nå dina egna sparade mallar och (med Pro) premium-mallarna via samma publika server, lägg till din nyckel som ett <code>headers</code>-fält enligt avsnittet "Koppla din nyckel till ett AI-verktyg" ovan. Starta om Claude Desktop efter att du sparat filen. I Claude Code fungerar samma <code>mcpServers</code>-block i projektets <code>.claude</code>-konfiguration.</p>
-                        <p>Med din nyckel inkopplad får AI-verktyget även tillgång till verktyget <code>list_pro_templates</code>, som visar Promptbanken Pros 42 premium-mallar — full prompttext om din workspace har aktiv Pro-plan, annars bara en förhandsvisning.</p>
+                        <p>Vill du även nå dina egna sparade mallar via samma publika server, lägg till din nyckel som ett <code>headers</code>-fält enligt avsnittet "Koppla din nyckel till ett AI-verktyg" ovan. Starta om Claude Desktop efter att du sparat filen. I Claude Code fungerar samma <code>mcpServers</code>-block i projektets <code>.claude</code>-konfiguration.</p>
+                        <p>Verktyget <code>list_pro_templates</code> (namnet är historiskt) visar promptbibliotekets 42 mallar med full prompttext för alla — ingen nyckel eller plan krävs.</p>
                     </section>
 
                     <section>
@@ -205,8 +205,8 @@
                         <h2>Praktisk slutsats</h2>
                         <p>Vill man testa de öppna promptarna som vanlig webbsida är <a href="https://kommun.promptbanken.se">kommun.promptbanken.se</a> enklast.</p>
                         <p>Vill man komma igång direkt utan konto är den publika MCP-servern <a href="https://mcp.promptbanken.se/mcp">mcp.promptbanken.se/mcp</a> rätt väg — den ger de öppna mallarna.</p>
-                        <p>Vill man använda egna sparade mallar eller premium-innehåll behöver man <a href="login.html">skapa ett gratis konto</a>, skapa en MCP-nyckel och lägga till den i sitt AI-verktyg.</p>
-                        <p>Free ger 1 MCP-nyckel för enklare test och användning. Pro ger 3 MCP-nycklar och tillgång till din privata Pro-yta och premium-mallar.</p>
+                        <p>Vill man använda egna sparade mallar behöver man <a href="login.html">skapa ett gratis konto</a>, skapa en MCP-nyckel och lägga till den i sitt AI-verktyg.</p>
+                        <p>Free ger 1 MCP-nyckel för enklare test och användning. Pro ger 3 MCP-nycklar och tillgång till din privata Pro-yta.</p>
                     </section>
                 </article>
             </main>
