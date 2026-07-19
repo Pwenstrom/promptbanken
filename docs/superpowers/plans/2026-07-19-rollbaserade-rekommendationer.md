@@ -29,7 +29,7 @@
 - Consumes: `SkillRouter._normalize` (`skill_router.py`), `pro_templates.list_pro_templates("")` (redan öppen, returnerar `area`/`area_label` per mall).
 - Produces: `recommend(role: str, templates: list[dict]) -> dict` med formen `{"role_recognized": bool, "packages": [{"area": str, "area_label": str, "template_count": int}]}`.
 
-- [ ] **Step 1: Skriv `package_recommendations.py`**
+- [x] **Step 1: Skriv `package_recommendations.py`**
 
 ```python
 """Rollbaserade paketrekommendationer (delprojekt 5). Statisk mappning
@@ -85,9 +85,9 @@ def recommend(role: str, templates: list[dict[str, Any]]) -> dict[str, Any]:
     return {"role_recognized": role_recognized, "packages": packages}
 ```
 
-- [ ] **Step 2: Kompilera** — `python -m py_compile mcp-server/server/package_recommendations.py` — OK.
+- [x] **Step 2: Kompilera** — `python -m py_compile mcp-server/server/package_recommendations.py` — OK.
 
-- [ ] **Step 3: Import + payload-helper i `mcp_server.py`** — lägg till importen bredvid övriga `.vault`-importer (efter `from .vault import copy_template as _vault_copy_template`):
+- [x] **Step 3: Import + payload-helper i `mcp_server.py`** — lägg till importen bredvid övriga `.vault`-importer (efter `from .vault import copy_template as _vault_copy_template`):
 
 ```python
 from .package_recommendations import recommend as _recommend_packages
@@ -103,7 +103,7 @@ def _recommend_packages_payload(role: str) -> dict[str, Any]:
 
 (`_fetch_pro_templates` är redan importerad högre upp i filen som `from .pro_templates import list_pro_templates as _fetch_pro_templates` — verifiera exakt aliasnamn i filen innan du skriver raden; om aliaset heter något annat, använd det istället.)
 
-- [ ] **Step 4: `_tool_definitions()`** — lägg till sist i listan (efter `copy_template_to_valvet`s block, före den avslutande `]`):
+- [x] **Step 4: `_tool_definitions()`** — lägg till sist i listan (efter `copy_template_to_valvet`s block, före den avslutande `]`):
 
 ```python
         {
@@ -124,7 +124,7 @@ def _recommend_packages_payload(role: str) -> dict[str, Any]:
         },
 ```
 
-- [ ] **Step 5: Manuell JSON-RPC-dispatch** — lägg till efter `copy_template_to_valvet`s block, före `return _json_rpc_error(request_id, -32601, "Tool not found")`:
+- [x] **Step 5: Manuell JSON-RPC-dispatch** — lägg till efter `copy_template_to_valvet`s block, före `return _json_rpc_error(request_id, -32601, "Tool not found")`:
 
 ```python
         if tool_name == "recommend_packages":
@@ -134,7 +134,7 @@ def _recommend_packages_payload(role: str) -> dict[str, Any]:
             return _json_rpc_result(request_id, _mcp_content_result(_recommend_packages_payload(role)))
 ```
 
-- [ ] **Step 6: `@mcp.tool()`-registrering** — lägg till i slutet av filen, efter `copy_template_to_valvet`:
+- [x] **Step 6: `@mcp.tool()`-registrering** — lägg till i slutet av filen, efter `copy_template_to_valvet`:
 
 ```python
 @mcp.tool()
@@ -144,7 +144,7 @@ def recommend_packages(role: str) -> dict[str, Any]:
     return _recommend_packages_payload(role)
 ```
 
-- [ ] **Step 7: REST-endpoint** — lägg till efter `_api_vault_copy_template`:
+- [x] **Step 7: REST-endpoint** — lägg till efter `_api_vault_copy_template`:
 
 ```python
 async def _api_recommend_packages(request: Request) -> JSONResponse:
@@ -160,7 +160,7 @@ Route (lägg till efter `/api/v1/vault/packages/copy`):
             Route("/api/v1/vault/packages/recommendations", endpoint=_api_recommend_packages, methods=["GET"]),
 ```
 
-- [ ] **Step 8: `hosted_guard.py`** — lägg till `"recommend_packages"` i `allowed_methods` och `"recommend_packages": {"role"}` i `allowed_tool_args`, plus valideringsgren:
+- [x] **Step 8: `hosted_guard.py`** — lägg till `"recommend_packages"` i `allowed_methods` och `"recommend_packages": {"role"}` i `allowed_tool_args`, plus valideringsgren:
 
 ```python
         elif tool_name == "recommend_packages":
@@ -169,11 +169,11 @@ Route (lägg till efter `/api/v1/vault/packages/copy`):
                 return {"reason": "invalid_role", "method": method, "tool": tool_name, "id": request_id}
 ```
 
-- [ ] **Step 9: Kompilera allt** — `python -m py_compile mcp-server/server/mcp_server.py mcp-server/server/hosted_guard.py mcp-server/server/package_recommendations.py` — OK.
+- [x] **Step 9: Kompilera allt** — `python -m py_compile mcp-server/server/mcp_server.py mcp-server/server/hosted_guard.py mcp-server/server/package_recommendations.py` — OK.
 
-- [ ] **Step 10: Runtime-smoke-test lokalt** (utan Docker) — importera modulen och kör `recommend("chef", ...)`/`recommend("okänd-roll", ...)` direkt mot en liten testlista, bekräfta `role_recognized`-flaggan och `arbetsbank` alltid med när rollen känns igen.
+- [x] **Step 10: Runtime-smoke-test lokalt** (utan Docker) — importera modulen och kör `recommend("chef", ...)`/`recommend("okänd-roll", ...)` direkt mot en liten testlista, bekräfta `role_recognized`-flaggan och `arbetsbank` alltid med när rollen känns igen.
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```powershell
 git add mcp-server/server/package_recommendations.py mcp-server/server/mcp_server.py mcp-server/server/hosted_guard.py
@@ -182,9 +182,9 @@ git commit -m "feat: recommend_packages MCP tool for role-based package suggesti
 
 ### Task 2: Deploy + verifiering
 
-- [ ] **Step 1:** Push till origin/main.
-- [ ] **Step 2:** VPS: `git pull --ff-only && docker-compose up -d --build` (ContainerConfig-workaround vid behov).
-- [ ] **Step 3:** `curl tools/call recommend_packages` med `role: "chef"` → `ledarskap`, `forandringsledning`, `beslutsberedning`, `arbetsbank`, `role_recognized: true`.
-- [ ] **Step 4:** Samma med `role: "okänd-roll-xyz"` → alla 7, `role_recognized: false`.
-- [ ] **Step 5:** Samma med `role: "KOMMUNIKATÖR"` (versaler) → matchar (bekräftar normalisering).
-- [ ] **Step 6:** Uppdatera minnesfilen `valvet-fas1-status` — hela visionen (6/6 delprojekt) klar.
+- [x] **Step 1:** Push till origin/main.
+- [x] **Step 2:** VPS: `git pull --ff-only && docker-compose up -d --build` (ContainerConfig-workaround vid behov).
+- [x] **Step 3:** `curl tools/call recommend_packages` med `role: "chef"` → `ledarskap`, `forandringsledning`, `beslutsberedning`, `arbetsbank`, `role_recognized: true`.
+- [x] **Step 4:** Samma med `role: "okänd-roll-xyz"` → alla 7, `role_recognized: false`.
+- [x] **Step 5:** Samma med `role: "KOMMUNIKATÖR"` (versaler) → matchar (bekräftar normalisering).
+- [x] **Step 6:** Uppdatera minnesfilen `valvet-fas1-status` — hela visionen (6/6 delprojekt) klar.

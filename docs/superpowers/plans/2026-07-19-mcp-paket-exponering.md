@@ -31,7 +31,7 @@
 - Consumes: `public.valvet_package_activations` (tabell), `app_private.copy_template_to_valvet` (mönster, ej anropad direkt), `public.pro_prompt_templates`, `app_private.valvet_catalog_copies`, `app_private.has_active_pro_entitlement`, `app_private.slugify_candidate`.
 - Produces: `public.copy_template_to_valvet_for_key(p_key_hash text, p_template_id uuid, p_confirm boolean) returns public.content_items`, `public.activate_package_for_key(p_key_hash text, p_area text) returns void`, `public.deactivate_package_for_key(p_key_hash text, p_area text) returns void`, `public.list_active_packages_for_key(p_key_hash text) returns table(area text)`. Alla grantade till `anon`. Task 3 anropar dessa fyra.
 
-- [ ] **Step 1: Skriv verifieringschecklistan**
+- [x] **Step 1: Skriv verifieringschecklistan**
 
 `supabase/tests/verify_mcp_packages.sql`:
 ```sql
@@ -69,7 +69,7 @@ select * from public.valvet_catalog_copy_quota();  -- used ökat med 1
 -- aktivera/avaktivera fungerar fortfarande direkt efter utan väntan.
 ```
 
-- [ ] **Step 2: Skriv migrationen**
+- [x] **Step 2: Skriv migrationen**
 
 `supabase/migrations/20260719120000_mcp_package_rpcs.sql`:
 ```sql
@@ -323,14 +323,14 @@ revoke all on function public.list_active_packages_for_key(text) from public;
 grant execute on function public.list_active_packages_for_key(text) to anon;
 ```
 
-- [ ] **Step 3: Applicera mot live via Supabase MCP `apply_migration`** (namn `mcp_package_rpcs`).
+- [x] **Step 3: Applicera mot live via Supabase MCP `apply_migration`** (namn `mcp_package_rpcs`).
 
-- [ ] **Step 4: Kör checklistans steg 1 (ogiltig nyckel) mot live, bekräfta alla fyra avvisar.**
+- [x] **Step 4: Kör checklistans steg 1 (ogiltig nyckel) mot live, bekräfta alla fyra avvisar.**
 
-- [ ] **Step 5: Hämta en riktig nyckels sha256-hash och ett riktigt `template_id` för steg 2–5** — kör t.ex.
+- [x] **Step 5: Hämta en riktig nyckels sha256-hash och ett riktigt `template_id` för steg 2–5** — kör t.ex.
   `select encode(digest('<en-riktig-mcp-nyckel>', 'sha256'), 'hex');` samt `select id from public.pro_prompt_templates limit 1;`. Kör resten av checklistan mot live.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add supabase/migrations/20260719120000_mcp_package_rpcs.sql supabase/tests/verify_mcp_packages.sql
@@ -346,7 +346,7 @@ git commit -m "feat: key-hash RPCs for MCP package activation and template copy"
 - Consumes: Task 1:s fyra RPC:er via `_call_rpc` (redan definierad i denna fil).
 - Produces: `activate_package(mcp_key, area) -> None`, `deactivate_package(mcp_key, area) -> None`, `list_active_packages(mcp_key) -> list[str]`, `copy_template(mcp_key, template_id, confirm) -> dict`. Task 3 importerar dessa fyra.
 
-- [ ] **Step 1:** Lägg till i slutet av `vault.py` (efter befintliga `log_write_attempt`, före ev. filslut):
+- [x] **Step 1:** Lägg till i slutet av `vault.py` (efter befintliga `log_write_attempt`, före ev. filslut):
 
 ```python
 def list_active_packages(mcp_key: str) -> list[str]:
@@ -389,9 +389,9 @@ def copy_template(mcp_key: str, template_id: str, confirm: bool) -> dict[str, An
     )
 ```
 
-- [ ] **Step 2:** `python -m py_compile mcp-server/server/vault.py` — OK.
+- [x] **Step 2:** `python -m py_compile mcp-server/server/vault.py` — OK.
 
-- [ ] **Step 3: Commit** — `git commit -m "feat: vault.py wrappers for package activation and template copy"`
+- [x] **Step 3: Commit** — `git commit -m "feat: vault.py wrappers for package activation and template copy"`
 
 ### Task 3: `mcp_server.py` — fyra verktyg, tre inkopplingsställen
 
@@ -402,7 +402,7 @@ def copy_template(mcp_key: str, template_id: str, confirm: bool) -> dict[str, An
 - Consumes: Task 2:s fyra funktioner (importeras som `_vault_list_active_packages`, `_vault_activate_package`, `_vault_deactivate_package`, `_vault_copy_template`, samma aliasing-konvention som rad 28–34).
 - Produces: fyra nya MCP-tools synliga i `tools/list`: `list_active_packages`, `activate_package`, `deactivate_package`, `copy_template_to_valvet`.
 
-- [ ] **Step 1: Imports** — lägg till efter rad 34 (`from .vault import log_write_attempt as _vault_log_write_attempt`):
+- [x] **Step 1: Imports** — lägg till efter rad 34 (`from .vault import log_write_attempt as _vault_log_write_attempt`):
 
 ```python
 from .vault import list_active_packages as _vault_list_active_packages
@@ -411,7 +411,7 @@ from .vault import deactivate_package as _vault_deactivate_package
 from .vault import copy_template as _vault_copy_template
 ```
 
-- [ ] **Step 2: Payload-helpers** — lägg till efter `_archive_my_item_payload` (efter rad 304):
+- [x] **Step 2: Payload-helpers** — lägg till efter `_archive_my_item_payload` (efter rad 304):
 
 ```python
 def _list_active_packages_payload(mcp_key: str) -> dict[str, Any]:
@@ -471,7 +471,7 @@ def _copy_template_to_valvet_payload(mcp_key: str, template_id: str, confirm: bo
         return {"status": "error", "message": "Kunde inte kopiera mallen."}
 ```
 
-- [ ] **Step 3: `_tool_definitions()` — lägg till fyra scheman** direkt efter `archive_my_item`s block (leta upp `"name": "archive_my_item"` i `_tool_definitions()`, infoga efter dess stängande `},`):
+- [x] **Step 3: `_tool_definitions()` — lägg till fyra scheman** direkt efter `archive_my_item`s block (leta upp `"name": "archive_my_item"` i `_tool_definitions()`, infoga efter dess stängande `},`):
 
 ```python
         {
@@ -534,7 +534,7 @@ def _copy_template_to_valvet_payload(mcp_key: str, template_id: str, confirm: bo
         },
 ```
 
-- [ ] **Step 4: Manuell JSON-RPC-dispatch** — lägg till efter `archive_my_item`s block i dispatchen (efter raden `return _json_rpc_error(request_id, -32601, "Tool not found")`s FÖREGÅENDE block, dvs efter det `if tool_name == "archive_my_item": ... )` blocket och FÖRE `return _json_rpc_error(request_id, -32601, "Tool not found")`):
+- [x] **Step 4: Manuell JSON-RPC-dispatch** — lägg till efter `archive_my_item`s block i dispatchen (efter raden `return _json_rpc_error(request_id, -32601, "Tool not found")`s FÖREGÅENDE block, dvs efter det `if tool_name == "archive_my_item": ... )` blocket och FÖRE `return _json_rpc_error(request_id, -32601, "Tool not found")`):
 
 ```python
         if tool_name == "list_active_packages":
@@ -559,7 +559,7 @@ def _copy_template_to_valvet_payload(mcp_key: str, template_id: str, confirm: bo
             )
 ```
 
-- [ ] **Step 5: `@mcp.tool()`-registrering** — lägg till i slutet av filen, efter `archive_my_item`s decorerade funktion (samma stil, tom-sträng-nyckel för local-mode-symmetri):
+- [x] **Step 5: `@mcp.tool()`-registrering** — lägg till i slutet av filen, efter `archive_my_item`s decorerade funktion (samma stil, tom-sträng-nyckel för local-mode-symmetri):
 
 ```python
 @mcp.tool()
@@ -590,7 +590,7 @@ def copy_template_to_valvet(template_id: str, confirm: bool) -> dict[str, Any]:
     return _copy_template_to_valvet_payload("", template_id, confirm)
 ```
 
-- [ ] **Step 6: REST-endpoints** — lägg till efter den sista `/api/v1/vault/items/{item_id}/archive`-endpointfunktionen (leta upp `_api_vault_archive_item` eller motsvarande, infoga efter den):
+- [x] **Step 6: REST-endpoints** — lägg till efter den sista `/api/v1/vault/items/{item_id}/archive`-endpointfunktionen (leta upp `_api_vault_archive_item` eller motsvarande, infoga efter den):
 
 ```python
 async def _api_vault_list_active_packages(request: Request) -> JSONResponse:
@@ -634,7 +634,7 @@ async def _api_vault_copy_template(request: Request) -> JSONResponse:
     return JSONResponse(payload, status_code=status_code)
 ```
 
-- [ ] **Step 7: Route-registrering** — lägg till i `Route(...)`-listan direkt efter den sista `/api/v1/vault/items/{item_id}/archive`-raden:
+- [x] **Step 7: Route-registrering** — lägg till i `Route(...)`-listan direkt efter den sista `/api/v1/vault/items/{item_id}/archive`-raden:
 
 ```python
             Route("/api/v1/vault/packages", endpoint=_api_vault_list_active_packages, methods=["GET"]),
@@ -643,16 +643,16 @@ async def _api_vault_copy_template(request: Request) -> JSONResponse:
             Route("/api/v1/vault/packages/copy", endpoint=_api_vault_copy_template, methods=["POST"]),
 ```
 
-- [ ] **Step 8:** `python -m py_compile mcp-server/server/mcp_server.py` — OK.
+- [x] **Step 8:** `python -m py_compile mcp-server/server/mcp_server.py` — OK.
 
-- [ ] **Step 9: Commit** — `git commit -m "feat: MCP tools for package activation and template copy"`
+- [x] **Step 9: Commit** — `git commit -m "feat: MCP tools for package activation and template copy"`
 
 ### Task 4: `hosted_guard.py` — allowlist
 
 **Files:**
 - Modify: `mcp-server/server/hosted_guard.py`
 
-- [ ] **Step 1:** Lägg till i `self.allowed_methods` (efter `"archive_my_item",`):
+- [x] **Step 1:** Lägg till i `self.allowed_methods` (efter `"archive_my_item",`):
 
 ```python
             "list_active_packages",
@@ -661,7 +661,7 @@ async def _api_vault_copy_template(request: Request) -> JSONResponse:
             "copy_template_to_valvet",
 ```
 
-- [ ] **Step 2:** Lägg till i `self.allowed_tool_args` (efter `"archive_my_item": {"id", "confirm", "restore"},`):
+- [x] **Step 2:** Lägg till i `self.allowed_tool_args` (efter `"archive_my_item": {"id", "confirm", "restore"},`):
 
 ```python
             "list_active_packages": set(),
@@ -670,7 +670,7 @@ async def _api_vault_copy_template(request: Request) -> JSONResponse:
             "copy_template_to_valvet": {"template_id", "confirm"},
 ```
 
-- [ ] **Step 3:** Lägg till valideringsgrenar i `inspect_tool_args` (efter `archive_my_item`-grenen, före `elif arguments:`):
+- [x] **Step 3:** Lägg till valideringsgrenar i `inspect_tool_args` (efter `archive_my_item`-grenen, före `elif arguments:`):
 
 ```python
         elif tool_name == "list_active_packages":
@@ -686,15 +686,15 @@ async def _api_vault_copy_template(request: Request) -> JSONResponse:
                 return {"reason": "invalid_copy_template_arguments", "method": method, "tool": tool_name, "id": request_id}
 ```
 
-- [ ] **Step 4:** `python -m py_compile mcp-server/server/hosted_guard.py` — OK.
+- [x] **Step 4:** `python -m py_compile mcp-server/server/hosted_guard.py` — OK.
 
-- [ ] **Step 5: Commit** — `git commit -m "feat: allow package tools through hosted metadata guard"`
+- [x] **Step 5: Commit** — `git commit -m "feat: allow package tools through hosted metadata guard"`
 
 ### Task 5: Deploy + end-to-end-verifiering
 
-- [ ] **Step 1:** Push till origin/main.
-- [ ] **Step 2:** VPS: `ssh promptbanken-vps` → `cd ~/mcp_promptbanken && git pull --ff-only && docker-compose up -d --build` (ContainerConfig-workaround vid behov).
-- [ ] **Step 3:** `curl -s -X POST https://mcp.promptbanken.se/mcp -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -H 'X-MCP-Key: <riktig-nyckel>' -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"activate_package","arguments":{"area":"kommunikation"}}}'` — `status: success`.
-- [ ] **Step 4:** Samma mot `copy_template_to_valvet` med `confirm:false` (avvisas) och `confirm:true` (lyckas).
-- [ ] **Step 5:** Browser: verifiera i Valvets webbflik att paketet aktiverat via MCP visas expanderat, och att mallen kopierad via MCP syns under "Mina insättningar".
-- [ ] **Step 6:** Uppdatera minnesfilen `valvet-fas1-status` med utfallet.
+- [x] **Step 1:** Push till origin/main.
+- [x] **Step 2:** VPS: `ssh promptbanken-vps` → `cd ~/mcp_promptbanken && git pull --ff-only && docker-compose up -d --build` (ContainerConfig-workaround vid behov).
+- [x] **Step 3:** `curl -s -X POST https://mcp.promptbanken.se/mcp -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -H 'X-MCP-Key: <riktig-nyckel>' -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"activate_package","arguments":{"area":"kommunikation"}}}'` — `status: success`.
+- [x] **Step 4:** Samma mot `copy_template_to_valvet` med `confirm:false` (avvisas) och `confirm:true` (lyckas).
+- [x] **Step 5:** Browser: verifiera i Valvets webbflik att paketet aktiverat via MCP visas expanderat, och att mallen kopierad via MCP syns under "Mina insättningar".
+- [x] **Step 6:** Uppdatera minnesfilen `valvet-fas1-status` med utfallet.

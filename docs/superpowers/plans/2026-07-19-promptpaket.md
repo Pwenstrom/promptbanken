@@ -20,19 +20,19 @@
 
 ### Task 1: Migration + checklista (`promptbanken`)
 
-- [ ] `supabase/tests/verify_valvet_packages.sql`: RLS-negativtest, aktivera/avaktivera-rundtur, Free-kopiering räknas mot kvoten, kopians fält (type='prompt', category=area_label, content=prompt_text, status='draft', visibility='private', source='catalog_copy', source_content_item_id null).
-- [ ] `supabase/migrations/20260719110000_valvet_packages.sql`: tabell + RLS-policies (select/insert/delete, personligt workspace via profiles-join, `(select auth.uid())`) + grants; `app_private.copy_template_to_valvet(p_template_id)` (kvotgren, slug-loop, set_config, insert, logg) + public wrapper med grant till authenticated.
-- [ ] Applicera via MCP, kör checklistans efter-frågor.
-- [ ] Commit.
+- [x] `supabase/tests/verify_valvet_packages.sql`: RLS-negativtest, aktivera/avaktivera-rundtur, Free-kopiering räknas mot kvoten, kopians fält (type='prompt', category=area_label, content=prompt_text, status='draft', visibility='private', source='catalog_copy', source_content_item_id null).
+- [x] `supabase/migrations/20260719110000_valvet_packages.sql`: tabell + RLS-policies (select/insert/delete, personligt workspace via profiles-join, `(select auth.uid())`) + grants; `app_private.copy_template_to_valvet(p_template_id)` (kvotgren, slug-loop, set_config, insert, logg) + public wrapper med grant till authenticated.
+- [x] Applicera via MCP, kör checklistans efter-frågor.
+- [x] Commit.
 
 ### Task 2: UI (`valvet_promptbanken`)
 
-- [ ] `vault.html`: sektion "Promptpaket" (container + status-element) ovanför katalog-listan i Bläddra-fliken, befintliga komponentklasser.
-- [ ] `src/vault.js`: ladda `list_pro_templates` + aktiveringar vid flikvisning; gruppera på `area`; rendera områdesrader med Aktivera/Avaktivera (insert/delete `valvet_package_activations`); aktiverade paket expanderade med mall-rader + "Kopiera till mitt Valv" → `rpc('copy_template_to_valvet')`; sökfältet filtrerar även paketmallar klientside.
-- [ ] `npm run build` grönt. Commit.
+- [x] `vault.html`: sektion "Promptpaket" (container + status-element) ovanför katalog-listan i Bläddra-fliken, befintliga komponentklasser.
+- [x] `src/vault.js`: ladda `list_pro_templates` + aktiveringar vid flikvisning; gruppera på `area`; rendera områdesrader med Aktivera/Avaktivera (insert/delete `valvet_package_activations`); aktiverade paket expanderade med mall-rader + "Kopiera till mitt Valv" → `rpc('copy_template_to_valvet')`; sökfältet filtrerar även paketmallar klientside.
+- [x] `npm run build` grönt. Commit.
 
 ### Task 3: Deploy + verifiering
 
-- [ ] Push båda repos.
-- [ ] Browser: aktivera paket → mallar syns → kopiera → syns i Mina insättningar → avaktivera (kopian kvar).
-- [ ] Uppdatera minnesfil.
+- [x] Push båda repos.
+- [x] Browser: aktivera paket → mallar syns → kopiera → syns i Mina insättningar → avaktivera (kopian kvar).
+- [x] Uppdatera minnesfil.
