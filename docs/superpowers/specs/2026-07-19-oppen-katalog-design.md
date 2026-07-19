@@ -87,10 +87,13 @@ Repo `valvet_promptbanken`:
 
 Repo `promptbanken` (kommun-webben):
 
-3. Alla texter som påstår att Pro ger mallaccess/premium-mallar uppdateras:
-   `planer.html`-tiers behåller sälj av arbetsytor/MCP-nycklar/Valvet-
-   gränser men mallaccess-raderna stryks; premium-badges/låsta kort i
-   katalog-UI:t tas bort så alla mallar renderas som fria.
+3. Alla texter som påstår att Pro ger mallaccess/premium-mallar uppdateras.
+   Verifierat 2026-07-19: `script.js` (katalog-UI:t) har INGA premium-lås
+   eller badges — gaten fanns enbart i DB/vyerna. Ändringen är därför ren
+   text: `planer.html`-raderna "✗ Premium-mallar" / "Hela premiumbiblioteket"
+   m.fl. skrivs om (tiers behåller sälj av egna mallar, arbetsytor,
+   MCP-nycklar), plus motsvarande påståenden på övriga sidor om grep hittar
+   fler under implementationen.
 4. Inga nya sidor, ingen ny CSS.
 
 ## Felhantering
