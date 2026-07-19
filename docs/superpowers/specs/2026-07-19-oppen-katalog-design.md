@@ -34,12 +34,34 @@ användarens privata arbetsbank och enda ingången för att spara/aktivera.
   behålls med oförändrade namn men returnerar nu samma mängd som den öppna
   katalogen. Fullständig utrivning är ett eventuellt senare städdelprojekt.
 
+## Katalogens tre gating-mekanismer (verifierat mot live-DB 2026-07-19)
+
+1. **`pro_prompt_templates`** (42 mallar, 7 områden) — den verkliga
+   premiumkatalogen. Teaser-logik i `list_pro_templates()` (webb,
+   `auth.uid()`) och `get_pro_templates_for_mcp_key` (MCP, nyckelhash):
+   `prompt_text` null:as och `is_unlocked=false` för icke-Pro.
+2. **`content_items` med `visibility='workspace'`** (3 rader live, varav 2
+   publicerade) — Pro-grenen i `copy_catalog_item_to_valvet` +
+   `published_workspace_content`-vyn. OBS: `published_public_content` är
+   idag TOM (0 rader) — Free-användare ser en tom katalog i Valvet.
+3. **Säljtexter** i `planer.html` ("✗ Premium-mallar", "Hela
+   premiumbiblioteket").
+
+De 12 raderna med `visibility='private'` är användares egna kommun-utkast
+("egna mallar") — de är inte katalog och rörs inte.
+
 ## Sektion 1 — DB (`promptbanken`, en ny migration)
 
 1. **Datamigrering:**
    `update public.content_items set visibility='public' where module='kommun' and visibility='workspace';`
-   Alla rader, inte bara publicerade — utkast ska bli publika när de
-   publiceras; katalogen har inga privata poster.
+   Alla workspace-rader oavsett status — utkast ska bli publika när de
+   publiceras. `visibility='private'` rörs inte (egna utkast, inte katalog).
+1b. **`list_pro_templates()` och `get_pro_templates_for_mcp_key`:**
+   Pro-checken tas bort ur BÅDA — `prompt_text` returneras alltid och
+   `is_unlocked` är alltid `true`, för alla anropare inkl. utloggade/okänd
+   nyckel. Signaturer och kolumner oförändrade (alias-strategin) —
+   `is_unlocked` behålls som kolumn så klienter inte bryts.
+   Tabellen `pro_prompt_templates` och dess RLS rörs inte.
 2. **`copy_catalog_item_to_valvet`:** synlighetsvillkoret
    `visibility='public' or (visibility='workspace' and v_is_pro)` ersätts med
    `visibility in ('public','workspace')` — hängslen ifall en rad missas av
@@ -87,13 +109,19 @@ Repo `valvet_promptbanken`:
 
 Repo `promptbanken` (kommun-webben):
 
-3. Alla texter som påstår att Pro ger mallaccess/premium-mallar uppdateras.
-   Verifierat 2026-07-19: `script.js` (katalog-UI:t) har INGA premium-lås
-   eller badges — gaten fanns enbart i DB/vyerna. Ändringen är därför ren
-   text: `planer.html`-raderna "✗ Premium-mallar" / "Hela premiumbiblioteket"
-   m.fl. skrivs om (tiers behåller sälj av egna mallar, arbetsytor,
-   MCP-nycklar), plus motsvarande påståenden på övriga sidor om grep hittar
-   fler under implementationen.
+3. **`src/pro.js`** (premiumbibliotekets sida): lås-UI:t är helt datadrivet
+   av `is_unlocked` — när RPC:n alltid returnerar `true` försvinner badges
+   och locked-note av sig själva. Enda kodändringen är banner-texterna:
+   "Din plan har Pro aktiverat — alla mallar nedan är upplåsta." /
+   "Du ser en förhandsvisning av Pro-mallarna. Uppgradera till Pro för att
+   låsa upp hela biblioteket." ersätts med en neutral text om att hela
+   biblioteket är öppet. Död lås-kod (badge-branchen, `detailLockedNote`)
+   får stå kvar — den triggas aldrig och rivs i ett ev. städdelprojekt.
+4. **`planer.html`**: raderna "✗ Premium-mallar" / "Hela premiumbiblioteket"
+   skrivs om (tiers behåller sälj av egna mallar, arbetsytor, MCP-nycklar),
+   plus motsvarande påståenden på övriga sidor om grep hittar fler under
+   implementationen. Verifierat: `script.js` (öppna katalog-UI:t) har inga
+   premium-lås.
 4. Inga nya sidor, ingen ny CSS.
 
 ## Felhantering
@@ -106,12 +134,14 @@ hängslen-villkoret i sektion 1 punkt 2.
 
 1. **SQL-checklista** (ny fil i `supabase/tests/`, samma konvention som
    `verify_copy_catalog_item_to_valvet.sql`):
-   - Före: räkna `visibility='workspace'`-rader i katalogen. Efter
-     migrering: 0.
+   - Före (live 2026-07-19): 3 `visibility='workspace'`-rader i katalogen,
+     `published_public_content` = 0 rader. Efter migrering: 0 workspace-rader,
+     `published_public_content` = 2 (de publicerade).
    - Som Free-användare: kopiera en f.d. workspace-mall via
      `copy_catalog_item_to_valvet` — ska lyckas.
-   - `get_pro_templates_for_mcp_key` med Free-nyckel — returnerar hela
-     publicerade katalogen.
+   - `get_pro_templates_for_mcp_key` med Free-nyckel (och med ogiltig
+     nyckel): alla 42 rader med `prompt_text` ifylld och `is_unlocked=true`.
+   - `list_pro_templates()` som utloggad/anon: samma — 42 upplåsta rader.
 2. **MCP:** `curl` `tools/call list_pro_templates` med Free-nyckel mot
    `mcp.promptbanken.se` efter deploy — full lista.
 3. **Browser:** kommun-katalogen visar inga lås/premium-badges; Valvets
