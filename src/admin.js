@@ -2424,6 +2424,11 @@ async function init() {
   const hasProfile = await loadProfile(session.user);
   if (hasProfile) {
     await refreshWorkspaceData();
+  } else if (state.user?.id) {
+    // Personliga workspaces visar notisen direkt, men användaren kan samtidigt
+    // vara medlem i en eller flera organisationsytor. Ladda workspace-listan
+    // även här så att switchern i sidomenyn kan ta användaren vidare.
+    await loadWorkspaces();
   }
 }
 
