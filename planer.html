@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planer och priser - Promptbanken</title>
-    <meta name="description" content="Promptbankens planer för kommunal verksamhet: Free, Pro, Arbetsyta, Förvaltning och Kommun. Se vad som ingår, vem planen passar och hur du kommer igång.">
+    <meta name="description" content="Promptbankens organisatoriska planer: Arbetsyta, Förvaltning och Kommun. Se vad som ingår, vem planen passar och hur du kommer igång.">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="https://kommun.promptbanken.se/planer.html">
     <link rel="stylesheet" href="style.css">
@@ -35,7 +35,7 @@
         <div class="app-main">
             <header class="topbar">
                 <a class="help-btn" href="index.html">Tillbaka till prompter</a>
-                <a class="help-btn" href="login.html" id="auth-nav-link"><span class="app-icon" aria-hidden="true" data-icon="user"></span><span id="auth-nav-label">Logga in / skapa konto</span></a>
+                <a class="help-btn" href="login.html" id="auth-nav-link"><span class="app-icon" aria-hidden="true" data-icon="user"></span><span id="auth-nav-label">Logga in</span></a>
                 <div class="info-class">
                     <span class="shield" aria-hidden="true">◇</span>
                     <span><small>Informationsklass</small><strong><span class="status-dot"></span>Öppen</strong></span>
@@ -46,50 +46,21 @@
                 <article class="article-page">
                     <p class="article-kicker">Planer och priser</p>
                     <h1>Välj plan för din verksamhet</h1>
-                    <p class="article-lead">Promptbanken passar allt från en enskild handläggare som vill testa till en hel kommun som vill styra vilka AI-mallar som används. Hela promptbiblioteket är öppet för alla. Free är gratis och räcker för att komma igång. Betalplanerna ger fler egna mallar, delning i team och nycklar för AI-agenter och integrationer.</p>
+                    <p class="article-lead">Promptbanken passar allt från ett litet team till en hel kommun som vill styra vilka AI-mallar som används. Hela promptbiblioteket är öppet för alla. De organisatoriska planerna ger delning i team, egna MCP-nycklar och central styrning.</p>
+                    <p class="article-lead">Letar du efter ett personligt konto? Använd <a href="https://valvet.promptbanken.se">Valvet</a> för att spara egna prompts.</p>
 
                     <div class="plan-grid" aria-label="Planjämförelse">
                         <section class="plan-card">
-                            <h2>Free</h2>
-                            <p class="plan-card-price">0 kr</p>
-                            <p class="plan-card-audience">För dig som vill testa</p>
-                            <p class="plan-card-value">Kom igång med hela det öppna, kvalitetssäkrade promptbiblioteket.</p>
-                            <ul class="plan-card-features">
-                                <li>✓ Hela promptbiblioteket</li>
-                                <li>✓ 3 egna mallar</li>
-                                <li>✓ 1 MCP-nyckel</li>
-                                <li>✗ API-nycklar</li>
-                                <li>✗ Dela med team</li>
-                            </ul>
-                            <a class="plan-card-cta secondary-btn" href="login.html">Skapa gratis konto</a>
-                        </section>
-
-                        <section class="plan-card plan-card--highlight">
-                            <span class="plan-card-badge">Populär</span>
-                            <h2>Pro</h2>
-                            <p class="plan-card-price" data-price="pro">89 kr/mån</p>
-                            <p class="plan-card-audience">För dig som använder AI ofta</p>
-                            <p class="plan-card-value">Strukturera, analysera och kvalitetssäkra – med fler egna mallar och nycklar.</p>
-                            <ul class="plan-card-features">
-                                <li>✓ 100 egna mallar</li>
-                                <li>✓ 3 MCP-nycklar</li>
-                                <li>✓ Större Valv-gränser</li>
-                            </ul>
-                            <a class="plan-card-cta primary-btn" href="admin.html#uppgradera">Uppgradera till Pro</a>
-                        </section>
-
-                        <section class="plan-card">
-                            <h2>Delad arbetsyta</h2>
-                            <p class="plan-card-price" data-price="team">Pro + 199 kr/mån <small>ägaren betalar ytan</small></p>
-                            <p class="plan-card-audience">För ett litet team där alla har Pro</p>
-                            <p class="plan-card-value">Dela mallar och arbetssätt i en gemensam yta – ett tillägg till Pro.</p>
+                            <h2>Arbetsyta</h2>
+                            <p class="plan-card-price">Pris enligt offert</p>
+                            <p class="plan-card-audience">För ett litet team</p>
+                            <p class="plan-card-value">Dela mallar och arbetssätt i en gemensam yta – fristående, utan krav på personliga konton.</p>
                             <ul class="plan-card-features">
                                 <li>✓ 200 delade mallar</li>
-                                <li>✓ Upp till 5 Pro-användare</li>
-                                <li>✓ Nås via medlemmarnas personliga Pro-nycklar</li>
-                                <li>✗ Egna arbetsyte-nycklar</li>
+                                <li>✓ Upp till 5 medlemmar</li>
+                                <li>✓ Egna arbetsyte-ägda MCP-nycklar</li>
                             </ul>
-                            <a class="plan-card-cta primary-btn" href="admin.html#uppgradera">Beställ Delad arbetsyta</a>
+                            <a class="plan-card-cta secondary-btn" href="admin.html#uppgradera">Kontakta oss</a>
                         </section>
 
                         <section class="plan-card">
@@ -122,15 +93,15 @@
                     </div>
 
                     <section>
-                        <h2>Vad är skillnaden mellan Delad arbetsyta, Förvaltning och Kommun?</h2>
-                        <p><strong>Delad arbetsyta</strong> är ett tillägg till Pro för en liten arbetsgrupp – till exempel kommunikationsgruppen eller IT-teamet. Alla medlemmar har sin egen Pro och delar en gemensam yta med upp till 5 personer. Ytan har inga egna nycklar; den nås via medlemmarnas personliga Pro-nycklar.</p>
+                        <h2>Vad är skillnaden mellan Arbetsyta, Förvaltning och Kommun?</h2>
+                        <p><strong>Arbetsyta</strong> är en fristående nivå för en liten arbetsgrupp – till exempel kommunikationsgruppen eller IT-teamet. Upp till 5 medlemmar delar en gemensam yta med egna arbetsyte-ägda MCP-nycklar. Inget personligt Pro- eller Valvet-konto krävs för medlemmarna.</p>
                         <p><strong>Förvaltning</strong> är för en förvaltning som vill dela upp sig i flera arbetsytor under en gemensam licens – till exempel en yta för förskolan, en för grundskolan och en för administrationen. Gränserna (mallar, medlemmar, nycklar) delas mellan alla ytor.</p>
                         <p><strong>Kommun</strong> är för hela kommunen med en arbetsyta per förvaltning och central styrning av vilka mallar som är godkända. Volymer och villkor sätts i avtal.</p>
                     </section>
 
                     <section>
                         <h2>Så fungerar köpet</h2>
-                        <p>Pro och Delad arbetsyta beställer du själv direkt i <a href="admin.html#uppgradera">Min workspace</a> – kontot aktiveras direkt och faktura skickas till angiven e-post. Förvaltning och Kommun är en förfrågan: vi återkommer med offert innan avtal tecknas och kontot aktiveras. Ingen betalningsinformation lämnas i tjänsten.</p>
+                        <p>Alla tre nivåer är en förfrågan: fyll i dina uppgifter under <a href="admin.html#uppgradera">Min workspace</a> eller mejla <a href="mailto:info@promptbanken.se">info@promptbanken.se</a>, så återkommer vi med offert innan avtal tecknas och kontot aktiveras. Ingen betalningsinformation lämnas i tjänsten.</p>
                     </section>
 
                     <section>
