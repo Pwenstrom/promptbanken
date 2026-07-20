@@ -1,5 +1,32 @@
 # TODO
 
+## Planera: kontextval/profiler i Promptbanken (ej påbörjat, 2026-07-20)
+
+Idé från Peter: ett läge i Promptbanken som sätter *kontext* — påverkar ordval, exempel, sortering, rekommendationer och paketförslag, men skapar INTE dupliceradeversioner av samma prompt.
+
+Huvudkontexter diskuterade (ej spikat vilka som är egna huvudkontexter vs underkategorier — särskilt förening, offentlig verksamhet, ideell organisation oklara ännu):
+- **Generell** — teknisk standard/fallback (INTE kommun, även om `kommun.promptbanken.se`s gränssnitt kan rekommendera Kommun som förval där)
+- **Kommun**
+- **Skola**
+- **Företag**
+- **Privat**
+
+Kontexter ska kunna **kombineras i profiler** (t.ex. Kommun+Skola, Kommun+Ledarskap, Företag+Kommunikation, Privat+Föreningsliv). En profil kan innehålla mer än bransch, t.ex.:
+```
+Profil: Skolledning
+Kontext: kommun + skola
+Roll: rektor
+Målgrupper: personal, vårdnadshavare, elever
+Ton: tydlig, professionell, varm
+```
+
+Principer:
+- En användare i Valvet kan ha flera profiler men **en aktiv profil åt gången**.
+- I öppna Promptbanken (utan konto) kan valet sparas lokalt i webbläsaren.
+- Prioritetsordning för vilken kontext som gäller: (1) explicit angiven av användaren → (2) aktiv profil i Valvet/klienten → (3) arbetsytans kontext → (4) Generell fallback.
+
+Kräver brainstorming/spec innan implementation — hör ihop med [[valvet-fas1-status]] men är ett nytt separat spår, inte del av delprojekt 1-6.
+
 - [ ] Lägg till varningstext i admin-UI vid delning av prompt till workspace ("Endast prompts du litar på — de körs direkt i kollegors AI-klienter"). Bakgrund: workspace-delade prompts (Pro/organisation) serveras oskannat via `get_workspace_prompts_for_key` till andra medlemmars MCP-klienter och körs som instruktion — ingen sanering av adversariellt promptinnehåll finns eller går att bygga bort helt, men användaren bör varnas.
 
 ## Inför öppen registrering (fritt med e-post/Google)
