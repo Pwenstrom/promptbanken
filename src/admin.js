@@ -1926,9 +1926,20 @@ async function savePromptUnsafe() {
   const content = formData.get('content')?.toString().trim();
   const slug = slugify(formData.get('slug')?.toString().trim() || title);
   const riskLevel = formData.get('risk_level')?.toString() || 'low';
+  const editingId = state.editingPromptId;
   let visibility = formData.get('visibility')?.toString() || 'private';
 
-  if (!allowedVisibilityOptions().some(([value]) => value === visibility)) {
+  // Same condition renderPromptFormRules() uses to hide the field for
+  // ordinary org members. When editing an existing item and the field isn't
+  // actually editable by this user, never let the (hardcoded/collapsed)
+  // select value silently overwrite the item's real stored visibility --
+  // e.g. a legacy private org prompt must not flip to workspace-visible
+  // just because the user fixed a typo elsewhere in the form.
+  const visibilityFieldHidden = state.workspace.type === 'organization' && !isPlatformOwner();
+  if (editingId && visibilityFieldHidden) {
+    const existingItem = state.prompts.find((item) => item.id === editingId);
+    visibility = existingItem?.visibility ?? visibility;
+  } else if (!allowedVisibilityOptions().some(([value]) => value === visibility)) {
     visibility = allowedVisibilityOptions()[0][0];
   }
 
@@ -1936,8 +1947,6 @@ async function savePromptUnsafe() {
     setStatus('Rätta fälten som är markerade nedan.', true);
     return;
   }
-
-  const editingId = state.editingPromptId;
 
   if (!editingId && state.workspace?.type === 'personal') {
     const activeOwnPrompts = state.prompts.filter((item) => (
