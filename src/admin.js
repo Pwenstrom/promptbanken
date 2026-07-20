@@ -1296,12 +1296,13 @@ function renderWorkspaces() {
           <label>Kort beskrivning
             <input name="summary" maxlength="140" placeholder="En rad om vad prompten gör">
           </label>
+          ${isPlatformOwner() ? `
           <label>Synlighet
             <select name="visibility">
               <option value="private">Privat</option>
               <option value="workspace">Delad med ytan</option>
             </select>
-          </label>
+          </label>` : ''}
           <label class="workspace-form-wide">Prompttext
             <textarea name="content" rows="3" required minlength="10"></textarea>
           </label>
@@ -1351,7 +1352,7 @@ async function submitQuickCreatePrompt(event) {
   const title = formData.get('title')?.toString().trim();
   const summary = formData.get('summary')?.toString().trim() || null;
   const content = formData.get('content')?.toString().trim();
-  const visibility = formData.get('visibility')?.toString() || 'private';
+  const visibility = formData.get('visibility')?.toString() || 'workspace';
 
   if (!title || !content) {
     setStatus('Titel och prompttext krävs.', true);
@@ -1873,7 +1874,11 @@ function startEditPrompt(promptId) {
   state.editingPromptId = promptId;
   promptForm.querySelector('[name="title"]').value = item.title || '';
   promptForm.querySelector('[name="slug"]').value = item.slug || '';
-  promptForm.querySelector('[name="visibility"]').value = item.visibility || 'private';
+  const visibilityField = promptForm.querySelector('[name="visibility"]');
+  const wantedVisibility = item.visibility || 'private';
+  if ([...visibilityField.options].some((option) => option.value === wantedVisibility)) {
+    visibilityField.value = wantedVisibility;
+  }
   promptForm.querySelector('[name="category"]').value = item.category || '';
   promptForm.querySelector('[name="audience"]').value = item.audience || '';
   promptForm.querySelector('[name="risk_level"]').value = item.risk_level || 'low';
