@@ -5083,60 +5083,6 @@ body.detail-panel-closed .prompt-detail-panel {
     text-align: center;
 }
 
-/* ── Login plan comparison ─────────────────────────────────── */
-.auth-plan-compare {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-top: 1.75rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid #e5e7eb;
-}
-
-.auth-plan-col {
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-}
-
-.auth-plan-col--pro {
-    background: #fffbeb;
-    border-color: #fcd34d;
-}
-
-.auth-plan-col strong {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #374151;
-}
-
-.auth-plan-col--pro strong {
-    color: #92400e;
-}
-
-.auth-plan-col ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-}
-
-.auth-plan-col li {
-    font-size: 0.8rem;
-    color: #6b7280;
-}
-
-.auth-plan-col li:first-of-type {
-    color: #374151;
-}
-
 /* ── Google sign-in ────────────────────────────────────────── */
 .auth-divider {
     display: flex;

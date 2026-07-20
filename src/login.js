@@ -21,7 +21,7 @@ async function handleLogin(event) {
     return;
   }
 
-  setStatus(authMode === 'signup' ? 'Skapar free-konto...' : 'Loggar in...');
+  setStatus('Loggar in...');
 
   const credentials = {
     email: emailInput.value.trim(),
@@ -38,26 +38,11 @@ async function handleLogin(event) {
     return;
   }
 
-  const { data, error } = authMode === 'signup'
-    ? await supabase.auth.signUp(credentials)
-    : await supabase.auth.signInWithPassword(credentials);
+  const { error } = await supabase.auth.signInWithPassword(credentials);
 
   if (error) {
     setStatus(error.message || 'Åtgärden misslyckades.', true);
     return;
-  }
-
-  if (authMode === 'signup') {
-    if (!data.session) {
-      setStatus('Kontot är skapat. Bekräfta e-posten och logga sedan in.');
-      return;
-    }
-
-    const { error: workspaceError } = await supabase.rpc('ensure_personal_workspace');
-    if (workspaceError) {
-      setStatus(workspaceError.message || 'Kontot skapades men privat workspace kunde inte skapas.', true);
-      return;
-    }
   }
 
   window.location.assign(getRedirectTarget());
@@ -74,10 +59,10 @@ function setAuthMode(nextMode) {
     passwordInput.required = false;
     if (passwordField) passwordField.hidden = true;
   } else {
-    submitButton.textContent = authMode === 'signup' ? 'Skapa free-konto' : 'Logga in';
+    submitButton.textContent = 'Logga in';
     passwordInput.required = true;
     if (passwordField) passwordField.hidden = false;
-    passwordInput.autocomplete = authMode === 'signup' ? 'new-password' : 'current-password';
+    passwordInput.autocomplete = 'current-password';
   }
   setStatus('');
 }
