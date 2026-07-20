@@ -410,43 +410,6 @@ function renderOnboardingChecklist() {
   section.hidden = hasMembers && hasMcpKey && hasSharedPrompt;
 }
 
-function renderPersonalOnboarding() {
-  const section = document.getElementById('kom-igang-personlig');
-  if (!section || state.workspace?.type !== 'personal') {
-    if (section) section.hidden = true;
-    return;
-  }
-
-  const ownPrompts = state.prompts.filter((item) => (
-    (item.owner_user_id === state.user?.id || item.created_by === state.user?.id) && item.status !== 'archived'
-  )).length;
-  const hasMcpKey = state.mcpKeys.some((key) => !key.revoked_at);
-
-  // Once the user has done at least one of the three things, the banner
-  // has served its purpose -- stop showing it so the dashboard doesn't
-  // nag a returning user forever.
-  if (ownPrompts > 0 || hasMcpKey) {
-    section.hidden = true;
-    return;
-  }
-
-  section.hidden = false;
-
-  const steps = {
-    'first-prompt': ownPrompts > 0,
-    'mcp-key': hasMcpKey,
-    'explore-pro': false
-  };
-
-  Object.entries(steps).forEach(([step, done]) => {
-    const item = section.querySelector(`[data-onboarding-step="${step}"]`);
-    if (!item) return;
-    item.classList.toggle('is-done', done);
-    const check = item.querySelector('.onboarding-check');
-    if (check) check.textContent = done ? '✓' : '○';
-  });
-}
-
 function renderPlanExpiry() {
   const element = document.querySelector('[data-plan-expiry]');
   if (!element) return;
@@ -1134,6 +1097,12 @@ async function loadProfile(user) {
 
   setText('[data-user-email]', user.email);
   renderUserAvatar(user);
+
+  if (workspace.type === 'personal') {
+    showPersonalNotice();
+    return false;
+  }
+
   setTextWithTitle('[data-workspace-name]', workspace.name);
   setText('[data-workspace-type]', workspaceTypeLabels[workspace.type] || workspace.type);
   setText('[data-workspace-plan]', planNameLabels[workspace.plan] || workspace.plan);
@@ -1147,6 +1116,14 @@ async function loadProfile(user) {
   noProfileElement.hidden = true;
   setStatus('');
   return true;
+}
+
+function showPersonalNotice() {
+  const notice = document.querySelector('[data-personal-notice]');
+  if (notice) notice.hidden = false;
+  dashboardElement.hidden = true;
+  noProfileElement.hidden = true;
+  setStatus('');
 }
 
 async function switchToWorkspace(workspaceId) {
@@ -1177,6 +1154,15 @@ async function switchToWorkspace(workspaceId) {
 
   state.profile = profile;
   state.workspace = workspace;
+
+  if (workspace.type === 'personal') {
+    showPersonalNotice();
+    return;
+  }
+
+  const notice = document.querySelector('[data-personal-notice]');
+  if (notice) notice.hidden = true;
+  dashboardElement.hidden = false;
 
   setTextWithTitle('[data-workspace-name]', workspace.name);
   setText('[data-workspace-type]', workspaceTypeLabels[workspace.type] || workspace.type);
@@ -1867,7 +1853,6 @@ async function refreshWorkspaceData() {
   renderCapabilityState();
   await Promise.all([loadPrompts(), loadMembers(), loadJoinCodes(), loadMcpKeys(), loadApiKeys(), loadProInvites(), loadProOrders(), loadWorkspaces()]);
   renderOnboardingChecklist();
-  renderPersonalOnboarding();
   setStatus('');
 }
 
