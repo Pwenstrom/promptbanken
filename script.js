@@ -203,6 +203,38 @@ document.getElementById('catalog-detail-close')?.addEventListener('click', () =>
     document.getElementById('catalog-prompt-detail').hidden = true;
 });
 
+function createCatalogPackageCard(pkg) {
+    const card = document.createElement('div');
+    card.className = 'catalog-card';
+    card.dataset.catalogPackageSlug = pkg.slug;
+    const title = escapeHtml(pkg.title);
+    const summary = escapeHtml(pkg.summary);
+    const typeLabel = pkg.package_type === 'workflow' ? 'Arbetssätt' : 'Samling';
+    card.innerHTML = `
+        <h4>${title}</h4>
+        <p>${summary}</p>
+        <span class="catalog-package-type">${typeLabel}</span>
+    `;
+    return card;
+}
+
+async function loadCatalogPackages() {
+    const grid = document.getElementById('catalog-package-grid');
+    if (!grid) return;
+
+    try {
+        const packages = await callCatalogRpc('list_published_packages', {
+            p_context_keys: getActiveContextKeys(),
+            p_package_type: null
+        });
+        grid.innerHTML = '';
+        packages.forEach((pkg) => grid.appendChild(createCatalogPackageCard(pkg)));
+    } catch (error) {
+        console.error('Kunde inte ladda katalogpaket:', error);
+        grid.innerHTML = '<div class="error-message">⚠️ Kunde inte ladda katalogpaket.</div>';
+    }
+}
+
         // Kontextprofil-regressionscheck
         function testCatalogProfileStorage() {
             const testKeys = ['kommun', 'skola'];
