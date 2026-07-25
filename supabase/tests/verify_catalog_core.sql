@@ -18,3 +18,9 @@ from information_schema.columns
 where table_schema = 'public'
   and table_name = 'catalog_package_items'
 order by ordinal_position;
+
+-- Promptflöde
+select proname
+from pg_proc
+where proname in ('create_catalog_prompt', 'upsert_catalog_prompt_variant', 'publish_catalog_prompt')
+order by proname;
