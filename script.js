@@ -204,6 +204,7 @@ function refreshGlobalRenderOutputs() {
     loadPrompts();
     loadCatalogPrompts();
     loadCatalogPackages();
+    rerenderActiveCatalogDetailVariant();
 }
 
 function initGlobalRenderControls() {
@@ -467,19 +468,56 @@ async function loadCatalogPrompts() {
 
 let catalogDetailVariants = [];
 
+function normalizeCatalogTemplateEntity(entity) {
+    return {
+        ...entity,
+        parameter_schema: entity?.parameter_schema || null,
+        default_bindings: entity?.default_bindings || {},
+        binding_overrides: Array.isArray(entity?.binding_overrides) ? entity.binding_overrides : []
+    };
+}
+
+function renderCatalogTemplateField(entity, fieldName) {
+    const rawValue = entity?.[fieldName];
+    if (!rawValue) return '';
+    if (!entity?.parameter_schema) return String(rawValue);
+
+    const template = adaptLegacyPromptTemplate(rawValue, entity.parameter_schema);
+    const bindings = resolvePromptBindings(
+        getGlobalRenderState(),
+        entity.parameter_schema,
+        entity.default_bindings,
+        entity.binding_overrides
+    );
+
+    return renderPromptTemplate(template, bindings);
+}
+
 function renderCatalogDetailVariant(variant) {
     const body = document.getElementById('catalog-detail-body');
     if (!body) return;
+    const normalizedVariant = normalizeCatalogTemplateEntity(variant);
 
-    const introOrPromptHtml = 'prompt_text' in variant
-        ? `<pre class="catalog-detail-prompt-text">${escapeHtml(variant.prompt_text)}</pre>`
-        : (variant.intro_text ? `<p>${escapeHtml(variant.intro_text)}</p>` : '');
+    const introOrPromptHtml = 'prompt_text' in normalizedVariant
+        ? `<pre class="catalog-detail-prompt-text">${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'prompt_text'))}</pre>`
+        : (normalizedVariant.intro_text
+            ? `<p>${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'intro_text'))}</p>`
+            : '');
 
     body.innerHTML = `
-        <h3>${escapeHtml(variant.title)}</h3>
-        <p>${escapeHtml(variant.summary)}</p>
+        <h3>${escapeHtml(normalizedVariant.title)}</h3>
+        <p>${escapeHtml(normalizedVariant.summary)}</p>
         ${introOrPromptHtml}
     `;
+}
+
+function rerenderActiveCatalogDetailVariant() {
+    const panel = document.getElementById('catalog-prompt-detail');
+    if (!panel || panel.hidden || !catalogDetailVariants.length) return;
+
+    const activeButton = document.querySelector('#catalog-detail-tabs button.active');
+    const activeIndex = Number(activeButton?.dataset.catalogTabIndex || 0);
+    renderCatalogDetailVariant(catalogDetailVariants[activeIndex] || catalogDetailVariants[0]);
 }
 
 // Shared by prompt detail and package detail: renders the context-profile
@@ -511,10 +549,10 @@ async function openCatalogPromptDetail(slug) {
     if (!panel || !tabsContainer) return;
 
     try {
-        catalogDetailVariants = await callCatalogRpc('get_published_prompt', {
+        catalogDetailVariants = (await callCatalogRpc('get_published_prompt', {
             p_slug: slug,
             p_context_keys: getActiveContextKeys()
-        });
+        })).map(normalizeCatalogTemplateEntity);
     } catch (error) {
         console.error('Kunde inte ladda promptdetaljer:', error);
         return;
@@ -533,10 +571,10 @@ async function openCatalogPackageDetail(slug) {
     if (!panel || !tabsContainer) return;
 
     try {
-        catalogDetailVariants = await callCatalogRpc('get_published_package', {
+        catalogDetailVariants = (await callCatalogRpc('get_published_package', {
             p_slug: slug,
             p_context_keys: getActiveContextKeys()
-        });
+        })).map(normalizeCatalogTemplateEntity);
     } catch (error) {
         console.error('Kunde inte ladda paketdetaljer:', error);
         return;
