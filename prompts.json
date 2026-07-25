@@ -66,6 +66,31 @@
       "title": "❓ Gör en FAQ",
       "description": "Skapa 8–12 frågor och svar baserat på ett dokument eller policy.",
       "file": "prompts/faq.txt",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "roll": "kommunikatör",
+        "malgrupp": "invånare",
+        "ton": "tydlig och vänlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "vårdnadshavare" }
+        },
+        {
+          "when": { "kontext": "företag" },
+          "set": { "malgrupp": "företagare" }
+        }
+      ],
       "security_examples": ["Personnummer", "Känslig kunskap", "Interna processer"]
     },
     {
@@ -107,6 +132,29 @@
       "title": "🎯 Beslutsunderlag",
       "description": "Sammanfatta ett ärende eller förslag som presenteras för ett beslutande organ.",
       "file": "prompts/beslutsunderlag.txt",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true }
+        ]
+      },
+      "default_bindings": {
+        "roll": "utredare",
+        "malgrupp": "beslutsfattare"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "kommun" },
+          "set": { "malgrupp": "nämnd" }
+        },
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "ledning" }
+        }
+      ],
       "security_examples": ["Namn på berörda", "Känsliga ekonomiska siffror", "Sekretessbelagda uppgifter"]
     },
     {
@@ -114,6 +162,29 @@
       "title": "⚙️ Rutiner & anvisningar",
       "description": "Gör instruktioner tydliga för anställda eller kollegor.",
       "file": "prompts/rutin.txt",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true }
+        ]
+      },
+      "default_bindings": {
+        "roll": "samordnare",
+        "malgrupp": "medarbetare"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "roll": "administratör" }
+        },
+        {
+          "when": { "kontext": "kommun" },
+          "set": { "roll": "handläggare" }
+        }
+      ],
       "security_examples": ["Interna lösenord", "Säkerhetskritiska steg", "Personnummerhantering"]
     },
     {
@@ -121,6 +192,27 @@
       "title": "🔀 Två versioner",
       "description": "Omvandla mellan kommuniceringsmönster – t.ex. från formell till vardaglig.",
       "file": "prompts/tvaversioner.txt",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "roll": "kommunikatör",
+        "malgrupp": "invånare",
+        "ton": "tydlig och vänlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "vårdnadshavare" }
+        }
+      ],
       "security_examples": ["Personnummer", "Känsliga ord", "Hemlig information"]
     },
     {
@@ -198,6 +290,25 @@
       "description": "Skapa en enkel visuell struktur för information, siffror eller viktiga punkter.",
       "file": "prompts/enkel_infografik.txt",
       "category": "Bilder och infografik",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "formell", "pedagogisk"] }
+        ]
+      },
+      "default_bindings": {
+        "malgrupp": "invånare",
+        "ton": "tydlig och vänlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "elever", "ton": "pedagogisk" }
+        }
+      ],
       "security_examples": ["Personuppgifter", "Felaktiga siffror", "Vilseledande visualisering"]
     },
     {
@@ -206,6 +317,29 @@
       "description": "Skapa en trygg och neutral bildidé till kommunalt informationsutskick.",
       "file": "prompts/illustration_informationsutskick.txt",
       "category": "Bilder och infografik",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "varm och trygg", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "malgrupp": "invånare",
+        "ton": "varm och trygg"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "vårdnadshavare" }
+        },
+        {
+          "when": { "kontext": "företag" },
+          "set": { "ton": "neutral" }
+        }
+      ],
       "security_examples": ["Igenkännbara personer", "Känsliga situationer", "Verkliga logotyper"]
     },
     {

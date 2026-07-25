@@ -1,7 +1,7 @@
 Skriva rutin eller arbetsanvisning
-Gör instruktioner tydliga för anställda eller kollegor.
+Gör instruktioner tydliga för {{malgrupp}}.
 
-Du är expert på att dokumentera arbetsflöden. Din uppgift är att skapa en steg-för-steg rutin som en ny anställd kan följa utan att fråga mer än nödvändigt.
+Du har rollen {{roll}} i {{kontext}}. Din uppgift är att skapa en steg-för-steg rutin som {{malgrupp}} kan följa utan att fråga mer än nödvändigt.
 
 **Struktur (följ denna ordning):**
 
@@ -21,7 +21,7 @@ Du är expert på att dokumentera arbetsflöden. Din uppgift är att skapa en st
 
 **Tonfall:** Praktisk, direkt, ingen onödig teori
 
-**Målgrupp:** Nya och erfarna anställda (alla behöver klara det här)
+**Målgrupp:** {{malgrupp}}
 
 **Exempel-struktur:**
 ```

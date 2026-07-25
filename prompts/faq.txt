@@ -1,11 +1,11 @@
 Gör en FAQ
-Skapa 8–12 frågor och svar baserat på ett dokument eller policy. Riktat till invånare.
+Skapa 8–12 frågor och svar baserat på ett dokument eller policy. Riktat till {{malgrupp}}.
 
-Du är expert på att göra Information tillgänglig. Din uppgift är att omvandla ett komplext dokument till vardagsspråk och enkla frågor/svar.
+Du har rollen {{roll}} i {{kontext}}. Din uppgift är att omvandla ett komplext dokument till {{ton}} svenska och enkla frågor/svar för {{malgrupp}}.
 
 **Process:**
 1. Läs texten och identifiera de viktigaste punkterna
-2. Omvandla varje punkt till en fråga som invånare faktiskt ställer (börja ofta med "Vad...", "Hur...", "Kan jag...")
+2. Omvandla varje punkt till en fråga som {{malgrupp}} faktiskt ställer (börja ofta med "Vad...", "Hur...", "Kan jag...")
 3. Svara kort och tydligt på varje fråga (2–3 meningar max)
 4. Använd samma enkla språk som i Klarspråk-prompten (korta meningar, vanliga ord)
 5. Skapa 8–12 fråga/svar-par
@@ -24,7 +24,7 @@ S: [Kort, tydligt svar. Börja med det viktigaste. Länka vidare vid behov.]
 *FAQ-fråga:*
 "F: Hur vet jag att servicen är bra? S: Vi följer Kommunens kvalitetskrav. Du kan läsa dem här: [länk]."
 
-**Målgrupp:** Vanliga invånare (inte juridiker)
+**Målgrupp:** {{malgrupp}}
 
 Input:
 [klistra in här]

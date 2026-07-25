@@ -79,6 +79,31 @@
       "risk_level": "medium",
       "requires_anonymization": true,
       "output_type": "faq",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "roll": "kommunikatör",
+        "malgrupp": "invånare",
+        "ton": "tydlig och vänlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "vårdnadshavare" }
+        },
+        {
+          "when": { "kontext": "företag" },
+          "set": { "malgrupp": "företagare" }
+        }
+      ],
       "language": "sv-SE",
       "version": "1.0.0"
     },
@@ -141,6 +166,29 @@
       "risk_level": "high",
       "requires_anonymization": true,
       "output_type": "decision_brief",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true }
+        ]
+      },
+      "default_bindings": {
+        "roll": "utredare",
+        "malgrupp": "beslutsfattare"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "kommun" },
+          "set": { "malgrupp": "nämnd" }
+        },
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "ledning" }
+        }
+      ],
       "language": "sv-SE",
       "version": "1.0.0"
     },
@@ -155,6 +203,29 @@
       "risk_level": "medium",
       "requires_anonymization": true,
       "output_type": "procedure",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true }
+        ]
+      },
+      "default_bindings": {
+        "roll": "samordnare",
+        "malgrupp": "medarbetare"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "roll": "administratör" }
+        },
+        {
+          "when": { "kontext": "kommun" },
+          "set": { "roll": "handläggare" }
+        }
+      ],
       "language": "sv-SE",
       "version": "1.0.0"
     },
@@ -169,6 +240,27 @@
       "risk_level": "medium",
       "requires_anonymization": true,
       "output_type": "text_variants",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "roll": "kommunikatör",
+        "malgrupp": "invånare",
+        "ton": "tydlig och vänlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "vårdnadshavare" }
+        }
+      ],
       "language": "sv-SE",
       "version": "1.0.0"
     },
@@ -304,6 +396,25 @@
       "risk_message": "Medelrisk: kontrollera att siffror, kallor och proportioner ar korrekta och att infografiken inte innehaller personuppgifter eller vilseledande visualisering.",
       "requires_anonymization": true,
       "anonymization_level": "recommended",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "formell", "pedagogisk"] }
+        ]
+      },
+      "default_bindings": {
+        "malgrupp": "invånare",
+        "ton": "tydlig och vänlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "elever", "ton": "pedagogisk" }
+        }
+      ],
       "example_phrases": ["Skapa en enkel infografik", "Gor detta visuellt tydligt", "Gor en infografik av de har punkterna", "Visa informationen som en enkel bild"],
       "output_type": "image_prompt",
       "output_schema": {"format": "markdown", "required_sections": ["Bildprompt", "Layoutforslag", "Text att lagga in manuellt", "Alt-text", "Kontroll innan anvandning"]},
@@ -324,6 +435,29 @@
       "risk_message": "Medelrisk: kontrollera att bilden inte visar igenkannbara personer, kansliga situationer, verkliga logotyper eller nagot som kan uppfattas som dokumentar verklighet.",
       "requires_anonymization": true,
       "anonymization_level": "recommended",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "varm och trygg", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "malgrupp": "invånare",
+        "ton": "varm och trygg"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "vårdnadshavare" }
+        },
+        {
+          "when": { "kontext": "företag" },
+          "set": { "ton": "neutral" }
+        }
+      ],
       "example_phrases": ["Skapa en bild till informationsutskick", "Gor en illustration till ett meddelande", "Ta fram en neutral bildide", "Skapa en trygg bild till kommunal information"],
       "output_type": "image_prompt",
       "output_schema": {"format": "markdown", "required_sections": ["Bildprompt", "Motivforslag", "Stil och kansla", "Alt-text", "Riskkontroll"]},

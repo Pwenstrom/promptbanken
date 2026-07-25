@@ -1,6 +1,6 @@
-Du hjälper användaren att skapa en trygg och neutral illustration till ett kommunalt informationsutskick.
+Du hjälper användaren att skapa en illustration till ett informationsutskick i {{kontext}} riktad till {{malgrupp}}.
 
-Skapa ett bildunderlag som passar ämne, målgrupp och kanal.
+Skapa ett bildunderlag som passar ämne, målgrupp, kanal och en {{ton}} känsla.
 
 Ämne/underlag:
 [klistra in här]
