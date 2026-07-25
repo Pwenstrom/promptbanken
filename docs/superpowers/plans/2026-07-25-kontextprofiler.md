@@ -715,8 +715,10 @@ git commit -m "feat(web): add catalog RPC helper and local context profile stora
 ### Task 5: Frontend — katalogsektionens markup och styling
 
 **Files:**
-- Modify: `C:/Users/petwen/OneDrive - Höglandsförbundet/Projekt/promptbanken/index.html`
+- Modify: `C:/Users/petwen/OneDrive - Höglandsförbundet/Projekt/promptbanken/promptbanken.html`
 - Modify: `C:/Users/petwen/OneDrive - Höglandsförbundet/Projekt/promptbanken/style.css`
+
+**Viktigt (upptäckt under Task 4):** `index.html` är en fristående landningssida (marknadsföring, laddar inte `script.js`). Den faktiska prompt-bläddringsappen — inklusive `#prompt-grid` och laddningen av `script.js` — ligger i `promptbanken.html`. All markup i denna task ska in där, inte i `index.html`.
 
 **Interfaces:**
 - Consumes: `CATALOG_CONTEXT_PROFILES` (Task 4) för att fylla checkbox-listan i JS senare (Task 6).
@@ -726,9 +728,9 @@ git commit -m "feat(web): add catalog RPC helper and local context profile stora
   - `#catalog-package-grid` (kortgrid för publicerade paket)
   - `#catalog-prompt-detail` (dold detaljpanel med flikar)
 
-- [ ] **Step 1: Lägg till sektionen i `index.html`**
+- [ ] **Step 1: Lägg till sektionen i `promptbanken.html`**
 
-Infoga en ny, fristående `<section>` direkt efter huvudinnehållets `prompt-grid`-sektion (sök efter `id="prompt-grid"` i `index.html` för exakt placering):
+Infoga en ny, fristående `<section>` direkt efter huvudinnehållets `prompt-grid`-sektion (sök efter `id="prompt-grid"` i `promptbanken.html` för exakt placering):
 
 ```html
 <section class="catalog-section" id="catalog-section">
@@ -815,7 +817,7 @@ Lägg till i slutet av `style.css`:
 Run:
 
 ```powershell
-rg -n "catalog-prompt-grid|catalog-package-grid|catalog-profile-filters|catalog-prompt-detail" index.html style.css
+rg -n "catalog-prompt-grid|catalog-package-grid|catalog-profile-filters|catalog-prompt-detail" promptbanken.html style.css
 ```
 
 Expected: träffar i båda filerna för alla fyra selektorer.
@@ -823,7 +825,7 @@ Expected: träffar i båda filerna för alla fyra selektorer.
 - [ ] **Step 4: Commit**
 
 ```powershell
-git add index.html style.css
+git add promptbanken.html style.css
 git commit -m "feat(web): add markup and styling for open catalog section"
 ```
 
