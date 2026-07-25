@@ -102,6 +102,11 @@ const inviteForm = document.querySelector('[data-invite-form]');
 const promoteAdminForm = document.querySelector('[data-promote-admin-form]');
 const inviteMemberForm = document.querySelector('[data-invite-member-form]');
 const upgradeForm = document.querySelector('[data-upgrade-form]');
+const catalogPromptForm = document.querySelector('[data-catalog-prompt-form]');
+const catalogPromptPublishForm = document.querySelector('[data-catalog-prompt-publish-form]');
+const catalogPackageForm = document.querySelector('[data-catalog-package-form]');
+const catalogPackageAddItemForm = document.querySelector('[data-catalog-package-add-item-form]');
+const catalogPackagePublishForm = document.querySelector('[data-catalog-package-publish-form]');
 const myPromptsSearchInput = document.querySelector('[data-my-prompts-search]');
 const refreshButtons = document.querySelectorAll('[data-refresh]');
 const visibilitySelect = promptForm?.querySelector('select[name="visibility"]');
@@ -2340,6 +2345,128 @@ async function promoteAdmin(event) {
   setStatus(`${email} är nu plattformsadmin.`);
 }
 
+async function createCatalogPrompt(event) {
+  event.preventDefault();
+
+  const formData = new FormData(catalogPromptForm);
+  const slug = formData.get('slug')?.toString().trim();
+  const title = formData.get('title')?.toString().trim();
+  const summary = formData.get('summary')?.toString().trim();
+  const promptText = formData.get('prompt_text')?.toString().trim();
+  const iconKey = formData.get('icon_key')?.toString().trim();
+  const imageKey = formData.get('image_key')?.toString().trim();
+  const colorTheme = formData.get('color_theme')?.toString().trim();
+
+  const { error } = await supabase.rpc('create_catalog_prompt', {
+    p_slug: slug,
+    p_title: title,
+    p_summary: summary,
+    p_prompt_text: promptText,
+    p_icon_key: iconKey || null,
+    p_image_key: imageKey || null,
+    p_color_theme: colorTheme || null
+  });
+
+  if (error) {
+    setErrorStatus(error, 'Kunde inte skapa promptutkastet.');
+    return;
+  }
+
+  catalogPromptForm.reset();
+  setStatus('Promptutkastet skapades.');
+}
+
+async function publishCatalogPrompt(event) {
+  event.preventDefault();
+
+  const formData = new FormData(catalogPromptPublishForm);
+  const promptId = formData.get('prompt_id')?.toString().trim();
+
+  const { error } = await supabase.rpc('publish_catalog_prompt', { p_prompt_id: promptId });
+
+  if (error) {
+    setErrorStatus(error, 'Kunde inte publicera prompten.');
+    return;
+  }
+
+  catalogPromptPublishForm.reset();
+  setStatus('Prompten publicerades.');
+}
+
+async function createCatalogPackage(event) {
+  event.preventDefault();
+
+  const formData = new FormData(catalogPackageForm);
+  const slug = formData.get('slug')?.toString().trim();
+  const packageType = formData.get('package_type')?.toString().trim();
+  const title = formData.get('title')?.toString().trim();
+  const summary = formData.get('summary')?.toString().trim();
+  const introText = formData.get('intro_text')?.toString().trim();
+  const iconKey = formData.get('icon_key')?.toString().trim();
+  const imageKey = formData.get('image_key')?.toString().trim();
+  const colorTheme = formData.get('color_theme')?.toString().trim();
+
+  const { error } = await supabase.rpc('create_catalog_package', {
+    p_slug: slug,
+    p_package_type: packageType,
+    p_title: title,
+    p_summary: summary,
+    p_intro_text: introText || null,
+    p_icon_key: iconKey || null,
+    p_image_key: imageKey || null,
+    p_color_theme: colorTheme || null
+  });
+
+  if (error) {
+    setErrorStatus(error, 'Kunde inte skapa paketutkastet.');
+    return;
+  }
+
+  catalogPackageForm.reset();
+  setStatus('Paketutkastet skapades.');
+}
+
+async function addPromptToCatalogPackage(event) {
+  event.preventDefault();
+
+  const formData = new FormData(catalogPackageAddItemForm);
+  const packageId = formData.get('package_id')?.toString().trim();
+  const promptId = formData.get('prompt_id')?.toString().trim();
+  const sortOrder = Number(formData.get('sort_order'));
+
+  const { error } = await supabase.rpc('add_prompt_to_catalog_package', {
+    p_package_id: packageId,
+    p_prompt_id: promptId,
+    p_sort_order: sortOrder
+  });
+
+  if (error) {
+    setErrorStatus(error, 'Kunde inte lägga till prompten i paketet.');
+    return;
+  }
+
+  catalogPackageAddItemForm.reset();
+  catalogPackageAddItemForm.querySelector('[name="sort_order"]').value = 1;
+  setStatus('Prompten lades till i paketet.');
+}
+
+async function publishCatalogPackage(event) {
+  event.preventDefault();
+
+  const formData = new FormData(catalogPackagePublishForm);
+  const packageId = formData.get('package_id')?.toString().trim();
+
+  const { error } = await supabase.rpc('publish_catalog_package', { p_package_id: packageId });
+
+  if (error) {
+    setErrorStatus(error, 'Kunde inte publicera paketet.');
+    return;
+  }
+
+  catalogPackagePublishForm.reset();
+  setStatus('Paketet publicerades.');
+}
+
 async function deleteAccount() {
   const confirmed = window.confirm(
     'Radera ditt konto permanent? Ditt privata workspace och alla dina egna prompts tas bort och går inte att återfå. ' +
@@ -2470,6 +2597,26 @@ if (inviteForm) {
 
 if (promoteAdminForm) {
   promoteAdminForm.addEventListener('submit', promoteAdmin);
+}
+
+if (catalogPromptForm) {
+  catalogPromptForm.addEventListener('submit', createCatalogPrompt);
+}
+
+if (catalogPromptPublishForm) {
+  catalogPromptPublishForm.addEventListener('submit', publishCatalogPrompt);
+}
+
+if (catalogPackageForm) {
+  catalogPackageForm.addEventListener('submit', createCatalogPackage);
+}
+
+if (catalogPackageAddItemForm) {
+  catalogPackageAddItemForm.addEventListener('submit', addPromptToCatalogPackage);
+}
+
+if (catalogPackagePublishForm) {
+  catalogPackagePublishForm.addEventListener('submit', publishCatalogPackage);
 }
 
 if (inviteMemberForm) {
