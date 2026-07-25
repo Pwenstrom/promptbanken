@@ -11,6 +11,25 @@
       "risk_level": "medium",
       "requires_anonymization": true,
       "output_type": "rewritten_text",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och v\u00e4nlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "ton": "tydlig och v\u00e4nlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "v\u00e5rdnadshavare" }
+        }
+      ],
       "language": "sv-SE",
       "version": "1.0.0"
     },
@@ -25,6 +44,27 @@
       "risk_level": "medium",
       "requires_anonymization": true,
       "output_type": "email_draft",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och v\u00e4nlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "roll": "handl\u00e4ggare",
+        "malgrupp": "inv\u00e5nare",
+        "ton": "tydlig och v\u00e4nlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "f\u00f6retag" },
+          "set": { "malgrupp": "f\u00f6retagare" }
+        }
+      ],
       "language": "sv-SE",
       "version": "1.0.0"
     },
@@ -67,6 +107,26 @@
       "risk_level": "medium",
       "requires_anonymization": true,
       "output_type": "notice",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och v\u00e4nlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "roll": "administrat\u00f6r",
+        "ton": "formell"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "v\u00e5rdnadshavare" }
+        }
+      ],
       "language": "sv-SE",
       "version": "1.0.0"
     },
@@ -207,6 +267,26 @@
       "risk_level": "medium",
       "requires_anonymization": true,
       "output_type": "announcement",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och v\u00e4nlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "roll": "kommunikat\u00f6r",
+        "ton": "tydlig och v\u00e4nlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "v\u00e5rdnadshavare" }
+        }
+      ],
       "language": "sv-SE",
       "version": "1.0.0"
     },
