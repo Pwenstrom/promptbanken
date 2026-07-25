@@ -2413,6 +2413,7 @@ ${initialUserInput.trim()}`
             loadPrompts();
             renderCatalogProfileFilters();
             loadCatalogPrompts();
+            loadCatalogPackages();
             loadExportSettings();
             registerExportSettingsListeners();
         });
