@@ -12,6 +12,25 @@
       "title": "📝 Skriv om till klarspråk",
       "description": "Gör text kortare och lättare att förstå för invånare.",
       "file": "prompts/klarsprak.txt",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "ton": "tydlig och vänlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "vårdnadshavare" }
+        }
+      ],
       "security_examples": ["Personnummer", "Namn eller ärendenummer", "Adresser eller telefonnummer"]
     },
     {
@@ -19,6 +38,27 @@
       "title": "📧 Svar på medborgarmejl",
       "description": "Skriv ett vänligt och sakligt svar på mejl från invånare.",
       "file": "prompts/mejl.txt",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "roll": "handläggare",
+        "malgrupp": "invånare",
+        "ton": "tydlig och vänlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "företag" },
+          "set": { "malgrupp": "företagare" }
+        }
+      ],
       "security_examples": ["Personuppgifter", "Känslig ärendeinformation", "Kontaktdata"]
     },
     {
@@ -40,6 +80,26 @@
       "title": "📋 Skriva kallelse",
       "description": "Skriv en formell men vänlig kallelse till möte, event eller träff.",
       "file": "prompts/kallelse.txt",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "roll": "administratör",
+        "ton": "formell"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "vårdnadshavare" }
+        }
+      ],
       "security_examples": ["Deltagarnamn", "Känsliga mötesämnen", "Interna adresser"]
     },
     {
@@ -110,6 +170,26 @@
       "title": "📣 Skapa informationsutskick",
       "description": "Skriv ett tydligt informationsmeddelande med rubrik, sammanfattning och nästa steg.",
       "file": "prompts/informationsutskick.txt",
+      "parameter_schema": {
+        "version": 1,
+        "legacy_fallback_field": "input",
+        "fields": [
+          { "key": "kontext", "type": "enum", "source": "global", "required": true },
+          { "key": "roll", "type": "enum", "source": "global", "required": true },
+          { "key": "malgrupp", "type": "enum", "source": "global", "required": true },
+          { "key": "ton", "type": "enum", "source": "global", "required": true, "options": ["neutral", "tydlig och vänlig", "formell"] }
+        ]
+      },
+      "default_bindings": {
+        "roll": "kommunikatör",
+        "ton": "tydlig och vänlig"
+      },
+      "binding_overrides": [
+        {
+          "when": { "kontext": "skola" },
+          "set": { "malgrupp": "vårdnadshavare" }
+        }
+      ],
       "security_examples": ["Namn på berörda personer", "Känsliga detaljer om incidenter", "Interna systemnummer"]
     },
     {
