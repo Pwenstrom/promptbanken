@@ -5293,21 +5293,66 @@ body.detail-panel-closed .prompt-detail-panel {
     border-top: 1px solid var(--border-color, #e2e2e2);
 }
 
-.catalog-profile-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin: 1rem 0;
+.context-filter-bar {
+    margin: 1.5rem 0 2rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border-color, #d8dee7);
+    border-radius: 14px;
+    background: #f8fbff;
 }
 
-.catalog-profile-filters label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
+.context-filter-copy h2,
+.context-filter-copy p {
+    margin: 0;
+}
+
+.context-filter-copy h2 {
+    font-size: 1.1rem;
+}
+
+.context-filter-copy p {
+    margin-top: 0.3rem;
+    color: #475467;
+}
+
+.context-filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.85rem;
+}
+
+.context-filter-option {
+    appearance: none;
+    background: #fff;
+    color: #344054;
+    font: inherit;
+    font-weight: 600;
     padding: 0.35rem 0.75rem;
     border: 1px solid var(--border-color, #ccc);
     border-radius: 999px;
     cursor: pointer;
+}
+
+.context-filter-option:hover {
+    border-color: #0052a3;
+}
+
+.context-filter-option:focus-visible {
+    outline: 3px solid rgba(0, 82, 163, 0.25);
+    outline-offset: 2px;
+}
+
+.context-filter-option[aria-checked="true"] {
+    border-color: #0052a3;
+    background: #e8f1ff;
+    color: #003b75;
+}
+
+.context-filter-status {
+    margin-top: 0.8rem;
+    color: #475467;
+    font-size: 0.95rem;
 }
 
 .catalog-grid {

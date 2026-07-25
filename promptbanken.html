@@ -328,6 +328,15 @@
                     </div>
                 </div>
 
+                <section class="context-filter-bar" aria-labelledby="context-filter-heading">
+                    <div class="context-filter-copy">
+                        <h2 id="context-filter-heading">Anpassa innehåll efter din kontext</h2>
+                        <p>Välj vilken kontext du vill att hela katalogen ska utgå från.</p>
+                    </div>
+                    <div class="context-filter-options" id="catalog-profile-filters" role="radiogroup" aria-label="Kontextval"></div>
+                    <p class="context-filter-status" id="catalog-profile-status">Visar innehåll för: Alla</p>
+                </section>
+
                 <section class="my-prompts-rail" id="my-prompts-rail" hidden aria-label="Dina egna prompter">
                     <div class="my-prompts-header">
                         <h2>Dina prompter</h2>
@@ -425,10 +434,8 @@
                 <section class="catalog-section" id="catalog-section">
                     <div class="catalog-section-heading">
                         <h2>Öppen katalog</h2>
-                        <p>Publicerade prompts och paket från Promptbanken, filtrerat på dina kontextprofiler.</p>
+                        <p>Publicerade prompts och paket från Promptbanken för din valda kontext.</p>
                     </div>
-
-                    <div class="catalog-profile-filters" id="catalog-profile-filters" role="group" aria-label="Kontextprofiler"></div>
 
                     <h3>Prompts</h3>
                     <div class="catalog-grid" id="catalog-prompt-grid"></div>

@@ -66,17 +66,23 @@ const CATALOG_CONTEXT_PROFILES = [
     { key: 'privat', label: 'Privat' }
 ];
 
-function getCatalogProfileSelection() {
-    try {
-        const stored = JSON.parse(localStorage.getItem(CATALOG_PROFILE_STORAGE_KEY) || '[]');
-        return Array.isArray(stored) ? stored : [];
-    } catch (error) {
-        return [];
-    }
+const DEFAULT_CONTEXT_KEY = 'generell';
+const GLOBAL_CONTEXT_OPTIONS = [
+    { key: 'generell', label: 'Alla' },
+    ...CATALOG_CONTEXT_PROFILES
+];
+
+function loadGlobalContextSelection() {
+    const stored = localStorage.getItem(CATALOG_PROFILE_STORAGE_KEY);
+    return stored || DEFAULT_CONTEXT_KEY;
 }
 
-function saveCatalogProfileSelection(keys) {
-    localStorage.setItem(CATALOG_PROFILE_STORAGE_KEY, JSON.stringify(keys));
+function saveGlobalContextSelection(key) {
+    localStorage.setItem(CATALOG_PROFILE_STORAGE_KEY, key || DEFAULT_CONTEXT_KEY);
+}
+
+function getActiveContextKey() {
+    return loadGlobalContextSelection();
 }
 
 async function callCatalogRpc(functionName, payload) {
@@ -122,20 +128,12 @@ function renderCatalogUnavailableState(message) {
     }
 }
 
-function getCatalogProfileLabels(keys) {
-    const labelByKey = new Map(CATALOG_CONTEXT_PROFILES.map(({ key, label }) => [key, label]));
-    return keys
-        .map((key) => labelByKey.get(key))
-        .filter(Boolean);
-}
-
 function renderCatalogEmptyState(grid, itemLabel) {
     if (!grid) return;
 
-    const activeContextKeys = getActiveContextKeys();
-    const activeLabels = getCatalogProfileLabels(activeContextKeys);
-    const message = activeLabels.length && !activeContextKeys.includes('generell')
-        ? `Inga publicerade ${itemLabel} hittades för ${activeLabels.join(', ')} just nu. Prova att välja fler profiler eller avmarkera filtret.`
+    const active = GLOBAL_CONTEXT_OPTIONS.find((item) => item.key === getActiveContextKey());
+    const message = active && active.key !== DEFAULT_CONTEXT_KEY
+        ? `Inga publicerade ${itemLabel} hittades för ${active.label} just nu. Prova att välja en annan kontext.`
         : `Det finns inga publicerade ${itemLabel} i den öppna katalogen ännu.`;
 
     grid.innerHTML = `<div class="catalog-empty-state">${message}</div>`;
@@ -150,30 +148,30 @@ function renderCatalogProfileFilters() {
     const container = document.getElementById('catalog-profile-filters');
     if (!container) return;
 
-    const selected = new Set(getCatalogProfileSelection());
+    const activeContextKey = getActiveContextKey();
 
-    container.innerHTML = CATALOG_CONTEXT_PROFILES.map(({ key, label }) => `
-        <label>
-            <input type="checkbox" data-catalog-profile="${key}" ${selected.has(key) ? 'checked' : ''}>
+    container.innerHTML = GLOBAL_CONTEXT_OPTIONS.map(({ key, label }) => `
+        <button type="button" class="context-filter-option" data-catalog-profile="${key}" role="radio" aria-checked="${key === activeContextKey}">
             ${label}
-        </label>
+        </button>
     `).join('');
 
-    container.querySelectorAll('input[data-catalog-profile]').forEach((checkbox) => {
-        checkbox.addEventListener('change', () => {
-            const nextSelection = Array.from(
-                container.querySelectorAll('input[data-catalog-profile]:checked')
-            ).map((input) => input.dataset.catalogProfile);
-            saveCatalogProfileSelection(nextSelection);
+    container.querySelectorAll('button[data-catalog-profile]').forEach((button) => {
+        button.addEventListener('click', () => {
+            saveGlobalContextSelection(button.dataset.catalogProfile);
+            renderCatalogProfileFilters();
+            renderGlobalContextStatus();
             loadCatalogPrompts();
             loadCatalogPackages();
         });
     });
 }
 
-function getActiveContextKeys() {
-    const selection = getCatalogProfileSelection();
-    return selection.length ? selection : ['generell'];
+function renderGlobalContextStatus() {
+    const status = document.getElementById('catalog-profile-status');
+    if (!status) return;
+    const active = GLOBAL_CONTEXT_OPTIONS.find((item) => item.key === getActiveContextKey());
+    status.textContent = `Visar innehåll för: ${active ? active.label : 'Alla'}`;
 }
 
 function createCatalogPromptCard(prompt) {
@@ -201,7 +199,7 @@ async function loadCatalogPrompts() {
 
     try {
         const prompts = await callCatalogRpc('list_published_prompts', {
-            p_context_keys: getActiveContextKeys()
+            p_context_keys: [getActiveContextKey()]
         });
         grid.innerHTML = '';
         if (!prompts.length) {
@@ -263,7 +261,7 @@ async function openCatalogPromptDetail(slug) {
     try {
         catalogDetailVariants = await callCatalogRpc('get_published_prompt', {
             p_slug: slug,
-            p_context_keys: getActiveContextKeys()
+            p_context_keys: [getActiveContextKey()]
         });
     } catch (error) {
         console.error('Kunde inte ladda promptdetaljer:', error);
@@ -285,7 +283,7 @@ async function openCatalogPackageDetail(slug) {
     try {
         catalogDetailVariants = await callCatalogRpc('get_published_package', {
             p_slug: slug,
-            p_context_keys: getActiveContextKeys()
+            p_context_keys: [getActiveContextKey()]
         });
     } catch (error) {
         console.error('Kunde inte ladda paketdetaljer:', error);
@@ -330,7 +328,7 @@ async function loadCatalogPackages() {
 
     try {
         const packages = await callCatalogRpc('list_published_packages', {
-            p_context_keys: getActiveContextKeys(),
+            p_context_keys: [getActiveContextKey()],
             p_package_type: null
         });
         grid.innerHTML = '';
@@ -346,13 +344,13 @@ async function loadCatalogPackages() {
 }
 
         // Kontextprofil-regressionscheck
-        function testCatalogProfileStorage() {
+        function testGlobalContextStorage() {
             // Snapshot the user's real saved selection first so the roundtrip
             // test never destroys it (script.js runs before DOMContentLoaded).
             const realValue = localStorage.getItem(CATALOG_PROFILE_STORAGE_KEY);
-            const testKeys = ['kommun', 'skola'];
-            saveCatalogProfileSelection(testKeys);
-            const roundTripped = getCatalogProfileSelection();
+            const testKey = 'kommun';
+            saveGlobalContextSelection(testKey);
+            const roundTripped = loadGlobalContextSelection();
 
             if (realValue === null) {
                 localStorage.removeItem(CATALOG_PROFILE_STORAGE_KEY);
@@ -360,10 +358,10 @@ async function loadCatalogPackages() {
                 localStorage.setItem(CATALOG_PROFILE_STORAGE_KEY, realValue);
             }
 
-            return JSON.stringify(roundTripped) === JSON.stringify(testKeys);
+            return roundTripped === testKey;
         }
 
-        console.log('Catalog Profile Storage Test:', testCatalogProfileStorage() ? 'Passed' : 'Failed');
+        console.log('Global Context Storage Test:', testGlobalContextStorage() ? 'Passed' : 'Failed');
 
         function testCatalogConfigValidation() {
             return isUsableCatalogEnvValue('https://example.supabase.co', '%VITE_SUPABASE_URL%')
@@ -2540,6 +2538,7 @@ ${initialUserInput.trim()}`
             initCategoryFilters();
             loadPrompts();
             renderCatalogProfileFilters();
+            renderGlobalContextStatus();
             loadCatalogPrompts();
             loadCatalogPackages();
             loadExportSettings();
