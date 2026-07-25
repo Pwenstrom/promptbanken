@@ -5409,6 +5409,17 @@ body.detail-panel-closed .prompt-detail-panel {
     text-transform: uppercase;
 }
 
+.catalog-context-badge {
+    display: inline-block;
+    margin-top: 0.55rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: #f2f4f7;
+    color: #475467;
+    font-size: 0.74rem;
+    font-weight: 600;
+}
+
 .catalog-prompt-detail {
     position: fixed;
     inset: 0;

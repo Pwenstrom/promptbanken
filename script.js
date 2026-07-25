@@ -71,6 +71,29 @@ const GLOBAL_CONTEXT_OPTIONS = [
     { key: 'generell', label: 'Alla' },
     ...CATALOG_CONTEXT_PROFILES
 ];
+const STATIC_PROMPT_CONTEXTS = {
+    tydlighetskoll: ['generell', 'kommun', 'skola', 'företag', 'förening'],
+    klarsprak: ['generell', 'kommun', 'skola', 'företag', 'förening', 'privat'],
+    mejl: ['generell', 'kommun', 'företag', 'förening', 'privat'],
+    faq: ['generell', 'kommun', 'skola', 'företag', 'förening'],
+    checklista: ['generell', 'kommun', 'skola', 'företag', 'förening', 'privat'],
+    kallelse: ['generell', 'kommun', 'skola', 'företag', 'förening'],
+    beslutsunderlag: ['generell', 'kommun', 'skola', 'förening'],
+    rutin: ['generell', 'kommun', 'skola', 'företag', 'förening'],
+    tvaversioner: ['generell', 'kommun', 'skola', 'företag', 'förening', 'privat'],
+    reflektion: ['generell', 'kommun', 'skola', 'företag', 'förening', 'privat'],
+    samtalskompas: ['generell', 'kommun', 'skola', 'företag', 'förening'],
+    sammanfattning: ['generell', 'kommun', 'skola', 'företag', 'förening', 'privat'],
+    anteckningar: ['generell', 'kommun', 'skola', 'företag', 'förening'],
+    diskussionsfragor: ['generell', 'kommun', 'skola', 'företag', 'förening', 'privat'],
+    nyckelord: ['generell', 'kommun', 'skola', 'företag', 'förening', 'privat'],
+    informationsutskick: ['generell', 'kommun', 'skola', 'företag', 'förening'],
+    enkel_infografik: ['generell', 'kommun', 'skola', 'företag', 'förening', 'privat'],
+    illustration_informationsutskick: ['generell', 'kommun', 'skola', 'företag', 'förening'],
+    ikon_symbolbild: ['generell', 'kommun', 'skola', 'företag', 'förening', 'privat'],
+    presentationstitelbild: ['generell', 'kommun', 'skola', 'företag', 'förening', 'privat'],
+    alt_text_bild: ['generell', 'kommun', 'skola', 'företag', 'förening', 'privat']
+};
 
 function loadGlobalContextSelection() {
     const stored = localStorage.getItem(CATALOG_PROFILE_STORAGE_KEY);
@@ -100,6 +123,15 @@ function saveGlobalContextSelection(key) {
 
 function getActiveContextKey() {
     return loadGlobalContextSelection();
+}
+
+function getActiveContextKeys() {
+    return [getActiveContextKey()];
+}
+
+function matchesGlobalContext(promptId, activeContextKey) {
+    const contexts = STATIC_PROMPT_CONTEXTS[promptId] || [DEFAULT_CONTEXT_KEY];
+    return activeContextKey === DEFAULT_CONTEXT_KEY || contexts.includes(activeContextKey);
 }
 
 async function callCatalogRpc(functionName, payload) {
@@ -178,6 +210,7 @@ function renderCatalogProfileFilters() {
         saveGlobalContextSelection(key);
         renderCatalogProfileFilters();
         renderGlobalContextStatus();
+        loadPrompts();
         loadCatalogPrompts();
         loadCatalogPackages();
     };
@@ -223,9 +256,13 @@ function createCatalogPromptCard(prompt) {
     card.dataset.catalogPromptSlug = prompt.slug;
     const title = escapeHtml(prompt.title);
     const summary = escapeHtml(prompt.summary);
+    const fallbackBadge = prompt.isFallback
+        ? `<span class="catalog-context-badge">${escapeHtml(prompt.fallbackLabel || 'Kan vara generell version')}</span>`
+        : '';
     card.innerHTML = `
         <h4>${title}</h4>
         <p>${summary}</p>
+        ${fallbackBadge}
     `;
     card.addEventListener('click', () => openCatalogPromptDetail(prompt.slug));
     return card;
@@ -241,15 +278,25 @@ async function loadCatalogPrompts() {
     if (!grid) return;
 
     try {
+        const activeContextKey = getActiveContextKey();
         const prompts = await callCatalogRpc('list_published_prompts', {
-            p_context_keys: [getActiveContextKey()]
+            p_context_keys: getActiveContextKeys()
         });
         grid.innerHTML = '';
         if (!prompts.length) {
             renderCatalogEmptyState(grid, 'prompter');
             return;
         }
-        prompts.forEach((prompt) => grid.appendChild(createCatalogPromptCard(prompt)));
+        // List-RPC:n returnerar inte context_key i den komprimerade listvyn ännu,
+        // så icke-generella lägen markeras heuristiskt tills read-RPC:n kan
+        // skilja exakt mellan matchad och generell variant.
+        prompts
+            .map((prompt) => ({
+                ...prompt,
+                isFallback: activeContextKey !== DEFAULT_CONTEXT_KEY && (!prompt.context_key || prompt.context_key === DEFAULT_CONTEXT_KEY),
+                fallbackLabel: prompt.context_key ? 'Generell version' : 'Kan vara generell version'
+            }))
+            .forEach((prompt) => grid.appendChild(createCatalogPromptCard(prompt)));
     } catch (error) {
         console.error('Kunde inte ladda katalogprompts:', error);
         grid.innerHTML = '<div class="catalog-empty-state error-message">⚠️ Kunde inte ladda katalogprompts.</div>';
@@ -304,7 +351,7 @@ async function openCatalogPromptDetail(slug) {
     try {
         catalogDetailVariants = await callCatalogRpc('get_published_prompt', {
             p_slug: slug,
-            p_context_keys: [getActiveContextKey()]
+            p_context_keys: getActiveContextKeys()
         });
     } catch (error) {
         console.error('Kunde inte ladda promptdetaljer:', error);
@@ -326,7 +373,7 @@ async function openCatalogPackageDetail(slug) {
     try {
         catalogDetailVariants = await callCatalogRpc('get_published_package', {
             p_slug: slug,
-            p_context_keys: [getActiveContextKey()]
+            p_context_keys: getActiveContextKeys()
         });
     } catch (error) {
         console.error('Kunde inte ladda paketdetaljer:', error);
@@ -351,10 +398,14 @@ function createCatalogPackageCard(pkg) {
     const title = escapeHtml(pkg.title);
     const summary = escapeHtml(pkg.summary);
     const typeLabel = pkg.package_type === 'workflow' ? 'Arbetssätt' : 'Samling';
+    const fallbackBadge = pkg.isFallback
+        ? `<span class="catalog-context-badge">${escapeHtml(pkg.fallbackLabel || 'Kan vara generell version')}</span>`
+        : '';
     card.innerHTML = `
         <h4>${title}</h4>
         <p>${summary}</p>
         <span class="catalog-package-type">${typeLabel}</span>
+        ${fallbackBadge}
     `;
     card.addEventListener('click', () => openCatalogPackageDetail(pkg.slug));
     return card;
@@ -370,8 +421,9 @@ async function loadCatalogPackages() {
     if (!grid) return;
 
     try {
+        const activeContextKey = getActiveContextKey();
         const packages = await callCatalogRpc('list_published_packages', {
-            p_context_keys: [getActiveContextKey()],
+            p_context_keys: getActiveContextKeys(),
             p_package_type: null
         });
         grid.innerHTML = '';
@@ -379,7 +431,13 @@ async function loadCatalogPackages() {
             renderCatalogEmptyState(grid, 'paket eller arbetssätt');
             return;
         }
-        packages.forEach((pkg) => grid.appendChild(createCatalogPackageCard(pkg)));
+        packages
+            .map((pkg) => ({
+                ...pkg,
+                isFallback: activeContextKey !== DEFAULT_CONTEXT_KEY && (!pkg.context_key || pkg.context_key === DEFAULT_CONTEXT_KEY),
+                fallbackLabel: pkg.context_key ? 'Generell version' : 'Kan vara generell version'
+            }))
+            .forEach((pkg) => grid.appendChild(createCatalogPackageCard(pkg)));
     } catch (error) {
         console.error('Kunde inte ladda katalogpaket:', error);
         grid.innerHTML = '<div class="catalog-empty-state error-message">⚠️ Kunde inte ladda katalogpaket.</div>';
@@ -646,12 +704,26 @@ async function loadCatalogPackages() {
 
                 const config = await configResponse.json();
                 const prompts = config.prompts || [];
+                const activeContextKey = getActiveContextKey();
+                const visiblePrompts = prompts.filter((prompt) => matchesGlobalContext(prompt.id, activeContextKey));
 
                 // Clear loading message
                 grid.innerHTML = '';
 
+                allPrompts = visiblePrompts.slice();
+
+                if (!visiblePrompts.length) {
+                    grid.innerHTML = '<div class="catalog-empty-state">Inga prompts matchar vald kontext just nu.</div>';
+                    updateLibraryStats(visiblePrompts);
+                    populateFilterOptions(visiblePrompts);
+                    updateFavoritesMenu();
+                    grid.classList.remove('loading');
+                    resolvePromptbankenReady();
+                    return;
+                }
+
                 // Build UI for each prompt
-                for (const prompt of prompts) {
+                for (const [index, prompt] of visiblePrompts.entries()) {
                     try {
                         // Fetch prompt text file
                         const promptResponse = await fetch(prompt.file);
@@ -662,7 +734,7 @@ async function loadCatalogPackages() {
                         const promptText = await promptResponse.text();
 
                         // Create card HTML with quick input text support
-                        const card = createPromptCard(prompt, promptText, allPrompts.length + grid.querySelectorAll('.prompt-card').length);
+                        const card = createPromptCard(prompt, promptText, index);
                         grid.appendChild(card);
                     } catch (error) {
                         console.error(`Error loading prompt ${prompt.id}:`, error);
@@ -670,10 +742,8 @@ async function loadCatalogPackages() {
                     }
                 }
 
-                // Store prompts globally for favorites menu
-                allPrompts = prompts;
-                updateLibraryStats(prompts);
-                populateFilterOptions(prompts);
+                updateLibraryStats(visiblePrompts);
+                populateFilterOptions(visiblePrompts);
 
                 // Set up event delegation for all cards
                 setupEventDelegation();
@@ -684,8 +754,8 @@ async function loadCatalogPackages() {
                 // Update favorites menu
                 updateFavoritesMenu();
                 applyPromptSort();
-                if (prompts.length) {
-                    selectPrompt(prompts[0].id, { reveal: false, markSelected: false });
+                if (visiblePrompts.length) {
+                    selectPrompt(visiblePrompts[0].id, { reveal: false, markSelected: false });
                 }
 
                 grid.classList.remove('loading');
