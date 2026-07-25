@@ -123,36 +123,42 @@ def list_shared_workspace_prompts(workspace_id: str) -> dict[str, Any]:
 
 
 @mcp.tool()
-def list_prompts(context_key: str = "generell") -> dict[str, Any]:
-    """List all published catalog prompts, with fields falling back to the
-    'generell' variant when the requested context_key has none."""
+def list_prompts(context_keys: list[str] | None = None) -> dict[str, Any]:
+    """List all published catalog prompts. Pass one or more context_keys
+    (e.g. ["kommun", "skola"]) to combine profiles; each prompt appears once,
+    using the first matching profile's copy, falling back to 'generell'."""
     try:
-        return {"prompts": _catalog.list_published_prompts(context_key=context_key)}
+        return {
+            "prompts": _catalog.list_published_prompts(context_keys=context_keys)
+        }
     except _catalog.CatalogNotConfigured as exc:
         return {"error": str(exc), "prompts": []}
 
 
 @mcp.tool()
-def get_prompt(slug: str, context_key: str = "generell") -> dict[str, Any]:
-    """Get one published catalog prompt by slug, with fallback to the
-    'generell' variant when the requested context_key has none."""
+def get_prompt(slug: str, context_keys: list[str] | None = None) -> dict[str, Any]:
+    """Get one published catalog prompt by slug. Returns one entry per
+    matching context_key (in the order passed) plus a guaranteed 'generell'
+    entry, so a caller combining profiles sees every matching variant."""
     try:
-        prompt = _catalog.get_published_prompt(slug, context_key=context_key)
+        variants = _catalog.get_published_prompt(slug, context_keys=context_keys)
     except _catalog.CatalogNotConfigured as exc:
         return {"error": str(exc)}
-    if prompt is None:
+    if not variants:
         return {"error": f"Ingen publicerad prompt hittades med slug '{slug}'."}
-    return prompt
+    return {"variants": variants}
 
 
 @mcp.tool()
-def list_packages(context_key: str = "generell", package_type: str | None = None) -> dict[str, Any]:
-    """List all published catalog packages/workflows, with fallback to the
-    'generell' variant when the requested context_key has none."""
+def list_packages(
+    context_keys: list[str] | None = None, package_type: str | None = None
+) -> dict[str, Any]:
+    """List all published catalog packages/workflows, combining profiles the
+    same way as list_prompts."""
     try:
         return {
             "packages": _catalog.list_published_packages(
-                context_key=context_key, package_type=package_type
+                context_keys=context_keys, package_type=package_type
             )
         }
     except _catalog.CatalogNotConfigured as exc:
@@ -160,26 +166,28 @@ def list_packages(context_key: str = "generell", package_type: str | None = None
 
 
 @mcp.tool()
-def get_package(slug: str, context_key: str = "generell") -> dict[str, Any]:
-    """Get one published catalog package by slug, with fallback to the
-    'generell' variant when the requested context_key has none."""
+def get_package(slug: str, context_keys: list[str] | None = None) -> dict[str, Any]:
+    """Get one published catalog package by slug. Returns one entry per
+    matching context_key plus a guaranteed 'generell' entry."""
     try:
-        package = _catalog.get_published_package(slug, context_key=context_key)
+        variants = _catalog.get_published_package(slug, context_keys=context_keys)
     except _catalog.CatalogNotConfigured as exc:
         return {"error": str(exc)}
-    if package is None:
+    if not variants:
         return {"error": f"Inget publicerat paket hittades med slug '{slug}'."}
-    return package
+    return {"variants": variants}
 
 
 @mcp.tool()
-def list_package_prompts(package_slug: str, context_key: str = "generell") -> dict[str, Any]:
+def list_package_prompts(
+    package_slug: str, context_keys: list[str] | None = None
+) -> dict[str, Any]:
     """List the published prompts belonging to one published package, in
-    sort order, with fallback to the 'generell' variant per prompt."""
+    sort order, combining profiles the same way as list_prompts."""
     try:
         return {
             "prompts": _catalog.list_published_package_prompts(
-                package_slug, context_key=context_key
+                package_slug, context_keys=context_keys
             )
         }
     except _catalog.CatalogNotConfigured as exc:
