@@ -766,6 +766,142 @@
                             </table>
                         </div>
                     </section>
+
+                    <section class="workspace-section" id="katalog-prompts" data-platform-only hidden>
+                        <div class="workspace-section-heading">
+                            <div>
+                                <h2>Katalogprompts</h2>
+                                <p>Skapa och publicera öppna prompts.</p>
+                            </div>
+                        </div>
+
+                        <div class="workspace-section-heading">
+                            <h3>Nytt promptutkast</h3>
+                        </div>
+                        <form class="workspace-form compact" data-catalog-prompt-form>
+                            <label>
+                                Slug
+                                <input name="slug" required placeholder="t.ex. mote-sammanfattning">
+                            </label>
+                            <label>
+                                Titel
+                                <input name="title" required>
+                            </label>
+                            <label>
+                                Kort beskrivning
+                                <input name="summary" required>
+                            </label>
+                            <label class="workspace-form-wide">
+                                Prompttext
+                                <textarea name="prompt_text" rows="5" required></textarea>
+                            </label>
+                            <label>
+                                Ikonnyckel
+                                <input name="icon_key" placeholder="valfritt">
+                            </label>
+                            <label>
+                                Bildnyckel
+                                <input name="image_key" placeholder="valfritt">
+                            </label>
+                            <label>
+                                Färgtema
+                                <input name="color_theme" placeholder="valfritt">
+                            </label>
+                            <button type="submit">Skapa utkast</button>
+                        </form>
+
+                        <div class="workspace-section-heading">
+                            <h3>Publicera prompt</h3>
+                        </div>
+                        <form class="workspace-form compact" data-catalog-prompt-publish-form>
+                            <label>
+                                Prompt-id
+                                <input name="prompt_id" required placeholder="uuid">
+                            </label>
+                            <button type="submit">Publicera</button>
+                        </form>
+                    </section>
+
+                    <section class="workspace-section" id="katalog-paket" data-platform-only hidden>
+                        <div class="workspace-section-heading">
+                            <div>
+                                <h2>Paket och arbetssätt</h2>
+                                <p>Skapa samlingar och arbetsflöden.</p>
+                            </div>
+                        </div>
+
+                        <div class="workspace-section-heading">
+                            <h3>Nytt paketutkast</h3>
+                        </div>
+                        <form class="workspace-form compact" data-catalog-package-form>
+                            <label>
+                                Slug
+                                <input name="slug" required placeholder="t.ex. onboarding-arbetssatt">
+                            </label>
+                            <label>
+                                Typ
+                                <select name="package_type">
+                                    <option value="collection">Samling</option>
+                                    <option value="workflow">Arbetsflöde</option>
+                                </select>
+                            </label>
+                            <label>
+                                Titel
+                                <input name="title" required>
+                            </label>
+                            <label>
+                                Kort beskrivning
+                                <input name="summary" required>
+                            </label>
+                            <label class="workspace-form-wide">
+                                Introtext
+                                <textarea name="intro_text" rows="3" placeholder="valfritt"></textarea>
+                            </label>
+                            <label>
+                                Ikonnyckel
+                                <input name="icon_key" placeholder="valfritt">
+                            </label>
+                            <label>
+                                Bildnyckel
+                                <input name="image_key" placeholder="valfritt">
+                            </label>
+                            <label>
+                                Färgtema
+                                <input name="color_theme" placeholder="valfritt">
+                            </label>
+                            <button type="submit">Skapa utkast</button>
+                        </form>
+
+                        <div class="workspace-section-heading">
+                            <h3>Lägg till prompt i paket</h3>
+                        </div>
+                        <form class="workspace-form compact" data-catalog-package-add-item-form>
+                            <label>
+                                Paket-id
+                                <input name="package_id" required placeholder="uuid">
+                            </label>
+                            <label>
+                                Prompt-id
+                                <input name="prompt_id" required placeholder="uuid">
+                            </label>
+                            <label>
+                                Sorteringsordning
+                                <input type="number" name="sort_order" value="1" min="1" required>
+                            </label>
+                            <button type="submit">Lägg till</button>
+                        </form>
+
+                        <div class="workspace-section-heading">
+                            <h3>Publicera paket</h3>
+                        </div>
+                        <form class="workspace-form compact" data-catalog-package-publish-form>
+                            <label>
+                                Paket-id
+                                <input name="package_id" required placeholder="uuid">
+                            </label>
+                            <button type="submit">Publicera</button>
+                        </form>
+                    </section>
                 </section>
             </main>
         </div>
