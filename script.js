@@ -123,9 +123,11 @@ function createCatalogPromptCard(prompt) {
     const card = document.createElement('div');
     card.className = 'catalog-card';
     card.dataset.catalogPromptSlug = prompt.slug;
+    const title = escapeHtml(prompt.title);
+    const summary = escapeHtml(prompt.summary);
     card.innerHTML = `
-        <h4>${prompt.title}</h4>
-        <p>${prompt.summary}</p>
+        <h4>${title}</h4>
+        <p>${summary}</p>
     `;
     card.addEventListener('click', () => openCatalogPromptDetail(prompt.slug));
     return card;
