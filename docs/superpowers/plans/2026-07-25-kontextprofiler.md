@@ -597,24 +597,39 @@ git commit -m "feat(mcp): expose combinable context_keys on catalog tools"
 ### Task 4: Frontend — Supabase REST-hjälpare och profil-lagring i `script.js`
 
 **Files:**
+- Modify: `C:/Users/petwen/OneDrive - Höglandsförbundet/Projekt/promptbanken/index.html` (nytt inline `<script>` i `<head>`, före laddningen av `script.js`)
 - Modify: `C:/Users/petwen/OneDrive - Höglandsförbundet/Projekt/promptbanken/script.js` (nytt block, placeras direkt efter rad 46, före `// Step 19: Dynamic JavaScript loading from prompts.json`)
 
 **Interfaces:**
 - Consumes: inget (första byggstenen i katalogsektionen).
 - Produces:
+  - `window.SUPABASE_URL` / `window.SUPABASE_ANON_KEY` (satta i `index.html`, inte i `script.js`)
   - `CATALOG_CONTEXT_PROFILES` (const array av `{ key, label }`)
   - `getCatalogProfileSelection(): string[]`
   - `saveCatalogProfileSelection(keys: string[]): void`
   - `callCatalogRpc(functionName: string, payload: object): Promise<any>`
 
-- [ ] **Step 1: Lägg till konstanterna och profil-lagring**
+**Bakgrund till detta steg:** `script.js` körs oprocessat (ingen `import.meta.env`), och de riktiga Supabase-värdena finns bara i `.env.local`/CI-secrets (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`), aldrig incheckade. Vite ersätter `%VITE_XXX%`-platshållare i `index.html` automatiskt (både i `npm run web:dev` och i build), så genom att sätta `window.SUPABASE_URL`/`window.SUPABASE_ANON_KEY` i ett inline-script i `index.html` slipper `script.js` hårdkodade värden helt — samma mönster som `src/supabaseClient.js` redan använder, fast utan bundling.
+
+- [ ] **Step 1: Injicera Supabase-värden i `index.html`**
+
+Lägg till i `<head>` i `index.html`, före `<script src="script.js">`-taggen (sök upp den exakta platsen i filen):
+
+```html
+<script>
+    window.SUPABASE_URL = '%VITE_SUPABASE_URL%';
+    window.SUPABASE_ANON_KEY = '%VITE_SUPABASE_PUBLISHABLE_KEY%';
+</script>
+```
+
+- [ ] **Step 2: Lägg till konstanterna och profil-lagring i `script.js`**
 
 Infoga i `script.js` efter rad 46:
 
 ```javascript
 // Kontextprofiler: kombinerbar katalogläsning mot Supabase (fristående från prompts.json)
-const SUPABASE_CATALOG_URL = 'https://YOUR-PROJECT.supabase.co';
-const SUPABASE_CATALOG_ANON_KEY = 'YOUR-PUBLISHABLE-ANON-KEY';
+const SUPABASE_CATALOG_URL = window.SUPABASE_URL;
+const SUPABASE_CATALOG_ANON_KEY = window.SUPABASE_ANON_KEY;
 const CATALOG_PROFILE_STORAGE_KEY = 'promptbankenContextProfiles';
 
 const CATALOG_CONTEXT_PROFILES = [
@@ -657,9 +672,9 @@ async function callCatalogRpc(functionName, payload) {
 }
 ```
 
-Not: `SUPABASE_CATALOG_URL`/`SUPABASE_CATALOG_ANON_KEY` är samma publika Supabase-projekt-URL och publishable/anon-nyckel som redan exponeras till webbläsaren via `VITE_SUPABASE_URL`/`VITE_SUPABASE_PUBLISHABLE_KEY` för admin/auth-sidorna (se `src/supabaseClient.js`) — säkert att hårdkoda i `script.js` eftersom RLS styr åtkomsten, men värdena ska hämtas från samma Supabase-projekt som `.env` pekar på, inte gissas fram.
+Not: `SUPABASE_CATALOG_URL`/`SUPABASE_CATALOG_ANON_KEY` läser samma publika Supabase-projekt-URL och publishable/anon-nyckel som redan exponeras till webbläsaren via `VITE_SUPABASE_URL`/`VITE_SUPABASE_PUBLISHABLE_KEY` för admin/auth-sidorna (se `src/supabaseClient.js`), men via `window.SUPABASE_URL`/`window.SUPABASE_ANON_KEY` som Step 1 satte i `index.html` — ingen hemlighet hårdkodas i `script.js` självt, och RLS styr fortfarande åtkomsten.
 
-- [ ] **Step 2: Lägg till en regressionscheck i stil med befintliga**
+- [ ] **Step 3: Lägg till en regressionscheck i stil med befintliga**
 
 Infoga direkt efter `performRegressionTests()`-anropet (nuvarande rad 46):
 
@@ -676,7 +691,7 @@ Infoga direkt efter `performRegressionTests()`-anropet (nuvarande rad 46):
         console.log('Catalog Profile Storage Test:', testCatalogProfileStorage() ? 'Passed' : 'Failed');
 ```
 
-- [ ] **Step 3: Kör verifiering**
+- [ ] **Step 4: Kör verifiering**
 
 Run:
 
@@ -686,12 +701,12 @@ npm run web:dev
 
 Öppna sidan i webbläsaren, öppna dev-konsolen, och kontrollera:
 
-Expected: konsolraden `Catalog Profile Storage Test: Passed` visas bland de övriga regressionsraderna.
+Expected: konsolraden `Catalog Profile Storage Test: Passed` visas bland de övriga regressionsraderna. Kontrollera även att `window.SUPABASE_URL` i konsolen ger en riktig `https://...supabase.co`-URL (inte den bokstavliga strängen `%VITE_SUPABASE_URL%`) — det bekräftar att Vite ersatte platshållaren.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```powershell
-git add script.js
+git add index.html script.js
 git commit -m "feat(web): add catalog RPC helper and local context profile storage"
 ```
 
