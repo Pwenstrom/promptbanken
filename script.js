@@ -74,6 +74,8 @@ const DEFAULT_RENDER_STATE = {
     malgrupp: 'invånare',
     ton: 'tydlig och vänlig'
 };
+const PERSISTED_RENDER_STATE_KEYS = ['roll', 'malgrupp', 'ton'];
+const GLOBAL_RENDER_BINDING_KEYS = Object.keys(DEFAULT_RENDER_STATE);
 const GLOBAL_CONTEXT_OPTIONS = [
     { key: 'generell', label: 'Alla' },
     ...CATALOG_CONTEXT_PROFILES
@@ -144,19 +146,28 @@ function loadGlobalRenderState() {
         // Invalid persisted state is replaced with the defaults below.
     }
 
+    const persistedState = PERSISTED_RENDER_STATE_KEYS.reduce((state, key) => {
+        if (Object.prototype.hasOwnProperty.call(storedState, key)) {
+            state[key] = storedState[key];
+        }
+        return state;
+    }, {});
+
     return {
         ...DEFAULT_RENDER_STATE,
-        ...storedState,
+        ...persistedState,
         kontext: getActiveContextKey()
     };
 }
 
 function saveGlobalRenderState(nextPartialState) {
-    const nextState = {
-        ...loadGlobalRenderState(),
-        ...(nextPartialState || {}),
-        kontext: getActiveContextKey()
-    };
+    const currentState = loadGlobalRenderState();
+    const nextState = PERSISTED_RENDER_STATE_KEYS.reduce((state, key) => {
+        state[key] = Object.prototype.hasOwnProperty.call(nextPartialState || {}, key)
+            ? nextPartialState[key]
+            : currentState[key];
+        return state;
+    }, {});
 
     localStorage.setItem(GLOBAL_RENDER_STATE_KEY, JSON.stringify(nextState));
 }
@@ -166,10 +177,35 @@ function getGlobalRenderState() {
 }
 
 function resolvePromptBindings(state, schema, defaults = {}, overrides = []) {
-    const bindings = { ...defaults, ...state };
+    const schemaFields = Array.isArray(schema?.fields) ? schema.fields : null;
+    const allowedKeys = new Set(
+        schemaFields
+            ? schemaFields
+                .map((field) => field?.key)
+                .filter((key) => GLOBAL_RENDER_BINDING_KEYS.includes(key))
+            : GLOBAL_RENDER_BINDING_KEYS
+    );
+    const legacyFallbackField = schema?.legacy_fallback_field;
+    if (typeof legacyFallbackField === 'string' && legacyFallbackField) {
+        allowedKeys.add(legacyFallbackField);
+    } else if (!schemaFields) {
+        allowedKeys.add('input');
+    }
+
+    const sourceBindings = { ...defaults, ...state };
+    const bindings = {};
+    allowedKeys.forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(sourceBindings, key)) {
+            bindings[key] = sourceBindings[key];
+        }
+    });
+
     overrides.forEach((rule) => {
         const matches = Object.entries(rule.when || {}).every(([key, value]) => bindings[key] === value);
-        if (matches) Object.assign(bindings, rule.set || {});
+        if (!matches) return;
+        Object.entries(rule.set || {}).forEach(([key, value]) => {
+            if (allowedKeys.has(key)) bindings[key] = value;
+        });
     });
     return bindings;
 }
@@ -1032,7 +1068,8 @@ async function loadCatalogPackages() {
             const prompt = allPrompts.find((item) => item.id === promptId) || {};
             const defaults = { ...(prompt.default_bindings || {}) };
             if (quickInputText && quickInputText.trim()) {
-                defaults.input = quickInputText;
+                const fallbackField = prompt.parameter_schema?.legacy_fallback_field || 'input';
+                defaults[fallbackField] = quickInputText;
             }
             const template = adaptLegacyPromptTemplate(textArea.value, prompt.parameter_schema);
             const bindings = resolvePromptBindings(
