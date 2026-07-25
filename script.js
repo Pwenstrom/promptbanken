@@ -115,11 +115,30 @@ function renderCatalogUnavailableState(message) {
         filters.innerHTML = '';
     }
     if (promptGrid) {
-        promptGrid.innerHTML = `<div class="error-message">${message}</div>`;
+        promptGrid.innerHTML = `<div class="catalog-empty-state error-message">${message}</div>`;
     }
     if (packageGrid) {
         packageGrid.innerHTML = '';
     }
+}
+
+function getCatalogProfileLabels(keys) {
+    const labelByKey = new Map(CATALOG_CONTEXT_PROFILES.map(({ key, label }) => [key, label]));
+    return keys
+        .map((key) => labelByKey.get(key))
+        .filter(Boolean);
+}
+
+function renderCatalogEmptyState(grid, itemLabel) {
+    if (!grid) return;
+
+    const activeContextKeys = getActiveContextKeys();
+    const activeLabels = getCatalogProfileLabels(activeContextKeys);
+    const message = activeLabels.length && !activeContextKeys.includes('generell')
+        ? `Inga publicerade ${itemLabel} hittades för ${activeLabels.join(', ')} just nu. Prova att välja fler profiler eller avmarkera filtret.`
+        : `Det finns inga publicerade ${itemLabel} i den öppna katalogen ännu.`;
+
+    grid.innerHTML = `<div class="catalog-empty-state">${message}</div>`;
 }
 
 function renderCatalogProfileFilters() {
@@ -185,10 +204,14 @@ async function loadCatalogPrompts() {
             p_context_keys: getActiveContextKeys()
         });
         grid.innerHTML = '';
+        if (!prompts.length) {
+            renderCatalogEmptyState(grid, 'prompter');
+            return;
+        }
         prompts.forEach((prompt) => grid.appendChild(createCatalogPromptCard(prompt)));
     } catch (error) {
         console.error('Kunde inte ladda katalogprompts:', error);
-        grid.innerHTML = '<div class="error-message">⚠️ Kunde inte ladda katalogprompts.</div>';
+        grid.innerHTML = '<div class="catalog-empty-state error-message">⚠️ Kunde inte ladda katalogprompts.</div>';
     }
 }
 
@@ -311,10 +334,14 @@ async function loadCatalogPackages() {
             p_package_type: null
         });
         grid.innerHTML = '';
+        if (!packages.length) {
+            renderCatalogEmptyState(grid, 'paket eller arbetssätt');
+            return;
+        }
         packages.forEach((pkg) => grid.appendChild(createCatalogPackageCard(pkg)));
     } catch (error) {
         console.error('Kunde inte ladda katalogpaket:', error);
-        grid.innerHTML = '<div class="error-message">⚠️ Kunde inte ladda katalogpaket.</div>';
+        grid.innerHTML = '<div class="catalog-empty-state error-message">⚠️ Kunde inte ladda katalogpaket.</div>';
     }
 }
 

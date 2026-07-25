@@ -5317,6 +5317,16 @@ body.detail-panel-closed .prompt-detail-panel {
     margin-bottom: 1.5rem;
 }
 
+.catalog-empty-state {
+    grid-column: 1 / -1;
+    padding: 1rem 1.1rem;
+    border: 1px dashed var(--border-color, #c9d3e0);
+    border-radius: 10px;
+    background: #f8fbff;
+    color: #355070;
+    line-height: 1.5;
+}
+
 .catalog-card {
     border: 1px solid var(--border-color, #e2e2e2);
     border-radius: 8px;
