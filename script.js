@@ -188,7 +188,7 @@ function resolvePromptBindings(state, schema, defaults = {}, overrides = []) {
     const legacyFallbackField = schema?.legacy_fallback_field;
     if (typeof legacyFallbackField === 'string' && legacyFallbackField) {
         allowedKeys.add(legacyFallbackField);
-    } else if (!schemaFields) {
+    } else {
         allowedKeys.add('input');
     }
 
