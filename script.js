@@ -74,7 +74,24 @@ const GLOBAL_CONTEXT_OPTIONS = [
 
 function loadGlobalContextSelection() {
     const stored = localStorage.getItem(CATALOG_PROFILE_STORAGE_KEY);
-    return stored || DEFAULT_CONTEXT_KEY;
+    const validKeys = new Set(GLOBAL_CONTEXT_OPTIONS.map(({ key }) => key));
+
+    if (validKeys.has(stored)) {
+        return stored;
+    }
+
+    try {
+        const legacySelection = JSON.parse(stored);
+        if (Array.isArray(legacySelection)) {
+            const migratedKey = legacySelection.find((key) => validKeys.has(key)) || DEFAULT_CONTEXT_KEY;
+            saveGlobalContextSelection(migratedKey);
+            return migratedKey;
+        }
+    } catch (error) {
+        // A non-JSON value is handled by the default context below.
+    }
+
+    return DEFAULT_CONTEXT_KEY;
 }
 
 function saveGlobalContextSelection(key) {
@@ -124,7 +141,7 @@ function renderCatalogUnavailableState(message) {
         promptGrid.innerHTML = `<div class="catalog-empty-state error-message">${message}</div>`;
     }
     if (packageGrid) {
-        packageGrid.innerHTML = '';
+        packageGrid.innerHTML = `<div class="catalog-empty-state error-message">${message}</div>`;
     }
 }
 
@@ -151,18 +168,44 @@ function renderCatalogProfileFilters() {
     const activeContextKey = getActiveContextKey();
 
     container.innerHTML = GLOBAL_CONTEXT_OPTIONS.map(({ key, label }) => `
-        <button type="button" class="context-filter-option" data-catalog-profile="${key}" role="radio" aria-checked="${key === activeContextKey}">
+        <button type="button" class="context-filter-option" data-catalog-profile="${key}" role="radio" aria-checked="${key === activeContextKey}" tabindex="${key === activeContextKey ? '0' : '-1'}">
             ${label}
         </button>
     `).join('');
 
-    container.querySelectorAll('button[data-catalog-profile]').forEach((button) => {
+    const buttons = Array.from(container.querySelectorAll('button[data-catalog-profile]'));
+    const selectContext = (key) => {
+        saveGlobalContextSelection(key);
+        renderCatalogProfileFilters();
+        renderGlobalContextStatus();
+        loadCatalogPrompts();
+        loadCatalogPackages();
+    };
+
+    buttons.forEach((button, index) => {
         button.addEventListener('click', () => {
-            saveGlobalContextSelection(button.dataset.catalogProfile);
-            renderCatalogProfileFilters();
-            renderGlobalContextStatus();
-            loadCatalogPrompts();
-            loadCatalogPackages();
+            selectContext(button.dataset.catalogProfile);
+        });
+
+        button.addEventListener('keydown', (event) => {
+            let nextIndex = index;
+
+            if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                nextIndex = (index + 1) % buttons.length;
+            } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                nextIndex = (index - 1 + buttons.length) % buttons.length;
+            } else if (event.key === 'Home') {
+                nextIndex = 0;
+            } else if (event.key === 'End') {
+                nextIndex = buttons.length - 1;
+            } else {
+                return;
+            }
+
+            event.preventDefault();
+            const nextKey = buttons[nextIndex].dataset.catalogProfile;
+            selectContext(nextKey);
+            container.querySelector(`[data-catalog-profile="${nextKey}"]`)?.focus();
         });
     });
 }
@@ -349,6 +392,8 @@ async function loadCatalogPackages() {
             // test never destroys it (script.js runs before DOMContentLoaded).
             const realValue = localStorage.getItem(CATALOG_PROFILE_STORAGE_KEY);
             const testKey = 'kommun';
+            localStorage.setItem(CATALOG_PROFILE_STORAGE_KEY, JSON.stringify([testKey, 'skola']));
+            const migratedKey = loadGlobalContextSelection();
             saveGlobalContextSelection(testKey);
             const roundTripped = loadGlobalContextSelection();
 
@@ -358,7 +403,7 @@ async function loadCatalogPackages() {
                 localStorage.setItem(CATALOG_PROFILE_STORAGE_KEY, realValue);
             }
 
-            return roundTripped === testKey;
+            return migratedKey === testKey && roundTripped === testKey;
         }
 
         console.log('Global Context Storage Test:', testGlobalContextStorage() ? 'Passed' : 'Failed');
