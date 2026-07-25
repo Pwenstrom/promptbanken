@@ -9,6 +9,7 @@ from .pro_templates import ProTemplatesNotConfigured, ProTemplatesClient
 from .risk_checker import RiskChecker
 from .skill_repository import SkillRepository
 from .skill_router import SkillRouter
+from . import catalog as _catalog
 
 
 repo_root = Path(__file__).resolve().parents[1]
@@ -119,6 +120,70 @@ def list_shared_workspace_prompts(workspace_id: str) -> dict[str, Any]:
         return {"error": str(exc), "prompts": []}
 
     return {"prompts": client.list_shared_prompts(workspace_id)}
+
+
+@mcp.tool()
+def list_prompts(context_key: str = "generell") -> dict[str, Any]:
+    """List all published catalog prompts, with fields falling back to the
+    'generell' variant when the requested context_key has none."""
+    try:
+        return {"prompts": _catalog.list_published_prompts(context_key=context_key)}
+    except _catalog.CatalogNotConfigured as exc:
+        return {"error": str(exc), "prompts": []}
+
+
+@mcp.tool()
+def get_prompt(slug: str, context_key: str = "generell") -> dict[str, Any]:
+    """Get one published catalog prompt by slug, with fallback to the
+    'generell' variant when the requested context_key has none."""
+    try:
+        prompt = _catalog.get_published_prompt(slug, context_key=context_key)
+    except _catalog.CatalogNotConfigured as exc:
+        return {"error": str(exc)}
+    if prompt is None:
+        return {"error": f"Ingen publicerad prompt hittades med slug '{slug}'."}
+    return prompt
+
+
+@mcp.tool()
+def list_packages(context_key: str = "generell", package_type: str | None = None) -> dict[str, Any]:
+    """List all published catalog packages/workflows, with fallback to the
+    'generell' variant when the requested context_key has none."""
+    try:
+        return {
+            "packages": _catalog.list_published_packages(
+                context_key=context_key, package_type=package_type
+            )
+        }
+    except _catalog.CatalogNotConfigured as exc:
+        return {"error": str(exc), "packages": []}
+
+
+@mcp.tool()
+def get_package(slug: str, context_key: str = "generell") -> dict[str, Any]:
+    """Get one published catalog package by slug, with fallback to the
+    'generell' variant when the requested context_key has none."""
+    try:
+        package = _catalog.get_published_package(slug, context_key=context_key)
+    except _catalog.CatalogNotConfigured as exc:
+        return {"error": str(exc)}
+    if package is None:
+        return {"error": f"Inget publicerat paket hittades med slug '{slug}'."}
+    return package
+
+
+@mcp.tool()
+def list_package_prompts(package_slug: str, context_key: str = "generell") -> dict[str, Any]:
+    """List the published prompts belonging to one published package, in
+    sort order, with fallback to the 'generell' variant per prompt."""
+    try:
+        return {
+            "prompts": _catalog.list_published_package_prompts(
+                package_slug, context_key=context_key
+            )
+        }
+    except _catalog.CatalogNotConfigured as exc:
+        return {"error": str(exc), "prompts": []}
 
 
 if __name__ == "__main__":
