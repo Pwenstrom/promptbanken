@@ -54,3 +54,15 @@ select proname
 from pg_proc
 where proname in ('create_prompt_draft_from_chat', 'create_package_draft_from_chat')
 order by proname;
+
+-- Kontextprofiler: read-RPC:er ska ta text[] (inte text) som kontextparameter
+select p.proname, pg_get_function_identity_arguments(p.oid) as args
+from pg_proc p
+where p.proname in (
+  'list_published_prompts',
+  'get_published_prompt',
+  'list_published_packages',
+  'get_published_package',
+  'list_published_package_prompts'
+)
+order by p.proname;
