@@ -45,6 +45,61 @@
         // Run regression tests
         performRegressionTests();
 
+// Kontextprofiler: kombinerbar katalogläsning mot Supabase (fristående från prompts.json)
+const SUPABASE_CATALOG_URL = window.SUPABASE_URL;
+const SUPABASE_CATALOG_ANON_KEY = window.SUPABASE_ANON_KEY;
+const CATALOG_PROFILE_STORAGE_KEY = 'promptbankenContextProfiles';
+
+const CATALOG_CONTEXT_PROFILES = [
+    { key: 'kommun', label: 'Kommun' },
+    { key: 'skola', label: 'Skola' },
+    { key: 'företag', label: 'Företag' },
+    { key: 'förening', label: 'Förening' },
+    { key: 'privat', label: 'Privat' }
+];
+
+function getCatalogProfileSelection() {
+    try {
+        const stored = JSON.parse(localStorage.getItem(CATALOG_PROFILE_STORAGE_KEY) || '[]');
+        return Array.isArray(stored) ? stored : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function saveCatalogProfileSelection(keys) {
+    localStorage.setItem(CATALOG_PROFILE_STORAGE_KEY, JSON.stringify(keys));
+}
+
+async function callCatalogRpc(functionName, payload) {
+    const response = await fetch(`${SUPABASE_CATALOG_URL}/rest/v1/rpc/${functionName}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_CATALOG_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_CATALOG_ANON_KEY}`
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        throw new Error(`Kataloganrop ${functionName} misslyckades: ${response.status}`);
+    }
+
+    return response.json();
+}
+
+        // Kontextprofil-regressionscheck
+        function testCatalogProfileStorage() {
+            const testKeys = ['kommun', 'skola'];
+            saveCatalogProfileSelection(testKeys);
+            const roundTripped = getCatalogProfileSelection();
+            localStorage.removeItem(CATALOG_PROFILE_STORAGE_KEY);
+            return JSON.stringify(roundTripped) === JSON.stringify(testKeys);
+        }
+
+        console.log('Catalog Profile Storage Test:', testCatalogProfileStorage() ? 'Passed' : 'Failed');
+
 // Step 19: Dynamic JavaScript loading from prompts.json
         
         const grid = document.getElementById('prompt-grid');
