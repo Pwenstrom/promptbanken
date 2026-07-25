@@ -50,33 +50,50 @@ def _call_rpc(function_name: str, payload: dict[str, Any]) -> Any:
         raise RuntimeError(f"Kunde inte nå Supabase: {exc.reason}") from exc
 
 
-def list_published_prompts(context_key: str = "generell") -> list[dict[str, Any]]:
-    return _call_rpc("list_published_prompts", {"p_context_key": context_key})
-
-
-def get_published_prompt(slug: str, context_key: str = "generell") -> dict[str, Any] | None:
-    rows = _call_rpc("get_published_prompt", {"p_slug": slug, "p_context_key": context_key})
-    return rows[0] if rows else None
-
-
-def list_published_packages(
-    context_key: str = "generell", package_type: str | None = None
-) -> list[dict[str, Any]]:
+def list_published_prompts(context_keys: list[str] | None = None) -> list[dict[str, Any]]:
     return _call_rpc(
-        "list_published_packages",
-        {"p_context_key": context_key, "p_package_type": package_type},
+        "list_published_prompts",
+        {"p_context_keys": context_keys or ["generell"]},
     )
 
 
-def get_published_package(slug: str, context_key: str = "generell") -> dict[str, Any] | None:
-    rows = _call_rpc("get_published_package", {"p_slug": slug, "p_context_key": context_key})
-    return rows[0] if rows else None
+def get_published_prompt(
+    slug: str, context_keys: list[str] | None = None
+) -> list[dict[str, Any]]:
+    return _call_rpc(
+        "get_published_prompt",
+        {"p_slug": slug, "p_context_keys": context_keys or ["generell"]},
+    )
+
+
+def list_published_packages(
+    context_keys: list[str] | None = None, package_type: str | None = None
+) -> list[dict[str, Any]]:
+    return _call_rpc(
+        "list_published_packages",
+        {
+            "p_context_keys": context_keys or ["generell"],
+            "p_package_type": package_type,
+        },
+    )
+
+
+def get_published_package(
+    slug: str, context_keys: list[str] | None = None
+) -> list[dict[str, Any]]:
+    return _call_rpc(
+        "get_published_package",
+        {"p_slug": slug, "p_context_keys": context_keys or ["generell"]},
+    )
 
 
 def list_published_package_prompts(
-    package_slug: str, context_key: str = "generell"
+    package_slug: str, context_keys: list[str] | None = None
 ) -> list[dict[str, Any]]:
     return _call_rpc(
         "list_published_package_prompts",
-        {"p_package_slug": package_slug, "p_context_key": context_key},
+        {
+            "p_package_slug": package_slug,
+            "p_context_keys": context_keys or ["generell"],
+        },
     )
