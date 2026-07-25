@@ -35,18 +35,18 @@ begin
             actual_prompt_count;
     end if;
 
-    with expected_prompts(slug) as (
+    with expected_prompts(slug, field_keys) as (
         values
-            ('klarsprak'),
-            ('mejl'),
-            ('faq'),
-            ('kallelse'),
-            ('beslutsunderlag'),
-            ('rutin'),
-            ('tvaversioner'),
-            ('informationsutskick'),
-            ('enkel_infografik'),
-            ('illustration_informationsutskick')
+            ('klarsprak', array['kontext', 'malgrupp', 'roll', 'ton']::text[]),
+            ('mejl', array['kontext', 'malgrupp', 'roll', 'ton']::text[]),
+            ('faq', array['kontext', 'malgrupp', 'roll', 'ton']::text[]),
+            ('kallelse', array['kontext', 'malgrupp', 'roll', 'ton']::text[]),
+            ('beslutsunderlag', array['kontext', 'malgrupp', 'roll']::text[]),
+            ('rutin', array['kontext', 'malgrupp', 'roll']::text[]),
+            ('tvaversioner', array['kontext', 'malgrupp', 'roll', 'ton']::text[]),
+            ('informationsutskick', array['kontext', 'malgrupp', 'roll', 'ton']::text[]),
+            ('enkel_infografik', array['kontext', 'malgrupp', 'ton']::text[]),
+            ('illustration_informationsutskick', array['kontext', 'malgrupp', 'ton']::text[])
     )
     select count(*)
     into actual_variant_count
@@ -57,7 +57,11 @@ begin
      and variant.context_key = 'generell'
     where length(variant.prompt_text) > 0
       and jsonb_typeof(variant.parameter_schema) = 'object'
-      and jsonb_array_length(variant.parameter_schema -> 'fields') between 3 and 4
+      and array(
+          select field ->> 'key'
+          from jsonb_array_elements(variant.parameter_schema -> 'fields') field
+          order by field ->> 'key'
+      ) = expected.field_keys
       and (
           variant.prompt_text like '%{{%'
           or variant.parameter_schema ? 'legacy_fallback_field'

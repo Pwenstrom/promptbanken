@@ -392,11 +392,7 @@ select
     icon_key,
     color_theme
 from parameterized_catalog_prompt_seed
-on conflict (slug) do update set
-    status = excluded.status,
-    prompt_kind = excluded.prompt_kind,
-    icon_key = excluded.icon_key,
-    color_theme = excluded.color_theme;
+on conflict (slug) do nothing;
 
 insert into public.catalog_prompt_variants (
     prompt_id,

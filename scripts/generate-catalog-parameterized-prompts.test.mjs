@@ -78,6 +78,10 @@ test('builds an idempotent catalog migration from the real prompt sources', asyn
   const mejlText = await readFile(new URL('../prompts/mejl.txt', import.meta.url), 'utf8');
   assert.ok(sql.includes(mejlText.trim()));
   assert.match(sql, /raise exception 'Katalogpaket saknas: %'/);
+  assert.match(
+    sql,
+    /from parameterized_catalog_prompt_seed\s+on conflict \(slug\) do nothing;/,
+  );
   assert.match(sql, /do update set\s+prompt_text = excluded\.prompt_text/);
   assert.match(sql, /do update set\s+sort_order = excluded\.sort_order/);
 });
