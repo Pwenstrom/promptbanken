@@ -16,8 +16,60 @@ order by ordinal_position;
 select column_name
 from information_schema.columns
 where table_schema = 'public'
+  and table_name = 'catalog_package_variants'
+order by ordinal_position;
+
+select column_name
+from information_schema.columns
+where table_schema = 'public'
   and table_name = 'catalog_package_items'
 order by ordinal_position;
+
+select
+  exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'catalog_prompt_variants'
+      and column_name = 'parameter_schema'
+  ) as prompt_variants_has_parameter_schema,
+  exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'catalog_prompt_variants'
+      and column_name = 'default_bindings'
+  ) as prompt_variants_has_default_bindings,
+  exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'catalog_prompt_variants'
+      and column_name = 'binding_overrides'
+  ) as prompt_variants_has_binding_overrides;
+
+select
+  exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'catalog_package_variants'
+      and column_name = 'parameter_schema'
+  ) as package_variants_has_parameter_schema,
+  exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'catalog_package_variants'
+      and column_name = 'default_bindings'
+  ) as package_variants_has_default_bindings,
+  exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'catalog_package_variants'
+      and column_name = 'binding_overrides'
+  ) as package_variants_has_binding_overrides;
 
 -- Promptflöde
 select proname
@@ -66,3 +118,7 @@ where p.proname in (
   'list_published_package_prompts'
 )
 order by p.proname;
+
+select pg_get_function_result('public.get_published_prompt(text, text[])'::regprocedure) as get_published_prompt_result;
+select pg_get_function_result('public.get_published_package(text, text[])'::regprocedure) as get_published_package_result;
+select pg_get_function_result('public.list_published_package_prompts(text, text[])'::regprocedure) as list_published_package_prompts_result;
