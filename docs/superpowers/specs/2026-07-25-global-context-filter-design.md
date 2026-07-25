@@ -33,6 +33,30 @@ Kontextvalet ska påverka:
 Användaren ska inte behöva förstå skillnaden mellan statiskt innehåll och
 databasladdat innehåll för att använda filtret.
 
+### 2.1 Målbild för parametrisering av innehåll
+
+Den långsiktiga målbilden är att filter och val inte bara styr **vilka kort som
+visas**, utan också **hur själva innehållet i prompts och paket renderas**.
+
+Följande variabler ska kunna påverka innehållet:
+
+- `kontext`
+- `roll`
+- `målgrupp`
+- `ton`
+
+Det betyder att `[]`-fält i promptar och paket på sikt inte ska vara generiska
+tomma hål, utan fyllas eller bytas ut utifrån användarens val.
+
+Exempel:
+
+- `Kommun + handläggare + invånare + tydlig och vänlig`
+- `Skola + rektor + vårdnadshavare + lugn och förtroendeskapande`
+- `Företag + chef + medarbetare + rak och handlingsorienterad`
+
+I den modellen ska samma grundprompt kunna få olika standardvärden,
+hjälptexter eller textblock beroende på vald kombination.
+
 ### 3. Filtret flyttas högt upp
 
 Kontextfiltret ska flyttas från den nedre katalogsektionen till en tydlig plats
@@ -88,10 +112,53 @@ Miniminivå:
 - vissa prompts får dessutom `kommun`, `skola`, `företag`, `förening` eller
   `privat` enligt konservativ klassning
 
+På sikt behöver de också kunna bära metadata om vilka parametrar som styr
+deras `[]`-fält, minst:
+
+- vilken `roll` prompten riktar sig till
+- vilken `målgrupp` svaret riktar sig till
+- vilken `ton` som rekommenderas eller förvaljs
+
+Första versionen behöver inte bygga hela parametermotorn, men specen ska styra
+mot den modellen.
+
 ### Dynamiska katalogposter
 
 Supabase-katalogen använder redan `context_key` och fallbacklogik. Den behöver
 anpassas från fler-vals-UI till ett aktivt val i taget i frontend.
+
+Nästa steg efter detta är att samma katalogposter också ska kunna beskriva
+vilka parametrar som används för:
+
+- förvalda `[]`-värden
+- tonalitet i prompttext
+- skillnader mellan roller och målgrupper
+- skillnader mellan kortversion och mer avancerad version av samma innehåll
+
+Det gäller både enskilda prompts och paket/arbetssätt.
+
+### Renderregel för `[]`-fält
+
+Målbilden är:
+
+1. användaren väljer `kontext`
+2. användaren väljer `roll`
+3. användaren väljer `målgrupp`
+4. användaren väljer `ton`
+5. prompten eller paketet renderas om med dessa värden
+
+I första hand ska detta fylla eller byta ut `[]`-fält i texten.
+
+I andra hand får modellen också styra:
+
+- förslag på rubriker
+- exempel på formuleringar
+- rekommenderade nästa steg
+- vilka delar av en prompt som ska betonas eller tonas ned
+
+Detta ska gälla konsekvent för både promptkort och paketdetaljer, så att
+användaren upplever att valen faktiskt anpassar innehållet och inte bara
+filtrerar listan.
 
 ### URL och localStorage
 
