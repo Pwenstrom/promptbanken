@@ -149,6 +149,60 @@ async function loadCatalogPrompts() {
     }
 }
 
+let catalogDetailVariants = [];
+
+function renderCatalogDetailVariant(variant) {
+    const body = document.getElementById('catalog-detail-body');
+    if (!body) return;
+
+    body.innerHTML = `
+        <h3>${escapeHtml(variant.title)}</h3>
+        <p>${escapeHtml(variant.summary)}</p>
+        <pre class="catalog-detail-prompt-text">${escapeHtml(variant.prompt_text)}</pre>
+    `;
+}
+
+async function openCatalogPromptDetail(slug) {
+    const panel = document.getElementById('catalog-prompt-detail');
+    const tabsContainer = document.getElementById('catalog-detail-tabs');
+    if (!panel || !tabsContainer) return;
+
+    try {
+        catalogDetailVariants = await callCatalogRpc('get_published_prompt', {
+            p_slug: slug,
+            p_context_keys: getActiveContextKeys()
+        });
+    } catch (error) {
+        console.error('Kunde inte ladda promptdetaljer:', error);
+        return;
+    }
+
+    if (!catalogDetailVariants.length) return;
+
+    const profileLabelByKey = new Map(CATALOG_CONTEXT_PROFILES.map(({ key, label }) => [key, label]));
+
+    tabsContainer.innerHTML = catalogDetailVariants.map((variant, index) => `
+        <button type="button" data-catalog-tab-index="${index}" class="${index === 0 ? 'active' : ''}">
+            ${escapeHtml(profileLabelByKey.get(variant.context_key) || 'Generell')}
+        </button>
+    `).join('');
+
+    tabsContainer.querySelectorAll('button[data-catalog-tab-index]').forEach((button) => {
+        button.addEventListener('click', () => {
+            tabsContainer.querySelectorAll('button').forEach((btn) => btn.classList.remove('active'));
+            button.classList.add('active');
+            renderCatalogDetailVariant(catalogDetailVariants[Number(button.dataset.catalogTabIndex)]);
+        });
+    });
+
+    renderCatalogDetailVariant(catalogDetailVariants[0]);
+    panel.hidden = false;
+}
+
+document.getElementById('catalog-detail-close')?.addEventListener('click', () => {
+    document.getElementById('catalog-prompt-detail').hidden = true;
+});
+
         // Kontextprofil-regressionscheck
         function testCatalogProfileStorage() {
             const testKeys = ['kommun', 'skola'];
