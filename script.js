@@ -89,6 +89,64 @@ async function callCatalogRpc(functionName, payload) {
     return response.json();
 }
 
+function renderCatalogProfileFilters() {
+    const container = document.getElementById('catalog-profile-filters');
+    if (!container) return;
+
+    const selected = new Set(getCatalogProfileSelection());
+
+    container.innerHTML = CATALOG_CONTEXT_PROFILES.map(({ key, label }) => `
+        <label>
+            <input type="checkbox" data-catalog-profile="${key}" ${selected.has(key) ? 'checked' : ''}>
+            ${label}
+        </label>
+    `).join('');
+
+    container.querySelectorAll('input[data-catalog-profile]').forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+            const nextSelection = Array.from(
+                container.querySelectorAll('input[data-catalog-profile]:checked')
+            ).map((input) => input.dataset.catalogProfile);
+            saveCatalogProfileSelection(nextSelection);
+            loadCatalogPrompts();
+            loadCatalogPackages();
+        });
+    });
+}
+
+function getActiveContextKeys() {
+    const selection = getCatalogProfileSelection();
+    return selection.length ? selection : ['generell'];
+}
+
+function createCatalogPromptCard(prompt) {
+    const card = document.createElement('div');
+    card.className = 'catalog-card';
+    card.dataset.catalogPromptSlug = prompt.slug;
+    card.innerHTML = `
+        <h4>${prompt.title}</h4>
+        <p>${prompt.summary}</p>
+    `;
+    card.addEventListener('click', () => openCatalogPromptDetail(prompt.slug));
+    return card;
+}
+
+async function loadCatalogPrompts() {
+    const grid = document.getElementById('catalog-prompt-grid');
+    if (!grid) return;
+
+    try {
+        const prompts = await callCatalogRpc('list_published_prompts', {
+            p_context_keys: getActiveContextKeys()
+        });
+        grid.innerHTML = '';
+        prompts.forEach((prompt) => grid.appendChild(createCatalogPromptCard(prompt)));
+    } catch (error) {
+        console.error('Kunde inte ladda katalogprompts:', error);
+        grid.innerHTML = '<div class="error-message">⚠️ Kunde inte ladda katalogprompts.</div>';
+    }
+}
+
         // Kontextprofil-regressionscheck
         function testCatalogProfileStorage() {
             const testKeys = ['kommun', 'skola'];
@@ -2265,6 +2323,8 @@ ${initialUserInput.trim()}`
             initPromptSort();
             initCategoryFilters();
             loadPrompts();
+            renderCatalogProfileFilters();
+            loadCatalogPrompts();
             loadExportSettings();
             registerExportSettingsListeners();
         });
