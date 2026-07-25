@@ -421,6 +421,27 @@
                     <div class="loading-message">Laddar promptmallar...</div>
                 </section>
                 <p class="result-count" id="result-count">Visar prompter</p>
+
+                <section class="catalog-section" id="catalog-section">
+                    <div class="catalog-section-heading">
+                        <h2>Öppen katalog</h2>
+                        <p>Publicerade prompts och paket från Promptbanken, filtrerat på dina kontextprofiler.</p>
+                    </div>
+
+                    <div class="catalog-profile-filters" id="catalog-profile-filters" role="group" aria-label="Kontextprofiler"></div>
+
+                    <h3>Prompts</h3>
+                    <div class="catalog-grid" id="catalog-prompt-grid"></div>
+
+                    <h3>Paket och arbetssätt</h3>
+                    <div class="catalog-grid" id="catalog-package-grid"></div>
+
+                    <div class="catalog-prompt-detail" id="catalog-prompt-detail" hidden>
+                        <button type="button" class="catalog-detail-close" id="catalog-detail-close" aria-label="Stäng">×</button>
+                        <div class="catalog-detail-tabs" id="catalog-detail-tabs"></div>
+                        <div class="catalog-detail-body" id="catalog-detail-body"></div>
+                    </div>
+                </section>
             </section>
 
             <aside class="prompt-detail-panel" id="prompt-detail-panel" aria-label="Vald prompt" tabindex="-1">
