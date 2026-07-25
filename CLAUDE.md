@@ -4,6 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 See [AGENTS.md](AGENTS.md) for multi-agent workflow conventions, common commands, verification steps, and code/architecture rules used in this project.
 
+## Octopus hub
+
+Part of the octopus project hub — see `C:\Users\petwen\OneDrive - Höglandsförbundet\Projekt\octopus` for vision/status/blockers before larger changes.
+
 ## Commands
 
 **Frontend (Vite + vanilla JS):**
