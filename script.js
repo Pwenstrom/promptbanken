@@ -50,6 +50,14 @@ const SUPABASE_CATALOG_URL = window.SUPABASE_URL;
 const SUPABASE_CATALOG_ANON_KEY = window.SUPABASE_ANON_KEY;
 const CATALOG_PROFILE_STORAGE_KEY = 'promptbankenContextProfiles';
 
+function isUsableCatalogEnvValue(value, placeholderToken) {
+    return typeof value === 'string'
+        && value.trim() !== ''
+        && value !== 'undefined'
+        && value !== 'null'
+        && !value.includes(placeholderToken);
+}
+
 const CATALOG_CONTEXT_PROFILES = [
     { key: 'kommun', label: 'Kommun' },
     { key: 'skola', label: 'Skola' },
@@ -90,19 +98,33 @@ async function callCatalogRpc(functionName, payload) {
 }
 
 function isCatalogConfigUsable() {
-    return Boolean(SUPABASE_CATALOG_URL) && !SUPABASE_CATALOG_URL.includes('%VITE_SUPABASE_URL%');
+    return isUsableCatalogEnvValue(SUPABASE_CATALOG_URL, '%VITE_SUPABASE_URL%')
+        && isUsableCatalogEnvValue(SUPABASE_CATALOG_ANON_KEY, '%VITE_SUPABASE_PUBLISHABLE_KEY%');
 }
 
-function hideCatalogSection() {
+function renderCatalogUnavailableState(message) {
     const section = document.getElementById('catalog-section');
+    const filters = document.getElementById('catalog-profile-filters');
+    const promptGrid = document.getElementById('catalog-prompt-grid');
+    const packageGrid = document.getElementById('catalog-package-grid');
+
     if (section) {
-        section.hidden = true;
+        section.hidden = false;
+    }
+    if (filters) {
+        filters.innerHTML = '';
+    }
+    if (promptGrid) {
+        promptGrid.innerHTML = `<div class="error-message">${message}</div>`;
+    }
+    if (packageGrid) {
+        packageGrid.innerHTML = '';
     }
 }
 
 function renderCatalogProfileFilters() {
     if (!isCatalogConfigUsable()) {
-        hideCatalogSection();
+        renderCatalogUnavailableState('Öppen katalog är tillfälligt otillgänglig just nu.');
         return;
     }
 
@@ -151,7 +173,7 @@ function createCatalogPromptCard(prompt) {
 
 async function loadCatalogPrompts() {
     if (!isCatalogConfigUsable()) {
-        hideCatalogSection();
+        renderCatalogUnavailableState('Öppen katalog är tillfälligt otillgänglig just nu.');
         return;
     }
 
@@ -276,7 +298,7 @@ function createCatalogPackageCard(pkg) {
 
 async function loadCatalogPackages() {
     if (!isCatalogConfigUsable()) {
-        hideCatalogSection();
+        renderCatalogUnavailableState('Öppen katalog är tillfälligt otillgänglig just nu.');
         return;
     }
 
@@ -315,6 +337,15 @@ async function loadCatalogPackages() {
         }
 
         console.log('Catalog Profile Storage Test:', testCatalogProfileStorage() ? 'Passed' : 'Failed');
+
+        function testCatalogConfigValidation() {
+            return isUsableCatalogEnvValue('https://example.supabase.co', '%VITE_SUPABASE_URL%')
+                && !isUsableCatalogEnvValue(undefined, '%VITE_SUPABASE_PUBLISHABLE_KEY%')
+                && !isUsableCatalogEnvValue('undefined', '%VITE_SUPABASE_PUBLISHABLE_KEY%')
+                && !isUsableCatalogEnvValue('%VITE_SUPABASE_PUBLISHABLE_KEY%', '%VITE_SUPABASE_PUBLISHABLE_KEY%');
+        }
+
+        console.log('Catalog Config Validation Test:', testCatalogConfigValidation() ? 'Passed' : 'Failed');
 
 // Step 19: Dynamic JavaScript loading from prompts.json
         
