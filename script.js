@@ -76,6 +76,9 @@ const DEFAULT_RENDER_STATE = {
 };
 const PERSISTED_RENDER_STATE_KEYS = ['roll', 'malgrupp', 'ton'];
 const GLOBAL_RENDER_BINDING_KEYS = Object.keys(DEFAULT_RENDER_STATE);
+const GLOBAL_ROLE_OPTIONS = ['handläggare', 'chef', 'kommunikatör', 'pedagog', 'samordnare'];
+const GLOBAL_AUDIENCE_OPTIONS = ['invånare', 'medarbetare', 'allmänhet', 'vårdnadshavare', 'elever'];
+const GLOBAL_TONE_OPTIONS = ['neutral', 'tydlig och vänlig', 'formell', 'rak och handlingsorienterad', 'varm och trygg', 'pedagogisk'];
 const GLOBAL_CONTEXT_OPTIONS = [
     { key: 'generell', label: 'Alla' },
     ...CATALOG_CONTEXT_PROFILES
@@ -174,6 +177,67 @@ function saveGlobalRenderState(nextPartialState) {
 
 function getGlobalRenderState() {
     return loadGlobalRenderState();
+}
+
+function setSelectOptions(select, options, selectedValue) {
+    if (!select) return;
+
+    select.innerHTML = options
+        .map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`)
+        .join('');
+
+    select.value = options.includes(selectedValue) ? selectedValue : options[0];
+}
+
+function syncGlobalRenderControls() {
+    const state = getGlobalRenderState();
+    const roleSelect = document.getElementById('global-role-select');
+    const audienceSelect = document.getElementById('global-audience-select');
+    const toneSelect = document.getElementById('global-tone-select');
+
+    if (roleSelect) roleSelect.value = state.roll;
+    if (audienceSelect) audienceSelect.value = state.malgrupp;
+    if (toneSelect) toneSelect.value = state.ton;
+}
+
+function refreshGlobalRenderOutputs() {
+    loadPrompts();
+    loadCatalogPrompts();
+    loadCatalogPackages();
+}
+
+function initGlobalRenderControls() {
+    const roleSelect = document.getElementById('global-role-select');
+    const audienceSelect = document.getElementById('global-audience-select');
+    const toneSelect = document.getElementById('global-tone-select');
+
+    if (!roleSelect || !audienceSelect || !toneSelect) return;
+
+    const state = getGlobalRenderState();
+    setSelectOptions(roleSelect, GLOBAL_ROLE_OPTIONS, state.roll);
+    setSelectOptions(audienceSelect, GLOBAL_AUDIENCE_OPTIONS, state.malgrupp);
+    setSelectOptions(toneSelect, GLOBAL_TONE_OPTIONS, state.ton);
+
+    if (roleSelect.dataset.renderControlReady === 'true') {
+        syncGlobalRenderControls();
+        return;
+    }
+
+    const bindSelect = (select, key) => {
+        select.addEventListener('change', (event) => {
+            saveGlobalRenderState({ [key]: event.target.value });
+            renderGlobalContextStatus();
+            refreshGlobalRenderOutputs();
+        });
+    };
+
+    bindSelect(roleSelect, 'roll');
+    bindSelect(audienceSelect, 'malgrupp');
+    bindSelect(toneSelect, 'ton');
+
+    roleSelect.dataset.renderControlReady = 'true';
+    audienceSelect.dataset.renderControlReady = 'true';
+    toneSelect.dataset.renderControlReady = 'true';
 }
 
 function resolvePromptBindings(state, schema, defaults = {}, overrides = []) {
@@ -308,9 +372,8 @@ function renderCatalogProfileFilters() {
         saveGlobalContextSelection(key);
         renderCatalogProfileFilters();
         renderGlobalContextStatus();
-        loadPrompts();
-        loadCatalogPrompts();
-        loadCatalogPackages();
+        syncGlobalRenderControls();
+        refreshGlobalRenderOutputs();
     };
 
     buttons.forEach((button, index) => {
@@ -345,7 +408,8 @@ function renderGlobalContextStatus() {
     const status = document.getElementById('catalog-profile-status');
     if (!status) return;
     const active = GLOBAL_CONTEXT_OPTIONS.find((item) => item.key === getActiveContextKey());
-    status.textContent = `Visar innehåll för: ${active ? active.label : 'Alla'}`;
+    const state = getGlobalRenderState();
+    status.textContent = `Visar innehåll för ${active ? active.label : 'Alla'} med rollen ${state.roll}, målgruppen ${state.malgrupp} och tonen ${state.ton}.`;
 }
 
 function createCatalogPromptCard(prompt) {
@@ -793,6 +857,7 @@ async function loadCatalogPackages() {
         async function loadPrompts() {
             try {
                 grid.classList.add('loading');
+                const previouslySelectedPromptId = selectedPromptId;
 
                 // Fetch prompts.json
                 const configResponse = await fetch('prompts.json');
@@ -853,7 +918,11 @@ async function loadCatalogPackages() {
                 updateFavoritesMenu();
                 applyPromptSort();
                 if (visiblePrompts.length) {
-                    selectPrompt(visiblePrompts[0].id, { reveal: false, markSelected: false });
+                    const keepCurrentSelection = visiblePrompts.some((prompt) => prompt.id === previouslySelectedPromptId);
+                    const nextPromptId = keepCurrentSelection
+                        ? previouslySelectedPromptId
+                        : visiblePrompts[0].id;
+                    selectPrompt(nextPromptId, { reveal: false, markSelected: keepCurrentSelection });
                 }
 
                 grid.classList.remove('loading');
@@ -2757,6 +2826,7 @@ ${initialUserInput.trim()}`
             initAdvancedToggle();
             initFavoritesToggle();
             initLocalChatToggle();
+            initGlobalRenderControls();
             initPromptSearch();
             initPromptSort();
             initCategoryFilters();
