@@ -5317,6 +5317,43 @@ body.detail-panel-closed .prompt-detail-panel {
     margin-bottom: 1.5rem;
 }
 
+.catalog-card {
+    border: 1px solid var(--border-color, #e2e2e2);
+    border-radius: 8px;
+    padding: 1rem;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.catalog-card:hover {
+    border-color: #0066cc;
+    box-shadow: 0 4px 14px rgba(16, 24, 40, 0.1);
+}
+
+.catalog-card h4 {
+    margin: 0 0 0.35rem;
+}
+
+.catalog-card p {
+    margin: 0;
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.catalog-package-type {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: #eef4ff;
+    color: #0052a3;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
 .catalog-prompt-detail {
     position: fixed;
     inset: 0;
@@ -5325,15 +5362,86 @@ body.detail-panel-closed .prompt-detail-panel {
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    padding: 1rem;
+}
+
+.catalog-prompt-detail[hidden] {
+    display: none;
+}
+
+.catalog-detail-panel {
+    position: relative;
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.catalog-detail-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.catalog-detail-close:hover {
+    background-color: #f0f0f0;
+    color: #1a1a1a;
 }
 
 .catalog-detail-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin: 0 2.5rem 1rem 0;
+}
+
+.catalog-detail-tabs button {
+    padding: 0.35rem 0.85rem;
+    border: 1px solid var(--border-color, #ccc);
+    border-radius: 999px;
+    background: #fff;
+    cursor: pointer;
+    font: inherit;
 }
 
 .catalog-detail-tabs button.active {
     font-weight: 600;
     text-decoration: underline;
+    border-color: #0066cc;
+    color: #0052a3;
+}
+
+.catalog-detail-body {
+    line-height: 1.5;
+}
+
+.catalog-detail-body pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 4px;
+    border-left: 4px solid #0066cc;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #1a1a1a;
+    margin: 0.75rem 0 0;
 }

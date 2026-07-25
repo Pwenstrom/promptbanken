@@ -89,7 +89,23 @@ async function callCatalogRpc(functionName, payload) {
     return response.json();
 }
 
+function isCatalogConfigUsable() {
+    return Boolean(SUPABASE_CATALOG_URL) && !SUPABASE_CATALOG_URL.includes('%VITE_SUPABASE_URL%');
+}
+
+function hideCatalogSection() {
+    const section = document.getElementById('catalog-section');
+    if (section) {
+        section.hidden = true;
+    }
+}
+
 function renderCatalogProfileFilters() {
+    if (!isCatalogConfigUsable()) {
+        hideCatalogSection();
+        return;
+    }
+
     const container = document.getElementById('catalog-profile-filters');
     if (!container) return;
 
@@ -134,6 +150,11 @@ function createCatalogPromptCard(prompt) {
 }
 
 async function loadCatalogPrompts() {
+    if (!isCatalogConfigUsable()) {
+        hideCatalogSection();
+        return;
+    }
+
     const grid = document.getElementById('catalog-prompt-grid');
     if (!grid) return;
 
@@ -155,11 +176,38 @@ function renderCatalogDetailVariant(variant) {
     const body = document.getElementById('catalog-detail-body');
     if (!body) return;
 
+    const introOrPromptHtml = 'prompt_text' in variant
+        ? `<pre class="catalog-detail-prompt-text">${escapeHtml(variant.prompt_text)}</pre>`
+        : (variant.intro_text ? `<p>${escapeHtml(variant.intro_text)}</p>` : '');
+
     body.innerHTML = `
         <h3>${escapeHtml(variant.title)}</h3>
         <p>${escapeHtml(variant.summary)}</p>
-        <pre class="catalog-detail-prompt-text">${escapeHtml(variant.prompt_text)}</pre>
+        ${introOrPromptHtml}
     `;
+}
+
+// Shared by prompt detail and package detail: renders the context-profile
+// tabs into #catalog-detail-tabs and wires up click-to-switch behaviour.
+function renderCatalogDetailTabs(variants) {
+    const tabsContainer = document.getElementById('catalog-detail-tabs');
+    if (!tabsContainer) return;
+
+    const profileLabelByKey = new Map(CATALOG_CONTEXT_PROFILES.map(({ key, label }) => [key, label]));
+
+    tabsContainer.innerHTML = variants.map((variant, index) => `
+        <button type="button" data-catalog-tab-index="${index}" class="${index === 0 ? 'active' : ''}">
+            ${escapeHtml(profileLabelByKey.get(variant.context_key) || 'Generell')}
+        </button>
+    `).join('');
+
+    tabsContainer.querySelectorAll('button[data-catalog-tab-index]').forEach((button) => {
+        button.addEventListener('click', () => {
+            tabsContainer.querySelectorAll('button').forEach((btn) => btn.classList.remove('active'));
+            button.classList.add('active');
+            renderCatalogDetailVariant(variants[Number(button.dataset.catalogTabIndex)]);
+        });
+    });
 }
 
 async function openCatalogPromptDetail(slug) {
@@ -179,22 +227,29 @@ async function openCatalogPromptDetail(slug) {
 
     if (!catalogDetailVariants.length) return;
 
-    const profileLabelByKey = new Map(CATALOG_CONTEXT_PROFILES.map(({ key, label }) => [key, label]));
+    renderCatalogDetailTabs(catalogDetailVariants);
+    renderCatalogDetailVariant(catalogDetailVariants[0]);
+    panel.hidden = false;
+}
 
-    tabsContainer.innerHTML = catalogDetailVariants.map((variant, index) => `
-        <button type="button" data-catalog-tab-index="${index}" class="${index === 0 ? 'active' : ''}">
-            ${escapeHtml(profileLabelByKey.get(variant.context_key) || 'Generell')}
-        </button>
-    `).join('');
+async function openCatalogPackageDetail(slug) {
+    const panel = document.getElementById('catalog-prompt-detail');
+    const tabsContainer = document.getElementById('catalog-detail-tabs');
+    if (!panel || !tabsContainer) return;
 
-    tabsContainer.querySelectorAll('button[data-catalog-tab-index]').forEach((button) => {
-        button.addEventListener('click', () => {
-            tabsContainer.querySelectorAll('button').forEach((btn) => btn.classList.remove('active'));
-            button.classList.add('active');
-            renderCatalogDetailVariant(catalogDetailVariants[Number(button.dataset.catalogTabIndex)]);
+    try {
+        catalogDetailVariants = await callCatalogRpc('get_published_package', {
+            p_slug: slug,
+            p_context_keys: getActiveContextKeys()
         });
-    });
+    } catch (error) {
+        console.error('Kunde inte ladda paketdetaljer:', error);
+        return;
+    }
 
+    if (!catalogDetailVariants.length) return;
+
+    renderCatalogDetailTabs(catalogDetailVariants);
     renderCatalogDetailVariant(catalogDetailVariants[0]);
     panel.hidden = false;
 }
@@ -215,10 +270,16 @@ function createCatalogPackageCard(pkg) {
         <p>${summary}</p>
         <span class="catalog-package-type">${typeLabel}</span>
     `;
+    card.addEventListener('click', () => openCatalogPackageDetail(pkg.slug));
     return card;
 }
 
 async function loadCatalogPackages() {
+    if (!isCatalogConfigUsable()) {
+        hideCatalogSection();
+        return;
+    }
+
     const grid = document.getElementById('catalog-package-grid');
     if (!grid) return;
 
@@ -237,10 +298,19 @@ async function loadCatalogPackages() {
 
         // Kontextprofil-regressionscheck
         function testCatalogProfileStorage() {
+            // Snapshot the user's real saved selection first so the roundtrip
+            // test never destroys it (script.js runs before DOMContentLoaded).
+            const realValue = localStorage.getItem(CATALOG_PROFILE_STORAGE_KEY);
             const testKeys = ['kommun', 'skola'];
             saveCatalogProfileSelection(testKeys);
             const roundTripped = getCatalogProfileSelection();
-            localStorage.removeItem(CATALOG_PROFILE_STORAGE_KEY);
+
+            if (realValue === null) {
+                localStorage.removeItem(CATALOG_PROFILE_STORAGE_KEY);
+            } else {
+                localStorage.setItem(CATALOG_PROFILE_STORAGE_KEY, realValue);
+            }
+
             return JSON.stringify(roundTripped) === JSON.stringify(testKeys);
         }
 
