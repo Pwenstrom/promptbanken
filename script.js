@@ -67,6 +67,13 @@ const CATALOG_CONTEXT_PROFILES = [
 ];
 
 const DEFAULT_CONTEXT_KEY = 'generell';
+const GLOBAL_RENDER_STATE_KEY = 'promptbankenRenderState';
+const DEFAULT_RENDER_STATE = {
+    kontext: 'generell',
+    roll: 'handläggare',
+    malgrupp: 'invånare',
+    ton: 'tydlig och vänlig'
+};
 const GLOBAL_CONTEXT_OPTIONS = [
     { key: 'generell', label: 'Alla' },
     ...CATALOG_CONTEXT_PROFILES
@@ -123,6 +130,61 @@ function saveGlobalContextSelection(key) {
 
 function getActiveContextKey() {
     return loadGlobalContextSelection();
+}
+
+function loadGlobalRenderState() {
+    let storedState = {};
+
+    try {
+        const stored = JSON.parse(localStorage.getItem(GLOBAL_RENDER_STATE_KEY));
+        if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
+            storedState = stored;
+        }
+    } catch (error) {
+        // Invalid persisted state is replaced with the defaults below.
+    }
+
+    return {
+        ...DEFAULT_RENDER_STATE,
+        ...storedState,
+        kontext: getActiveContextKey()
+    };
+}
+
+function saveGlobalRenderState(nextPartialState) {
+    const nextState = {
+        ...loadGlobalRenderState(),
+        ...(nextPartialState || {}),
+        kontext: getActiveContextKey()
+    };
+
+    localStorage.setItem(GLOBAL_RENDER_STATE_KEY, JSON.stringify(nextState));
+}
+
+function getGlobalRenderState() {
+    return loadGlobalRenderState();
+}
+
+function resolvePromptBindings(state, schema, defaults = {}, overrides = []) {
+    const bindings = { ...defaults, ...state };
+    overrides.forEach((rule) => {
+        const matches = Object.entries(rule.when || {}).every(([key, value]) => bindings[key] === value);
+        if (matches) Object.assign(bindings, rule.set || {});
+    });
+    return bindings;
+}
+
+function renderPromptTemplate(template, bindings) {
+    return String(template || '').replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key) => {
+        return Object.prototype.hasOwnProperty.call(bindings, key) ? String(bindings[key] ?? '') : '';
+    });
+}
+
+function adaptLegacyPromptTemplate(template, schema) {
+    const normalizedTemplate = String(template || '');
+    if (!normalizedTemplate.includes('[]')) return normalizedTemplate;
+    const fallbackField = schema?.legacy_fallback_field || 'input';
+    return normalizedTemplate.replace('[]', `{{${fallbackField}}}`);
 }
 
 function getActiveContextKeys() {
@@ -967,7 +1029,19 @@ async function loadCatalogPackages() {
         function getPromptText(promptId) {
             const textArea = document.getElementById(`textarea-${promptId}`);
             if (!textArea) return '';
-            return replaceInputMarkers(textArea.value, quickInputText);
+            const prompt = allPrompts.find((item) => item.id === promptId) || {};
+            const defaults = { ...(prompt.default_bindings || {}) };
+            if (quickInputText && quickInputText.trim()) {
+                defaults.input = quickInputText;
+            }
+            const template = adaptLegacyPromptTemplate(textArea.value, prompt.parameter_schema);
+            const bindings = resolvePromptBindings(
+                getGlobalRenderState(),
+                prompt.parameter_schema,
+                defaults,
+                prompt.binding_overrides || []
+            );
+            return replaceInputMarkers(renderPromptTemplate(template, bindings), quickInputText);
         }
 
         function selectPrompt(promptId, options = {}) {
@@ -1457,9 +1531,7 @@ async function loadCatalogPackages() {
 
             if (textArea && prompt) {
                 promptModalTitle.textContent = prompt.title;
-                let text = textArea.value;
-                text = replaceInputMarkers(text, quickInputText);
-                promptModalText.textContent = text;
+                promptModalText.textContent = getPromptText(promptId);
                 promptModal.classList.add('active');
             }
         }
@@ -1508,7 +1580,7 @@ async function loadCatalogPackages() {
                 return;
             }
 
-            let textToCopy = replaceInputMarkers(textArea.value, quickInputText);
+            let textToCopy = getPromptText(promptId);
 
             try {
                 await navigator.clipboard.writeText(textToCopy);
@@ -1548,7 +1620,7 @@ async function loadCatalogPackages() {
                 return;
             }
 
-            const preparedPrompt = replaceInputMarkers(textArea.value, quickInputText).trim();
+            const preparedPrompt = getPromptText(promptId).trim();
             const payload = {
                 promptId,
                 title: prompt?.title || 'Prompt',
@@ -1702,7 +1774,7 @@ async function loadCatalogPackages() {
         function buildExportText(baseText) {
             const settings = getCurrentExportSettings();
             const labels = getLabels(settings);
-            let text = replaceInputMarkers(baseText, quickInputText);
+            const text = baseText;
             // Only show custom role if selected, otherwise show standard role
             let roleLine = `Roll: ${labels.role}`;
             const header = [
@@ -1787,7 +1859,7 @@ async function loadCatalogPackages() {
         function openExportModal(promptId) {
             const textArea = document.getElementById(`textarea-${promptId}`);
             if (!textArea) return;
-            currentPromptRaw = textArea.value;
+            currentPromptRaw = getPromptText(promptId);
             updateExportPreview();
             exportModal.classList.add('active');
         }
@@ -2234,7 +2306,7 @@ ${initialUserInput.trim()}`
                 return '';
             }
             const textarea = document.getElementById(`textarea-${selectedPromptForLocalRun.id}`);
-            return textarea ? textarea.value : '';
+            return textarea ? getPromptText(selectedPromptForLocalRun.id) : '';
         }
 
         function copySelectedPromptToClipboard() {
