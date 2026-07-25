@@ -37,3 +37,14 @@ where proname in (
   'publish_catalog_package'
 )
 order by proname;
+
+select proname
+from pg_proc
+where proname in (
+  'list_published_prompts',
+  'get_published_prompt',
+  'list_published_packages',
+  'get_published_package',
+  'list_published_package_prompts'
+)
+order by proname;
