@@ -1,0 +1,124 @@
+# Globalt kontextfilter för hela promptbanken
+
+## Mål
+
+Gör kontextfiltreringen till en tydlig, global del av `promptbanken.html` i stället
+för en separat katalogfunktion längst ned på sidan. Användaren ska uppleva att hen
+filtrerar **hela katalogen**, inte byter till ett annat system.
+
+## Beslut
+
+### 1. Ett aktivt profilval i taget
+
+Hela sidan ska använda exakt en aktiv kontext åt gången:
+
+- `Alla` eller `Generell` som standardläge
+- `Kommun`
+- `Skola`
+- `Företag`
+- `Förening`
+- `Privat`
+
+Flera samtidiga profilval används inte i huvudsidans UX. Skälet är att ett enda
+aktivt val är tydligare, lättare att förklara och faktiskt känns som filtrering.
+
+### 2. Filtret gäller hela sidan
+
+Kontextvalet ska påverka:
+
+- promptlistor på sidan
+- öppna katalogprompts från Supabase
+- paket och arbetssätt från Supabase
+
+Användaren ska inte behöva förstå skillnaden mellan statiskt innehåll och
+databasladdat innehåll för att använda filtret.
+
+### 3. Filtret flyttas högt upp
+
+Kontextfiltret ska flyttas från den nedre katalogsektionen till en tydlig plats
+högre upp i sidan, nära den huvudsakliga katalogintroduktionen och innan större
+resultatlistor.
+
+Rubrik/etikett ska vara begriplig, till exempel:
+
+- `Anpassa innehåll efter din kontext`
+
+Det ska också finnas en liten statusrad som visar aktuell vy, till exempel:
+
+- `Visar innehåll för: Företag`
+
+### 4. En sammanhållen katalogvy
+
+Sidan ska upplevas som en enda katalog med sektioner, inte två separata system.
+
+Rekommenderad informationsstruktur:
+
+1. sidhuvud / introduktion
+2. globalt kontextfilter
+3. prompts
+4. paket och arbetssätt
+
+Det är okej att prompts och paket fortsatt renderas i olika sektioner, så länge de
+lyder under samma filterlager.
+
+### 5. Fallback från generell ska finnas kvar, men bli synlig
+
+Datamodellen ska fortsatt få falla tillbaka till `generell` när vald kontext saknar
+egen variant. Annars blir katalogen onödigt tom.
+
+Men fallback får inte vara osynlig för användaren. Om en post visas via generell
+variant i en kontextvy ska det framgå diskret, till exempel:
+
+- `Generell version`
+- `Saknar egen företagsvariant`
+
+Detta behövs för att filtret ska kännas ärligt. Annars ser det ut som att alla
+profiler visar samma sak utan förklaring.
+
+## Konsekvenser för implementation
+
+### Statiska prompts
+
+De befintliga statiska promptarna i `prompts.json` behöver en enkel
+kontextklassning så att även de kan filtreras av det globala profilvalet.
+
+Miniminivå:
+
+- varje statisk prompt får minst `generell`
+- vissa prompts får dessutom `kommun`, `skola`, `företag`, `förening` eller
+  `privat` enligt konservativ klassning
+
+### Dynamiska katalogposter
+
+Supabase-katalogen använder redan `context_key` och fallbacklogik. Den behöver
+anpassas från fler-vals-UI till ett aktivt val i taget i frontend.
+
+### URL och localStorage
+
+Det aktiva profilvalet ska fortsatt persisteras lokalt, men modellen blir ett
+enskilt värde i stället för en lista.
+
+Det får gärna vara möjligt senare att spegla valet i URL eller deep-linking, men
+det är inte krav i första versionen.
+
+## UX-regler
+
+- Standardläget ska aldrig kännas tomt.
+- Profilväxling ska ge synlig effekt i listan.
+- Om ingen post matchar exakt vald profil ska användaren fortfarande kunna se
+  generell fallback, men med tydlig märkning.
+- Om en sektion saknar innehåll helt ska den visa en begriplig tomstatus, inte en
+  blank yta.
+
+## Rekommenderad första version
+
+Första versionen bör göra följande och inget mer:
+
+1. flytta filtret till toppen
+2. byt från checkboxar till ett aktivt enkelval
+3. låt valet styra hela sidan
+4. lägg till enkel fallback-märkning
+5. behåll prompts och paket som separata sektioner i samma flöde
+
+Detta är minsta förändring som ger tydlig UX-förbättring utan att kräva en total
+ombyggnad av sidan.
