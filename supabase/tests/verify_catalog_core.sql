@@ -48,3 +48,9 @@ where proname in (
   'list_published_package_prompts'
 )
 order by proname;
+
+-- Chat-driven draft creation
+select proname
+from pg_proc
+where proname in ('create_prompt_draft_from_chat', 'create_package_draft_from_chat')
+order by proname;
