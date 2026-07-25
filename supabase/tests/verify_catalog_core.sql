@@ -24,3 +24,16 @@ select proname
 from pg_proc
 where proname in ('create_catalog_prompt', 'upsert_catalog_prompt_variant', 'publish_catalog_prompt')
 order by proname;
+
+-- Paketflöde
+select proname
+from pg_proc
+where proname in (
+  'create_catalog_package',
+  'upsert_catalog_package_variant',
+  'add_prompt_to_catalog_package',
+  'update_catalog_package_item',
+  'remove_prompt_from_catalog_package',
+  'publish_catalog_package'
+)
+order by proname;
