@@ -1,6 +1,20 @@
 {
   "skills": [
     {
+      "id": "tydlighetskoll",
+      "name": "Tydlighetskoll",
+      "description": "Granska kommunala texter och flagga otydligt ansvar, oklara beslut, saknade nasta steg och risk for missforstand.",
+      "file": "prompts/tydlighetskoll.txt",
+      "intents": ["clarity_review", "responsibility_check", "decision_clarity", "risk_review"],
+      "roles": ["handlaggare", "kommunikator", "chef", "samordnare"],
+      "audiences": ["medarbetare", "invanare", "ledning"],
+      "risk_level": "medium",
+      "requires_anonymization": true,
+      "output_type": "clarity_review",
+      "language": "sv-SE",
+      "version": "1.0.0"
+    },
+    {
       "id": "klarsprak",
       "name": "Skriv om till klarsprak",
       "description": "Gor text kortare och lattare att forsta for invanare.",
