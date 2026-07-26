@@ -330,11 +330,11 @@
 
                 <section class="context-filter-bar" aria-labelledby="context-filter-heading">
                     <div class="context-filter-copy">
-                        <h2 id="context-filter-heading">Anpassa innehåll efter din kontext</h2>
-                        <p>Välj vilken kontext du vill att hela katalogen ska utgå från.</p>
+                        <h2 id="context-filter-heading">Anpassa prompttext</h2>
+                        <p>Välj kontext, roll, målgrupp och ton. Förhandsvisningen och kopierad prompt uppdateras automatiskt.</p>
                     </div>
                     <div class="context-filter-options" id="catalog-profile-filters" role="radiogroup" aria-label="Kontextval"></div>
-                    <div class="context-filter-controls" aria-label="Globala promptinställningar">
+                    <div class="context-filter-controls" aria-label="Inställningar för prompttext">
                         <label class="context-filter-control" for="global-role-select">
                             <span>Roll</span>
                             <select id="global-role-select"></select>
@@ -704,7 +704,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.3.1/html-docx.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-    <script src="script.js?v=static-preview-parameter-rendering-20260726" defer></script>
+    <script src="script.js?v=prompt-preview-status-20260726" defer></script>
     <script type="module">
       import { supabase, hasSupabaseConfig } from '/src/supabaseClient.js';
 

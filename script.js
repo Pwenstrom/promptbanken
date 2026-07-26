@@ -418,8 +418,19 @@ function renderGlobalContextStatus() {
     const status = document.getElementById('catalog-profile-status');
     if (!status) return;
     const active = GLOBAL_CONTEXT_OPTIONS.find((item) => item.key === getActiveContextKey());
+    const selectedPromptId = document.querySelector('.prompt-card.selected')?.dataset.promptId;
+    const selectedVariant = selectedPromptId ? getCachedStaticCatalogPromptVariant(selectedPromptId) : null;
     const state = getGlobalRenderState();
-    status.textContent = `Visar innehåll för ${active ? active.label : 'Alla'} med rollen ${state.roll}, målgruppen ${state.malgrupp} och tonen ${state.ton}.`;
+    const renderState = selectedVariant
+        ? resolvePromptBindings(
+            state,
+            selectedVariant.parameter_schema,
+            { ...selectedVariant.default_bindings, ...state },
+            selectedVariant.binding_overrides
+        )
+        : state;
+
+    status.textContent = `Anpassar prompttext för ${active ? active.label : 'Alla'} med rollen ${renderState.roll || state.roll}, målgruppen ${renderState.malgrupp || state.malgrupp} och tonen ${renderState.ton || state.ton}.`;
 }
 
 function createCatalogPromptCard(prompt) {
@@ -1257,6 +1268,7 @@ async function loadCatalogPackages() {
             if (preview) {
                 preview.textContent = getPromptText(promptId) || 'Prompttext saknas.';
             }
+            renderGlobalContextStatus();
         }
 
         function selectPrompt(promptId, options = {}) {
@@ -1307,6 +1319,7 @@ async function loadCatalogPackages() {
             if (fields.example) fields.example.textContent = meta.example;
             if (fields.phrase) fields.phrase.textContent = `"${meta.phrase}"`;
             if (fields.preview) fields.preview.textContent = getPromptText(promptId) || 'Prompttext saknas.';
+            renderGlobalContextStatus();
             refreshPromptPreviewFromCatalog(promptId);
 
             document.querySelectorAll('#selected-prompt-chat-btn, #selected-prompt-copy-btn, #selected-prompt-view-btn, #selected-prompt-export-btn')
