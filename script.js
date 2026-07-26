@@ -476,6 +476,8 @@ async function loadCatalogPrompts() {
 }
 
 let catalogDetailVariants = [];
+const staticCatalogPromptVariantCache = new Map();
+const staticCatalogPromptVariantPromises = new Map();
 
 function normalizeCatalogTemplateEntity(entity) {
     return {
@@ -484,6 +486,48 @@ function normalizeCatalogTemplateEntity(entity) {
         default_bindings: entity?.default_bindings || {},
         binding_overrides: Array.isArray(entity?.binding_overrides) ? entity.binding_overrides : []
     };
+}
+
+function getStaticCatalogPromptVariantCacheKey(promptId) {
+    return `${promptId}:${getActiveContextKey()}`;
+}
+
+function getCachedStaticCatalogPromptVariant(promptId) {
+    return staticCatalogPromptVariantCache.get(getStaticCatalogPromptVariantCacheKey(promptId));
+}
+
+async function ensureStaticCatalogPromptVariant(promptId) {
+    if (!isCatalogConfigUsable() || !promptId) return null;
+
+    const cacheKey = getStaticCatalogPromptVariantCacheKey(promptId);
+    if (staticCatalogPromptVariantCache.has(cacheKey)) {
+        return staticCatalogPromptVariantCache.get(cacheKey);
+    }
+
+    if (!staticCatalogPromptVariantPromises.has(cacheKey)) {
+        const promise = callCatalogRpc('get_published_prompt', {
+            p_slug: promptId,
+            p_context_keys: getActiveContextKeys()
+        })
+            .then((variants) => {
+                const normalizedVariants = Array.isArray(variants)
+                    ? variants.map(normalizeCatalogTemplateEntity)
+                    : [];
+                const bestVariant = normalizedVariants[0] || null;
+                staticCatalogPromptVariantCache.set(cacheKey, bestVariant);
+                staticCatalogPromptVariantPromises.delete(cacheKey);
+                return bestVariant;
+            })
+            .catch((error) => {
+                staticCatalogPromptVariantPromises.delete(cacheKey);
+                console.warn(`Kunde inte ladda katalogvariant för ${promptId}:`, error);
+                return null;
+            });
+
+        staticCatalogPromptVariantPromises.set(cacheKey, promise);
+    }
+
+    return staticCatalogPromptVariantPromises.get(cacheKey);
 }
 
 function renderCatalogTemplateField(entity, fieldName) {
@@ -1182,19 +1226,37 @@ async function loadCatalogPackages() {
             const textArea = document.getElementById(`textarea-${promptId}`);
             if (!textArea) return '';
             const prompt = allPrompts.find((item) => item.id === promptId) || {};
+            const catalogVariant = getCachedStaticCatalogPromptVariant(promptId);
+            const sourceText = catalogVariant?.prompt_text || textArea.value;
+            const schema = catalogVariant?.parameter_schema || prompt.parameter_schema;
+            const bindingOverrides = catalogVariant?.binding_overrides || prompt.binding_overrides || [];
             const defaults = { ...(prompt.default_bindings || {}) };
+            if (catalogVariant?.default_bindings) {
+                Object.assign(defaults, catalogVariant.default_bindings);
+            }
             if (quickInputText && quickInputText.trim()) {
-                const fallbackField = prompt.parameter_schema?.legacy_fallback_field || 'input';
+                const fallbackField = schema?.legacy_fallback_field || 'input';
                 defaults[fallbackField] = quickInputText;
             }
-            const template = adaptLegacyPromptTemplate(textArea.value, prompt.parameter_schema);
+            const template = adaptLegacyPromptTemplate(sourceText, schema);
             const bindings = resolvePromptBindings(
                 getGlobalRenderState(),
-                prompt.parameter_schema,
+                schema,
                 defaults,
-                prompt.binding_overrides || []
+                bindingOverrides
             );
             return replaceInputMarkers(renderPromptTemplate(template, bindings), quickInputText);
+        }
+
+        async function refreshPromptPreviewFromCatalog(promptId) {
+            if (!promptId) return;
+            const variant = await ensureStaticCatalogPromptVariant(promptId);
+            if (!variant || selectedPromptId !== promptId) return;
+
+            const preview = document.getElementById('detail-prompt-preview');
+            if (preview) {
+                preview.textContent = getPromptText(promptId) || 'Prompttext saknas.';
+            }
         }
 
         function selectPrompt(promptId, options = {}) {
@@ -1245,6 +1307,7 @@ async function loadCatalogPackages() {
             if (fields.example) fields.example.textContent = meta.example;
             if (fields.phrase) fields.phrase.textContent = `"${meta.phrase}"`;
             if (fields.preview) fields.preview.textContent = getPromptText(promptId) || 'Prompttext saknas.';
+            refreshPromptPreviewFromCatalog(promptId);
 
             document.querySelectorAll('#selected-prompt-chat-btn, #selected-prompt-copy-btn, #selected-prompt-view-btn, #selected-prompt-export-btn')
                 .forEach((button) => {
@@ -1677,20 +1740,26 @@ async function loadCatalogPackages() {
         const promptModalText = document.getElementById('modal-text');
         const promptModalClose = document.getElementById('modal-close');
 
-        function handleInfoClick(button) {
+        async function handleInfoClick(button) {
             const promptId = button.getAttribute('data-show-full');
             const textArea = document.getElementById(`textarea-${promptId}`);
             const prompt = allPrompts.find(p => p.id === promptId);
 
             if (textArea && prompt) {
+                promptModal.dataset.promptId = promptId;
                 promptModalTitle.textContent = prompt.title;
                 promptModalText.textContent = getPromptText(promptId);
                 promptModal.classList.add('active');
+                const variant = await ensureStaticCatalogPromptVariant(promptId);
+                if (variant && promptModal.classList.contains('active') && promptModal.dataset.promptId === promptId) {
+                    promptModalText.textContent = getPromptText(promptId);
+                }
             }
         }
 
         function closeModal() {
             promptModal.classList.remove('active');
+            delete promptModal.dataset.promptId;
         }
 
         // Close button
