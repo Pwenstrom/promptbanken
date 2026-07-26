@@ -67,6 +67,18 @@ const CATALOG_CONTEXT_PROFILES = [
 ];
 
 const DEFAULT_CONTEXT_KEY = 'generell';
+const GLOBAL_RENDER_STATE_KEY = 'promptbankenRenderState';
+const DEFAULT_RENDER_STATE = {
+    kontext: 'generell',
+    roll: 'handläggare',
+    malgrupp: 'invånare',
+    ton: 'tydlig och vänlig'
+};
+const PERSISTED_RENDER_STATE_KEYS = ['roll', 'malgrupp', 'ton'];
+const GLOBAL_RENDER_BINDING_KEYS = Object.keys(DEFAULT_RENDER_STATE);
+const GLOBAL_ROLE_OPTIONS = ['handläggare', 'chef', 'kommunikatör', 'pedagog', 'samordnare'];
+const GLOBAL_AUDIENCE_OPTIONS = ['invånare', 'medarbetare', 'allmänhet', 'vårdnadshavare', 'elever'];
+const GLOBAL_TONE_OPTIONS = ['neutral', 'tydlig och vänlig', 'formell', 'rak och handlingsorienterad', 'varm och trygg', 'pedagogisk'];
 const GLOBAL_CONTEXT_OPTIONS = [
     { key: 'generell', label: 'Alla' },
     ...CATALOG_CONTEXT_PROFILES
@@ -123,6 +135,157 @@ function saveGlobalContextSelection(key) {
 
 function getActiveContextKey() {
     return loadGlobalContextSelection();
+}
+
+function loadGlobalRenderState() {
+    let storedState = {};
+
+    try {
+        const stored = JSON.parse(localStorage.getItem(GLOBAL_RENDER_STATE_KEY));
+        if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
+            storedState = stored;
+        }
+    } catch (error) {
+        // Invalid persisted state is replaced with the defaults below.
+    }
+
+    const persistedState = PERSISTED_RENDER_STATE_KEYS.reduce((state, key) => {
+        if (Object.prototype.hasOwnProperty.call(storedState, key)) {
+            state[key] = storedState[key];
+        }
+        return state;
+    }, {});
+
+    return {
+        ...DEFAULT_RENDER_STATE,
+        ...persistedState,
+        kontext: getActiveContextKey()
+    };
+}
+
+function saveGlobalRenderState(nextPartialState) {
+    const currentState = loadGlobalRenderState();
+    const nextState = PERSISTED_RENDER_STATE_KEYS.reduce((state, key) => {
+        state[key] = Object.prototype.hasOwnProperty.call(nextPartialState || {}, key)
+            ? nextPartialState[key]
+            : currentState[key];
+        return state;
+    }, {});
+
+    localStorage.setItem(GLOBAL_RENDER_STATE_KEY, JSON.stringify(nextState));
+}
+
+function getGlobalRenderState() {
+    return loadGlobalRenderState();
+}
+
+function setSelectOptions(select, options, selectedValue) {
+    if (!select) return;
+
+    select.innerHTML = options
+        .map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`)
+        .join('');
+
+    select.value = options.includes(selectedValue) ? selectedValue : options[0];
+}
+
+function syncGlobalRenderControls() {
+    const state = getGlobalRenderState();
+    const roleSelect = document.getElementById('global-role-select');
+    const audienceSelect = document.getElementById('global-audience-select');
+    const toneSelect = document.getElementById('global-tone-select');
+
+    if (roleSelect) roleSelect.value = state.roll;
+    if (audienceSelect) audienceSelect.value = state.malgrupp;
+    if (toneSelect) toneSelect.value = state.ton;
+}
+
+function refreshGlobalRenderOutputs() {
+    loadPrompts();
+    loadCatalogPrompts();
+    loadCatalogPackages();
+    rerenderActiveCatalogDetailVariant();
+}
+
+function initGlobalRenderControls() {
+    const roleSelect = document.getElementById('global-role-select');
+    const audienceSelect = document.getElementById('global-audience-select');
+    const toneSelect = document.getElementById('global-tone-select');
+
+    if (!roleSelect || !audienceSelect || !toneSelect) return;
+
+    const state = getGlobalRenderState();
+    setSelectOptions(roleSelect, GLOBAL_ROLE_OPTIONS, state.roll);
+    setSelectOptions(audienceSelect, GLOBAL_AUDIENCE_OPTIONS, state.malgrupp);
+    setSelectOptions(toneSelect, GLOBAL_TONE_OPTIONS, state.ton);
+
+    if (roleSelect.dataset.renderControlReady === 'true') {
+        syncGlobalRenderControls();
+        return;
+    }
+
+    const bindSelect = (select, key) => {
+        select.addEventListener('change', (event) => {
+            saveGlobalRenderState({ [key]: event.target.value });
+            renderGlobalContextStatus();
+            refreshGlobalRenderOutputs();
+        });
+    };
+
+    bindSelect(roleSelect, 'roll');
+    bindSelect(audienceSelect, 'malgrupp');
+    bindSelect(toneSelect, 'ton');
+
+    roleSelect.dataset.renderControlReady = 'true';
+    audienceSelect.dataset.renderControlReady = 'true';
+    toneSelect.dataset.renderControlReady = 'true';
+}
+
+function resolvePromptBindings(state, schema, defaults = {}, overrides = []) {
+    const schemaFields = Array.isArray(schema?.fields) ? schema.fields : null;
+    const allowedKeys = new Set(
+        schemaFields
+            ? schemaFields
+                .map((field) => field?.key)
+                .filter((key) => GLOBAL_RENDER_BINDING_KEYS.includes(key))
+            : GLOBAL_RENDER_BINDING_KEYS
+    );
+    const legacyFallbackField = schema?.legacy_fallback_field;
+    if (typeof legacyFallbackField === 'string' && legacyFallbackField) {
+        allowedKeys.add(legacyFallbackField);
+    } else {
+        allowedKeys.add('input');
+    }
+
+    const sourceBindings = { ...defaults, ...state };
+    const bindings = {};
+    allowedKeys.forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(sourceBindings, key)) {
+            bindings[key] = sourceBindings[key];
+        }
+    });
+
+    overrides.forEach((rule) => {
+        const matches = Object.entries(rule.when || {}).every(([key, value]) => bindings[key] === value);
+        if (!matches) return;
+        Object.entries(rule.set || {}).forEach(([key, value]) => {
+            if (allowedKeys.has(key)) bindings[key] = value;
+        });
+    });
+    return bindings;
+}
+
+function renderPromptTemplate(template, bindings) {
+    return String(template || '').replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key) => {
+        return Object.prototype.hasOwnProperty.call(bindings, key) ? String(bindings[key] ?? '') : '';
+    });
+}
+
+function adaptLegacyPromptTemplate(template, schema) {
+    const normalizedTemplate = String(template || '');
+    if (!normalizedTemplate.includes('[]')) return normalizedTemplate;
+    const fallbackField = schema?.legacy_fallback_field || 'input';
+    return normalizedTemplate.replace('[]', `{{${fallbackField}}}`);
 }
 
 function getActiveContextKeys() {
@@ -210,9 +373,8 @@ function renderCatalogProfileFilters() {
         saveGlobalContextSelection(key);
         renderCatalogProfileFilters();
         renderGlobalContextStatus();
-        loadPrompts();
-        loadCatalogPrompts();
-        loadCatalogPackages();
+        syncGlobalRenderControls();
+        refreshGlobalRenderOutputs();
     };
 
     buttons.forEach((button, index) => {
@@ -247,7 +409,8 @@ function renderGlobalContextStatus() {
     const status = document.getElementById('catalog-profile-status');
     if (!status) return;
     const active = GLOBAL_CONTEXT_OPTIONS.find((item) => item.key === getActiveContextKey());
-    status.textContent = `Visar innehåll för: ${active ? active.label : 'Alla'}`;
+    const state = getGlobalRenderState();
+    status.textContent = `Visar innehåll för ${active ? active.label : 'Alla'} med rollen ${state.roll}, målgruppen ${state.malgrupp} och tonen ${state.ton}.`;
 }
 
 function createCatalogPromptCard(prompt) {
@@ -305,19 +468,56 @@ async function loadCatalogPrompts() {
 
 let catalogDetailVariants = [];
 
+function normalizeCatalogTemplateEntity(entity) {
+    return {
+        ...entity,
+        parameter_schema: entity?.parameter_schema || null,
+        default_bindings: entity?.default_bindings || {},
+        binding_overrides: Array.isArray(entity?.binding_overrides) ? entity.binding_overrides : []
+    };
+}
+
+function renderCatalogTemplateField(entity, fieldName) {
+    const rawValue = entity?.[fieldName];
+    if (!rawValue) return '';
+    if (!entity?.parameter_schema) return String(rawValue);
+
+    const template = adaptLegacyPromptTemplate(rawValue, entity.parameter_schema);
+    const bindings = resolvePromptBindings(
+        getGlobalRenderState(),
+        entity.parameter_schema,
+        entity.default_bindings,
+        entity.binding_overrides
+    );
+
+    return renderPromptTemplate(template, bindings);
+}
+
 function renderCatalogDetailVariant(variant) {
     const body = document.getElementById('catalog-detail-body');
     if (!body) return;
+    const normalizedVariant = normalizeCatalogTemplateEntity(variant);
 
-    const introOrPromptHtml = 'prompt_text' in variant
-        ? `<pre class="catalog-detail-prompt-text">${escapeHtml(variant.prompt_text)}</pre>`
-        : (variant.intro_text ? `<p>${escapeHtml(variant.intro_text)}</p>` : '');
+    const introOrPromptHtml = 'prompt_text' in normalizedVariant
+        ? `<pre class="catalog-detail-prompt-text">${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'prompt_text'))}</pre>`
+        : (normalizedVariant.intro_text
+            ? `<p>${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'intro_text'))}</p>`
+            : '');
 
     body.innerHTML = `
-        <h3>${escapeHtml(variant.title)}</h3>
-        <p>${escapeHtml(variant.summary)}</p>
+        <h3>${escapeHtml(normalizedVariant.title)}</h3>
+        <p>${escapeHtml(normalizedVariant.summary)}</p>
         ${introOrPromptHtml}
     `;
+}
+
+function rerenderActiveCatalogDetailVariant() {
+    const panel = document.getElementById('catalog-prompt-detail');
+    if (!panel || panel.hidden || !catalogDetailVariants.length) return;
+
+    const activeButton = document.querySelector('#catalog-detail-tabs button.active');
+    const activeIndex = Number(activeButton?.dataset.catalogTabIndex || 0);
+    renderCatalogDetailVariant(catalogDetailVariants[activeIndex] || catalogDetailVariants[0]);
 }
 
 // Shared by prompt detail and package detail: renders the context-profile
@@ -349,10 +549,10 @@ async function openCatalogPromptDetail(slug) {
     if (!panel || !tabsContainer) return;
 
     try {
-        catalogDetailVariants = await callCatalogRpc('get_published_prompt', {
+        catalogDetailVariants = (await callCatalogRpc('get_published_prompt', {
             p_slug: slug,
             p_context_keys: getActiveContextKeys()
-        });
+        })).map(normalizeCatalogTemplateEntity);
     } catch (error) {
         console.error('Kunde inte ladda promptdetaljer:', error);
         return;
@@ -371,10 +571,10 @@ async function openCatalogPackageDetail(slug) {
     if (!panel || !tabsContainer) return;
 
     try {
-        catalogDetailVariants = await callCatalogRpc('get_published_package', {
+        catalogDetailVariants = (await callCatalogRpc('get_published_package', {
             p_slug: slug,
             p_context_keys: getActiveContextKeys()
-        });
+        })).map(normalizeCatalogTemplateEntity);
     } catch (error) {
         console.error('Kunde inte ladda paketdetaljer:', error);
         return;
@@ -695,6 +895,7 @@ async function loadCatalogPackages() {
         async function loadPrompts() {
             try {
                 grid.classList.add('loading');
+                const previouslySelectedPromptId = selectedPromptId;
 
                 // Fetch prompts.json
                 const configResponse = await fetch('prompts.json');
@@ -755,7 +956,11 @@ async function loadCatalogPackages() {
                 updateFavoritesMenu();
                 applyPromptSort();
                 if (visiblePrompts.length) {
-                    selectPrompt(visiblePrompts[0].id, { reveal: false, markSelected: false });
+                    const keepCurrentSelection = visiblePrompts.some((prompt) => prompt.id === previouslySelectedPromptId);
+                    const nextPromptId = keepCurrentSelection
+                        ? previouslySelectedPromptId
+                        : visiblePrompts[0].id;
+                    selectPrompt(nextPromptId, { reveal: false, markSelected: keepCurrentSelection });
                 }
 
                 grid.classList.remove('loading');
@@ -967,7 +1172,20 @@ async function loadCatalogPackages() {
         function getPromptText(promptId) {
             const textArea = document.getElementById(`textarea-${promptId}`);
             if (!textArea) return '';
-            return replaceInputMarkers(textArea.value, quickInputText);
+            const prompt = allPrompts.find((item) => item.id === promptId) || {};
+            const defaults = { ...(prompt.default_bindings || {}) };
+            if (quickInputText && quickInputText.trim()) {
+                const fallbackField = prompt.parameter_schema?.legacy_fallback_field || 'input';
+                defaults[fallbackField] = quickInputText;
+            }
+            const template = adaptLegacyPromptTemplate(textArea.value, prompt.parameter_schema);
+            const bindings = resolvePromptBindings(
+                getGlobalRenderState(),
+                prompt.parameter_schema,
+                defaults,
+                prompt.binding_overrides || []
+            );
+            return replaceInputMarkers(renderPromptTemplate(template, bindings), quickInputText);
         }
 
         function selectPrompt(promptId, options = {}) {
@@ -1457,9 +1675,7 @@ async function loadCatalogPackages() {
 
             if (textArea && prompt) {
                 promptModalTitle.textContent = prompt.title;
-                let text = textArea.value;
-                text = replaceInputMarkers(text, quickInputText);
-                promptModalText.textContent = text;
+                promptModalText.textContent = getPromptText(promptId);
                 promptModal.classList.add('active');
             }
         }
@@ -1508,7 +1724,7 @@ async function loadCatalogPackages() {
                 return;
             }
 
-            let textToCopy = replaceInputMarkers(textArea.value, quickInputText);
+            let textToCopy = getPromptText(promptId);
 
             try {
                 await navigator.clipboard.writeText(textToCopy);
@@ -1548,7 +1764,7 @@ async function loadCatalogPackages() {
                 return;
             }
 
-            const preparedPrompt = replaceInputMarkers(textArea.value, quickInputText).trim();
+            const preparedPrompt = getPromptText(promptId).trim();
             const payload = {
                 promptId,
                 title: prompt?.title || 'Prompt',
@@ -1702,7 +1918,7 @@ async function loadCatalogPackages() {
         function buildExportText(baseText) {
             const settings = getCurrentExportSettings();
             const labels = getLabels(settings);
-            let text = replaceInputMarkers(baseText, quickInputText);
+            const text = baseText;
             // Only show custom role if selected, otherwise show standard role
             let roleLine = `Roll: ${labels.role}`;
             const header = [
@@ -1787,7 +2003,7 @@ async function loadCatalogPackages() {
         function openExportModal(promptId) {
             const textArea = document.getElementById(`textarea-${promptId}`);
             if (!textArea) return;
-            currentPromptRaw = textArea.value;
+            currentPromptRaw = getPromptText(promptId);
             updateExportPreview();
             exportModal.classList.add('active');
         }
@@ -2234,7 +2450,7 @@ ${initialUserInput.trim()}`
                 return '';
             }
             const textarea = document.getElementById(`textarea-${selectedPromptForLocalRun.id}`);
-            return textarea ? textarea.value : '';
+            return textarea ? getPromptText(selectedPromptForLocalRun.id) : '';
         }
 
         function copySelectedPromptToClipboard() {
@@ -2648,6 +2864,7 @@ ${initialUserInput.trim()}`
             initAdvancedToggle();
             initFavoritesToggle();
             initLocalChatToggle();
+            initGlobalRenderControls();
             initPromptSearch();
             initPromptSort();
             initCategoryFilters();
