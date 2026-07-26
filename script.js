@@ -72,13 +72,22 @@ const DEFAULT_RENDER_STATE = {
     kontext: 'generell',
     roll: 'handläggare',
     malgrupp: 'invånare',
-    ton: 'tydlig och vänlig'
+    ton: 'tydligt och vänligt'
 };
 const PERSISTED_RENDER_STATE_KEYS = ['roll', 'malgrupp', 'ton'];
 const GLOBAL_RENDER_BINDING_KEYS = Object.keys(DEFAULT_RENDER_STATE);
 const GLOBAL_ROLE_OPTIONS = ['handläggare', 'chef', 'kommunikatör', 'pedagog', 'samordnare'];
 const GLOBAL_AUDIENCE_OPTIONS = ['invånare', 'medarbetare', 'allmänhet', 'vårdnadshavare', 'elever'];
-const GLOBAL_TONE_OPTIONS = ['neutral', 'tydlig och vänlig', 'formell', 'rak och handlingsorienterad', 'varm och trygg', 'pedagogisk'];
+const GLOBAL_TONE_OPTIONS = ['neutral', 'tydligt och vänligt', 'formellt', 'rakt och handlingsorienterat', 'varmt och tryggt', 'pedagogiskt'];
+const LEGACY_RENDER_VALUE_ALIASES = {
+    ton: {
+        'tydlig och vänlig': 'tydligt och vänligt',
+        formell: 'formellt',
+        'rak och handlingsorienterad': 'rakt och handlingsorienterat',
+        'varm och trygg': 'varmt och tryggt',
+        pedagogisk: 'pedagogiskt'
+    }
+};
 const GLOBAL_CONTEXT_OPTIONS = [
     { key: 'generell', label: 'Alla' },
     ...CATALOG_CONTEXT_PROFILES
@@ -151,7 +160,7 @@ function loadGlobalRenderState() {
 
     const persistedState = PERSISTED_RENDER_STATE_KEYS.reduce((state, key) => {
         if (Object.prototype.hasOwnProperty.call(storedState, key)) {
-            state[key] = storedState[key];
+            state[key] = LEGACY_RENDER_VALUE_ALIASES[key]?.[storedState[key]] || storedState[key];
         }
         return state;
     }, {});
