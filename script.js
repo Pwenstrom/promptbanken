@@ -379,6 +379,10 @@ function renderCatalogProfileFilters() {
 
     const buttons = Array.from(container.querySelectorAll('button[data-catalog-profile]'));
     const selectContext = (key) => {
+        const selectedPromptIdBeforeContextChange = document.querySelector('.prompt-card.selected')?.dataset.promptId;
+        if (selectedPromptIdBeforeContextChange) {
+            window.promptbankenPendingPromptSelection = selectedPromptIdBeforeContextChange;
+        }
         saveGlobalContextSelection(key);
         renderCatalogProfileFilters();
         renderGlobalContextStatus();
@@ -959,7 +963,8 @@ async function loadCatalogPackages() {
         async function loadPrompts() {
             try {
                 grid.classList.add('loading');
-                const previouslySelectedPromptId = selectedPromptId;
+                const previouslySelectedPromptId = window.promptbankenPendingPromptSelection || selectedPromptId;
+                delete window.promptbankenPendingPromptSelection;
 
                 // Fetch prompts.json
                 const configResponse = await fetch('prompts.json');
