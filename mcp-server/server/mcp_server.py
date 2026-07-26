@@ -10,6 +10,7 @@ from .risk_checker import RiskChecker
 from .skill_repository import SkillRepository
 from .skill_router import SkillRouter
 from . import catalog as _catalog
+from .catalog_renderer import render_variant_fields
 
 
 repo_root = Path(__file__).resolve().parents[1]
@@ -135,18 +136,63 @@ def list_prompts(context_keys: list[str] | None = None) -> dict[str, Any]:
         return {"error": str(exc), "prompts": []}
 
 
+def _render_bindings(
+    context_keys: list[str] | None = None,
+    role: str | None = None,
+    audience: str | None = None,
+    tone: str | None = None,
+    input_text: str | None = None,
+) -> dict[str, Any]:
+    bindings: dict[str, Any] = {}
+    if context_keys:
+        bindings["kontext"] = context_keys[0]
+    if role:
+        bindings["roll"] = role
+    if audience:
+        bindings["malgrupp"] = audience
+    if tone:
+        bindings["ton"] = tone
+    if input_text is not None:
+        bindings["input"] = input_text
+    return bindings
+
+
+def _render_variants(
+    variants: list[dict[str, Any]],
+    context_keys: list[str] | None = None,
+    role: str | None = None,
+    audience: str | None = None,
+    tone: str | None = None,
+    input_text: str | None = None,
+) -> list[dict[str, Any]]:
+    bindings = _render_bindings(context_keys, role, audience, tone, input_text)
+    return [render_variant_fields(variant, bindings) for variant in variants]
+
+
 @mcp.tool()
-def get_prompt(slug: str, context_keys: list[str] | None = None) -> dict[str, Any]:
+def get_prompt(
+    slug: str,
+    context_keys: list[str] | None = None,
+    role: str | None = None,
+    audience: str | None = None,
+    tone: str | None = None,
+    input_text: str | None = None,
+) -> dict[str, Any]:
     """Get one published catalog prompt by slug. Returns one entry per
     matching context_key (in the order passed) plus a guaranteed 'generell'
-    entry, so a caller combining profiles sees every matching variant."""
+    entry. Optional role, audience, tone and input_text are used to add
+    rendered_prompt_text with resolved template parameters."""
     try:
         variants = _catalog.get_published_prompt(slug, context_keys=context_keys)
     except _catalog.CatalogNotConfigured as exc:
         return {"error": str(exc)}
     if not variants:
         return {"error": f"Ingen publicerad prompt hittades med slug '{slug}'."}
-    return {"variants": variants}
+    return {
+        "variants": _render_variants(
+            variants, context_keys, role, audience, tone, input_text
+        )
+    }
 
 
 @mcp.tool()
@@ -166,28 +212,49 @@ def list_packages(
 
 
 @mcp.tool()
-def get_package(slug: str, context_keys: list[str] | None = None) -> dict[str, Any]:
+def get_package(
+    slug: str,
+    context_keys: list[str] | None = None,
+    role: str | None = None,
+    audience: str | None = None,
+    tone: str | None = None,
+    input_text: str | None = None,
+) -> dict[str, Any]:
     """Get one published catalog package by slug. Returns one entry per
-    matching context_key plus a guaranteed 'generell' entry."""
+    matching context_key plus a guaranteed 'generell' entry. Optional role,
+    audience, tone and input_text add rendered_intro_text when applicable."""
     try:
         variants = _catalog.get_published_package(slug, context_keys=context_keys)
     except _catalog.CatalogNotConfigured as exc:
         return {"error": str(exc)}
     if not variants:
         return {"error": f"Inget publicerat paket hittades med slug '{slug}'."}
-    return {"variants": variants}
+    return {
+        "variants": _render_variants(
+            variants, context_keys, role, audience, tone, input_text
+        )
+    }
 
 
 @mcp.tool()
 def list_package_prompts(
-    package_slug: str, context_keys: list[str] | None = None
+    package_slug: str,
+    context_keys: list[str] | None = None,
+    role: str | None = None,
+    audience: str | None = None,
+    tone: str | None = None,
+    input_text: str | None = None,
 ) -> dict[str, Any]:
     """List the published prompts belonging to one published package, in
-    sort order, combining profiles the same way as list_prompts."""
+    sort order, combining profiles the same way as list_prompts. Optional
+    role, audience, tone and input_text add rendered_prompt_text."""
     try:
+        prompts = _catalog.list_published_package_prompts(
+            package_slug, context_keys=context_keys
+        )
         return {
-            "prompts": _catalog.list_published_package_prompts(
-                package_slug, context_keys=context_keys
+            "prompts": _render_variants(
+                prompts, context_keys, role, audience, tone, input_text
             )
         }
     except _catalog.CatalogNotConfigured as exc:
