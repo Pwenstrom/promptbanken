@@ -34,7 +34,7 @@ ANSVARIG: Fastighetsteam
 STEG:
 1. Ta emot anmälan (mejl, telefon, webb-form)
 2. Registrera i systemet "Fastighetskostnader"
-   ⚠️ Skriv personnummer utan bindestreck
+   Kontrollera att ärendenumret är korrekt
 3. Fotograf dokumenterar skadan
 4. ...
 ```
