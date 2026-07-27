@@ -1,6 +1,6 @@
 # Dynamisk katalogplattform för Promptbanken
 
-**Datum:** 2026-07-21  
+**Datum:** 2026-07-21
 **Status:** Delvis implementerad. Publik katalog och läsflöden är i drift;
 separat Admin-MCP och full redaktionell publiceringskedja återstår.
 

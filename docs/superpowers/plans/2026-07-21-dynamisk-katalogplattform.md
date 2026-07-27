@@ -483,7 +483,7 @@ end;
 $$;
 ```
 
-`update_catalog_package_item` ska uppdatera `sort_order`, `step_title`, `step_intro`, `is_required`.  
+`update_catalog_package_item` ska uppdatera `sort_order`, `step_title`, `step_intro`, `is_required`.
 `remove_prompt_from_catalog_package` ska radera relationen via `package_id` + `prompt_id`.
 
 - [ ] **Step 4: Implementera publish-RPC för paket**
