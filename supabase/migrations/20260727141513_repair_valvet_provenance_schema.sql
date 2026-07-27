@@ -1,4 +1,5 @@
--- 20260720120000_valvet_template_provenance_and_package_validation.sql
+-- Repair for 20260720120000, which was present in remote migration history
+-- without its schema objects being present in the linked production project.
 -- Etapp 1-uppföljning: hållbar källspårning för mallkopior och validerade
 -- paket-id:n i både webb-CRUD och MCP-RPC:er.
 
