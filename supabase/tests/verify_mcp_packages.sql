@@ -12,6 +12,7 @@ select public.copy_template_to_valvet_for_key('finns-inte', gen_random_uuid(), t
 select public.activate_package_for_key('<hash>', 'kommunikation');
 select * from public.list_active_packages_for_key('<hash>');  -- 1 rad
 select public.activate_package_for_key('<hash>', 'kommunikation');  -- no-op, inget fel
+select public.activate_package_for_key('<hash>', 'okand-area');  -- ERROR: Okänt paket-id.
 select public.deactivate_package_for_key('<hash>', 'kommunikation');
 select * from public.list_active_packages_for_key('<hash>');  -- 0 rader
 select public.deactivate_package_for_key('<hash>', 'kommunikation');  -- no-op, inget fel
@@ -21,9 +22,11 @@ select public.copy_template_to_valvet_for_key('<hash>', '<template-id>', false);
 -- ERROR: confirm måste vara true för att kopiera en mall.
 
 -- 4. Kopiering med confirm=true lyckas och räknas mot delad kvot:
-select type, title, category, status, visibility, source
+select type, title, category, status, visibility, source,
+       source_template_id, source_version, source_copied_at
   from public.copy_template_to_valvet_for_key('<hash>', '<template-id>', true);
--- prompt / mallens titel / area_label / draft / private / catalog_copy
+-- prompt / mallens titel / area_label / draft / private / catalog_copy /
+-- template-id / sha256-hash / timestamptz
 select * from public.valvet_catalog_copy_quota();  -- used ökat med 1
 
 -- 5. Rate limit (20/60s) delas med andra skrivverktyg, aktivera/avaktivera opåverkade:
