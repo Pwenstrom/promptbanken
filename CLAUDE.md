@@ -4,6 +4,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 See [AGENTS.md](AGENTS.md) for multi-agent workflow conventions, common commands, verification steps, and code/architecture rules used in this project.
 
+## Aktuellt produktionsläge (2026-07-27)
+
+- Supabase-migrationerna `20260727141513_repair_valvet_provenance_schema.sql`
+  och `20260727150500_mcp_key_context_rpc.sql` är körda i produktion.
+- Valvets katalogkopior har nu stabila proveniensfält:
+  `source_template_id`, `source_version`, and `source_copied_at`.
+- Den hostade MCP:n använder `app_private.get_mcp_key_context(text)` för
+  nyckel- och planmetadata. Återställ inte `mcp_server`-åtkomst till legacy-RPC:n
+  `verify_mcp_key(text)`.
+- Produktionskontraktet klarade 46/46 kontroller för public, Free och Pro,
+  inklusive CRUD, kvoter, paket och katalogkopior.
+- Den gamla åttasiffriga `20260702...`-posten i migrationshistoriken behöver
+  fortfarande hanteras separat innan vanlig `supabase db push` används.
+- `mcp_promptbanken` (separat repo/VPS) är nu strikt read-only på öppna
+  ytan: server-side rendering borttagen, `/sse` gateat till samma 9 publika
+  verktyg som `/mcp` (var 28, ogaterat). Se
+  `docs/superpowers/specs/2026-07-27-render-contract-parametric-templates-design.md`
+  i mcp_promptbanken-repot. Deployat och verifierat i produktion (`e1c8804`).
+
+## Codex handoff
+
+Claude kallar självmant in `codex:rescue` (utan att vänta på uttrycklig instruktion) i två situationer:
+
+1. **Genuint fast** — efter upprepade misslyckade försök att lösa samma problem, eller när diagnosen är osäker och en oberoende andra opinion vore värdefull.
+2. **Stora/känsliga produktionsändringar** — innan en riskfylld fix committas (t.ex. auth/säkerhet, som `/sse`-gaten), låt Codex göra en oberoende andra granskning parallellt.
+
+Om Codex är otillgänglig eller kvoten är nådd: fortsätt med Claude själv, men skärp kontrollen — separat worktree, små commits, tester först, full diffgranskning, ingen deploy utan verifiering.
+
 ## Octopus hub
 
 Part of the octopus project hub — see `C:\Users\petwen\OneDrive - Höglandsförbundet\Projekt\octopus` for vision/status/blockers before larger changes.
@@ -26,7 +54,9 @@ cd mcp-server && npm run dev  # same, from mcp-server subfolder
 
 **Backend requirements** live in `backend/requirements.txt` and are installed into `backend/.venv` by the setup script.
 
-There are no automated tests; manual verification uses the browser dev console (regression test stubs exist inline in `script.js`).
+Frontendbeteende verifieras fortfarande främst i webbläsare. Supabase-schemat
+har körbara SQL-kontroller i `supabase/tests/`; kör relevanta filer mot staging
+eller länkad produktion efter migrationsarbete.
 
 ## Architecture
 
