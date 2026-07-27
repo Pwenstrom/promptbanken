@@ -19,3 +19,13 @@ supabase/.temp/
 
 # Subagent-driven-development scratch (progress ledger, task briefs/reports)
 .superpowers/
+
+# Local agent/browser state and nested worktrees
+.claude/settings.local.json
+.claude/worktrees/
+.codex/audits/
+.playwright-mcp/
+.worktrees/
+
+# Supabase CLI recovery snapshots
+supabase/.temp.bak-*/

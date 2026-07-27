@@ -34,7 +34,7 @@
 - Consumes: inga nya beroenden.
 - Produces: inga nya gränssnitt — `data-auth-mode="signup"` och `.auth-plan-compare`/`.auth-plan-col*` finns inte kvar någonstans i repot efter denna task (verifieras med grep i Step 5).
 
-- [ ] **Step 1: Ta bort signup-fliken och planjämförelsen i login.html**
+- [x] **Step 1: Ta bort signup-fliken och planjämförelsen i login.html**
 
 I `login.html`, ändra auth-tabs-blocket:
 
@@ -89,7 +89,7 @@ till:
             <p class="auth-plan-link">Letar du efter ett personligt konto? Använd <a href="https://valvet.promptbanken.se">Valvet</a> för att spara egna prompts. För organisatorisk åtkomst (Arbetsyta, Förvaltning, Kommun) kontaktar du din administratör eller <a href="mailto:info@promptbanken.se">info@promptbanken.se</a>.</p>
 ```
 
-- [ ] **Step 2: Ta bort signup-grenarna i src/login.js**
+- [x] **Step 2: Ta bort signup-grenarna i src/login.js**
 
 Ändra `handleLogin`:
 
@@ -228,7 +228,7 @@ function setAuthMode(nextMode) {
 }
 ```
 
-- [ ] **Step 3: Ta bort den nu oanvända CSS:en för planjämförelsen**
+- [x] **Step 3: Ta bort den nu oanvända CSS:en för planjämförelsen**
 
 I `style.css`, ta bort hela blocket (kommentar + regler, ca rad 5086-5139):
 
@@ -290,20 +290,20 @@ I `style.css`, ta bort hela blocket (kommentar + regler, ca rad 5086-5139):
 
 Ta bort blocket helt (även den inledande kommentarraden), men behåll den tomma raden mellan grannblocken (`.auth-legal-links`-relaterad regel ovanför, `.auth-divider` nedanför) så det blir en enda tom rad mellan dem.
 
-- [ ] **Step 4: Verifiera lokalt att sidan renderar**
+- [x] **Step 4: Verifiera lokalt att sidan renderar**
 
 Kör: `npm run web:dev`
 Öppna `http://localhost:5173/login.html` (eller den port Vite anger) i browser.
 Expected: två flikar syns ("Logga in", "Glömt lösenord") — ingen "Skapa free-konto"-flik. Ingen Free/Pro-jämförelse under Google-knappen. Sista raden hänvisar till Valvet och info@promptbanken.se med fungerande länkar.
 
-- [ ] **Step 5: Verifiera att inga rester finns kvar**
+- [x] **Step 5: Verifiera att inga rester finns kvar**
 
 ```bash
 grep -rn "data-auth-mode=\"signup\"\|auth-plan-compare\|auth-plan-col" login.html src/login.js style.css
 ```
 Expected: inga träffar.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add login.html src/login.js style.css
@@ -321,7 +321,7 @@ git commit -m "feat: remove personal signup flow from login.html"
 - Consumes: inga.
 - Produces: inga kodgränssnitt — bara marknadsföringstext. Task 5 (admin.js `#uppgradera`-CTA) gör verkligheten bakom `admin.html#uppgradera`-länkarna på den här sidan konsekvent (kontaktbaserat för alla nivåer), men de två taskarna är oberoende av varandra i körordning.
 
-- [ ] **Step 1: Uppdatera title/meta och article-lead**
+- [x] **Step 1: Uppdatera title/meta och article-lead**
 
 Ändra:
 
@@ -350,7 +350,7 @@ till:
                     <p class="article-lead">Letar du efter ett personligt konto? Använd <a href="https://valvet.promptbanken.se">Valvet</a> för att spara egna prompts.</p>
 ```
 
-- [ ] **Step 2: Rätta den kvarvarande "skapa konto"-texten i topbaren**
+- [x] **Step 2: Rätta den kvarvarande "skapa konto"-texten i topbaren**
 
 Signup-läget försvinner i Task 1 (login.html har ingen "Skapa free-konto"-flik längre). Ändra topbar-länken i `planer.html`:
 
@@ -366,7 +366,7 @@ till:
 
 (Skriptet längst ner i filen byter redan ut `auth-nav-label`s text till "Min workspace" om användaren har en session — det är oförändrat och rörs inte.)
 
-- [ ] **Step 3: Ta bort Free- och Pro-korten, byt namn på "Delad arbetsyta" till "Arbetsyta"**
+- [x] **Step 3: Ta bort Free- och Pro-korten, byt namn på "Delad arbetsyta" till "Arbetsyta"**
 
 I `plan-grid`-blocket, ta bort dessa två `<section class="plan-card">`-block helt (Free-kortet och det direkt efterföljande highlight-kortet):
 
@@ -439,7 +439,7 @@ med:
 
 Förvaltnings- och Kommun-korten (redan "Pris enligt offert") lämnas oförändrade.
 
-- [ ] **Step 4: Uppdatera "Vad är skillnaden"-sektionen**
+- [x] **Step 4: Uppdatera "Vad är skillnaden"-sektionen**
 
 Ändra rubriken:
 
@@ -467,7 +467,7 @@ till:
 
 De två andra styckena (Förvaltning, Kommun) lämnas oförändrade.
 
-- [ ] **Step 5: Skriv om "Så fungerar köpet"**
+- [x] **Step 5: Skriv om "Så fungerar köpet"**
 
 Ändra:
 
@@ -481,20 +481,20 @@ till:
                         <p>Alla tre nivåer är en förfrågan: fyll i dina uppgifter under <a href="admin.html#uppgradera">Min workspace</a> eller mejla <a href="mailto:info@promptbanken.se">info@promptbanken.se</a>, så återkommer vi med offert innan avtal tecknas och kontot aktiveras. Ingen betalningsinformation lämnas i tjänsten.</p>
 ```
 
-- [ ] **Step 6: Verifiera i browser**
+- [x] **Step 6: Verifiera i browser**
 
 Kör (om inte redan igång): `npm run web:dev`
 Öppna `planer.html`.
 Expected: tre kort synliga (Arbetsyta, Förvaltning, Kommun), samtliga "Pris enligt offert". Ingen Free/Pro-kort. Toppstycket hänvisar till Valvet. Topbar-länken visar "Logga in" (inte "skapa konto"). "Så fungerar köpet" nämner ingen direktaktivering.
 
-- [ ] **Step 7: Verifiera att inga Free/Pro-rester finns kvar**
+- [x] **Step 7: Verifiera att inga Free/Pro-rester finns kvar**
 
 ```bash
 grep -n "Free\|Pro\b\|89 kr\|199 kr\|skapa konto" planer.html
 ```
 Expected: inga träffar (utom möjligt i `mcp.html`-länktext, vilket inte är den här filen).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add planer.html
@@ -513,7 +513,7 @@ git commit -m "feat: retire Free/Pro cards from planer.html, make Arbetsyta stan
 - Consumes: `state.workspace.type` (redan satt av `loadProfile()`/`switchToWorkspace()`), `dashboardElement`/`noProfileElement` (redan deklarerade konstanter i `src/admin.js`).
 - Produces: ny funktion `showPersonalNotice()` i `src/admin.js`, nytt element `[data-personal-notice]` i `admin.html`. Ingen annan task i den här planen beror på dessa.
 
-- [ ] **Step 1: Lägg till "inte medlem"-skärmen i admin.html**
+- [x] **Step 1: Lägg till "inte medlem"-skärmen i admin.html**
 
 I `admin.html`, direkt efter den befintliga (redan overksamma) `data-no-profile`-sektionen:
 
@@ -534,7 +534,7 @@ lägg till direkt efter (före `<section class="admin-dashboard" data-admin-dash
                 </section>
 ```
 
-- [ ] **Step 2: Ta bort den personliga onboarding-sektionen (blir dödlig kod efter Step 3-4)**
+- [x] **Step 2: Ta bort den personliga onboarding-sektionen (blir dödlig kod efter Step 3-4)**
 
 I `admin.html`, ta bort hela sektionen:
 
@@ -575,7 +575,7 @@ I `admin.html`, ta bort hela sektionen:
 
 (Behåll `<section class="workspace-section admin-onboarding" id="kom-igang" data-org-only hidden>` — den org-sektionen ovanför är oförändrad.)
 
-- [ ] **Step 3: Lägg till gaten i loadProfile() och en delad showPersonalNotice()-funktion**
+- [x] **Step 3: Lägg till gaten i loadProfile() och en delad showPersonalNotice()-funktion**
 
 I `src/admin.js`, ändra `loadProfile`:
 
@@ -643,7 +643,7 @@ function showPersonalNotice() {
 
 `init()` (oförändrad) läser redan returvärdet: `if (hasProfile) { await refreshWorkspaceData(); }` — `false` betyder nu "personligt workspace, visa notisen, hoppa över datainläsning" i stället för sitt tidigare (aldrig nådda) "ingen profil"-syfte.
 
-- [ ] **Step 4: Samma gate i switchToWorkspace()**
+- [x] **Step 4: Samma gate i switchToWorkspace()**
 
 Ändra:
 
@@ -694,7 +694,7 @@ till:
 
 (De extra raderna som döljer notisen/visar dashboarden igen täcker fallet att en plattformsägare växlar FRÅN en personlig yta tillbaka till en organisationsyta.)
 
-- [ ] **Step 5: Ta bort den nu döda renderPersonalOnboarding()**
+- [x] **Step 5: Ta bort den nu döda renderPersonalOnboarding()**
 
 I `src/admin.js`, ta bort hela funktionen:
 
@@ -767,7 +767,7 @@ async function refreshWorkspaceData() {
 }
 ```
 
-- [ ] **Step 6: Verifiera i browser med två testkonton**
+- [x] **Step 6: Verifiera i browser med två testkonton**
 
 Kör: `npm run web:dev`
 1. Logga in med ett testkonto vars profil pekar på ett `type='personal'`-workspace (eller skapa ett nytt konto via Google-inloggning utan inbjudan — `ensure_personal_workspace()` skapar automatiskt ett personligt workspace).
@@ -777,14 +777,14 @@ Kör: `npm run web:dev`
 3. Som samma flerytes-konto, byt (om möjligt via workspace-switchern) till den personliga ytan.
    Expected: dashboarden döljs igen och "Inte medlem"-skärmen visas.
 
-- [ ] **Step 7: Verifiera att inga rester av den gamla sektionen finns kvar**
+- [x] **Step 7: Verifiera att inga rester av den gamla sektionen finns kvar**
 
 ```bash
 grep -n "kom-igang-personlig\|renderPersonalOnboarding\|data-personal-only" admin.html src/admin.js
 ```
 Expected: inga träffar.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add admin.html src/admin.js
@@ -803,7 +803,7 @@ git commit -m "feat: replace personal workspace dashboard with not-a-member noti
 - Consumes: `isPlatformOwner()`, `state.workspace.type` (befintliga, oförändrade). Kräver att Task 3 är klar så att den här formulärgrenen bara någonsin nås för `type === 'organization'` (personliga workspaces visar aldrig formuläret).
 - Produces: inga nya gränssnitt.
 
-- [ ] **Step 1: Markera synlighetsfältet i admin.html**
+- [x] **Step 1: Markera synlighetsfältet i admin.html**
 
 I `admin.html`, ändra:
 
@@ -833,7 +833,7 @@ till:
                                         </div>
 ```
 
-- [ ] **Step 2: Dölj fältet och hårdkoda värdet för vanliga org-medlemmar i renderPromptFormRules()**
+- [x] **Step 2: Dölj fältet och hårdkoda värdet för vanliga org-medlemmar i renderPromptFormRules()**
 
 I `src/admin.js`, ändra:
 
@@ -893,7 +893,7 @@ function renderPromptFormRules() {
 
 `allowedVisibilityOptions()` rörs inte: den returnerar redan `[['private', ...], ['workspace', ...]]` för org-icke-platform_owner, vilket gör att valideringen i `savePromptUnsafe()` (rad `allowedVisibilityOptions().some(([value]) => value === visibility)`) fortsätter acceptera `'workspace'` utan ändring där.
 
-- [ ] **Step 3: Verifiera i browser**
+- [x] **Step 3: Verifiera i browser**
 
 Kör: `npm run web:dev`
 1. Logga in som vanlig org-medlem (roll `editor`/`workspace_admin`, inte plattformsägare). Öppna "Mina prompts".
@@ -901,7 +901,7 @@ Kör: `npm run web:dev`
 2. Logga in som plattformsägare.
    Expected: synlighetsfältet syns som förut med tre val (Privat/Workspace/Publik).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add admin.html src/admin.js
@@ -919,7 +919,7 @@ git commit -m "fix: hide visibility choice for org members, default new prompts 
 - Consumes: befintlig `upgradeForm`-konstant och `[data-upgrade-form]`/`[data-upgrade-submit]`/`[data-order-mode-badge]`-element i `admin.html` (orörda — markup ska INTE ändras, se Global Constraints).
 - Produces: ny funktion `contactForUpgrade(event)`. `reviewUpgradeOrder`/`confirmUpgradeOrder`/`hideUpgradeConfirm`/`planIsSelfService` lämnas kvar i koden oanropade av formuläret (avsiktligt död kod — kan kopplas in igen senare, se Global Constraints) men tas INTE bort.
 
-- [ ] **Step 1: Gör knapptext och statusmärke kontaktbaserade i renderUpgradePrice()**
+- [x] **Step 1: Gör knapptext och statusmärke kontaktbaserade i renderUpgradePrice()**
 
 I `src/admin.js`, ändra:
 
@@ -954,7 +954,7 @@ till:
   }
 ```
 
-- [ ] **Step 2: Lägg till contactForUpgrade() direkt efter renderUpgradePrice()**
+- [x] **Step 2: Lägg till contactForUpgrade() direkt efter renderUpgradePrice()**
 
 ```js
 function contactForUpgrade(event) {
@@ -963,7 +963,7 @@ function contactForUpgrade(event) {
 }
 ```
 
-- [ ] **Step 3: Koppla formuläret till den nya kontakt-CTA:n i stället för reviewUpgradeOrder**
+- [x] **Step 3: Koppla formuläret till den nya kontakt-CTA:n i stället för reviewUpgradeOrder**
 
 I `src/admin.js`, i `init()`-blocket, ändra:
 
@@ -994,20 +994,20 @@ if (upgradeForm) {
 
 (`data-upgrade-confirm`/`data-upgrade-cancel`-knapparna och deras panel finns kvar orörda i `admin.html` — de har bara ingen aktiv lyssnare längre, precis som `reviewUpgradeOrder`/`confirmUpgradeOrder`/`hideUpgradeConfirm` finns kvar oanropade i koden.)
 
-- [ ] **Step 4: Verifiera i browser**
+- [x] **Step 4: Verifiera i browser**
 
 Kör: `npm run web:dev`
 Logga in som org-medlem med admin-roll, gå till `#uppgradera`.
 Expected: oavsett vald nivå i dropdownen visar knappen "Kontakta oss om uppgradering" och märket "Förfrågan — ej bindande". Klick på knappen: ingen sida navigeras bort, statusraden visar kontaktmeddelandet, ingen `create_pro_order`/`create_shared_workspace`-anrop sker (inga nätverksanrop till Supabase RPC — kontrollera i devtools Network-fliken).
 
-- [ ] **Step 5: Verifiera att self-service-språket är borta ur den aktiva CTA:n**
+- [x] **Step 5: Verifiera att self-service-språket är borta ur den aktiva CTA:n**
 
 ```bash
 grep -n "Granska beställning\|Aktiveras direkt" src/admin.js
 ```
 Expected: inga träffar (dessa strängar fanns bara i `renderUpgradePrice()`, som är ändrad i Step 1).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/admin.js
