@@ -441,6 +441,27 @@ function getQuickInputValue() {
     return document.getElementById('quick-input-textarea')?.value || '';
 }
 
+// Snabb, punktvis lösning: filtrerar katalog-korten (Supabase catalog_prompts/
+// catalog_packages) på samma sökfält som den statiska legacy-grid redan
+// använder. Sök och kategorimeny är fortfarande två separata system — se
+// TODO i minnet (promptbanken_catalog_search_category_todo) för en riktig
+// enhetlig lösning.
+document.querySelectorAll('[data-catalog-package-shortcut]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const slug = button.getAttribute('data-catalog-package-shortcut');
+        openCatalogPackageDetail(slug);
+        document.getElementById('catalog-package-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
+
+function applyCatalogSearchFilter() {
+    const query = (document.getElementById('prompt-search')?.value || '').trim().toLowerCase();
+    document.querySelectorAll('#catalog-prompt-grid .catalog-card, #catalog-package-grid .catalog-card').forEach((card) => {
+        const haystack = card.textContent.toLowerCase();
+        card.hidden = Boolean(query) && !haystack.includes(query);
+    });
+}
+
 let activeCatalogPromptEntity = null;
 
 function selectCatalogPromptInSidebar(entity) {
@@ -1821,6 +1842,7 @@ async function loadCatalogPackages() {
 
             ['input', 'keyup', 'search', 'change'].forEach((eventName) => {
                 searchInput.addEventListener(eventName, applyPromptFilters);
+                searchInput.addEventListener(eventName, applyCatalogSearchFilter);
             });
         }
 
