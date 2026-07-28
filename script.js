@@ -441,6 +441,60 @@ function getQuickInputValue() {
     return document.getElementById('quick-input-textarea')?.value || '';
 }
 
+let activeCatalogPromptEntity = null;
+
+function selectCatalogPromptInSidebar(entity) {
+    const normalized = normalizeCatalogTemplateEntity(entity);
+    activeCatalogPromptEntity = normalized;
+    window.__clearLegacySelectedPromptId?.();
+
+    document.body.classList.remove('detail-panel-closed');
+    document.body.classList.add('detail-sheet-open');
+
+    const title = document.getElementById('selected-prompt-title');
+    const description = document.getElementById('selected-prompt-description');
+    const preview = document.getElementById('detail-prompt-preview');
+    const riskBadge = document.getElementById('detail-risk');
+
+    if (title) title.textContent = normalized.title || '';
+    if (description) description.textContent = normalized.summary || '';
+    if (preview) {
+        preview.textContent = replaceInputMarkers(renderCatalogTemplateField(normalized, 'prompt_text'), getQuickInputValue()) || 'Prompttext saknas.';
+    }
+    if (riskBadge) riskBadge.style.display = 'none';
+
+    // Katalogprompts saknar ännu målgrupp/roll/exempel-metadata via RPC:n
+    // (bara title/summary/prompt_text) — dölj fälten istället för att visa
+    // tomma/felaktiga värden.
+    ['detail-meta-row', 'detail-example-section', 'detail-phrase-section'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    const copyButton = document.getElementById('selected-prompt-copy-btn');
+    if (copyButton) {
+        copyButton.removeAttribute('disabled');
+        copyButton.textContent = 'Kopiera';
+        copyButton.classList.remove('copied', 'is-copied');
+    }
+    ['selected-prompt-chat-btn', 'selected-prompt-view-btn', 'selected-prompt-export-btn'].forEach((id) => {
+        document.getElementById(id)?.setAttribute('disabled', 'disabled');
+    });
+
+    const panel = document.getElementById('prompt-detail-panel');
+    if (panel && window.matchMedia('(max-width: 1180px)').matches) {
+        window.requestAnimationFrame(() => {
+            panel.focus({ preventScroll: true });
+            panel.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        });
+    }
+}
+
+document.getElementById('selected-prompt-copy-btn')?.addEventListener('click', (event) => {
+    if (!activeCatalogPromptEntity) return;
+    copyCatalogEntityText(activeCatalogPromptEntity, event.currentTarget);
+});
+
 async function copyCatalogEntityText(entity, button) {
     const text = replaceInputMarkers(renderCatalogTemplateField(entity, 'prompt_text'), getQuickInputValue());
     if (!text) return;
@@ -473,13 +527,18 @@ function createCatalogPromptCard(prompt) {
         <p>${summary}</p>
         ${fallbackBadge}
         <div class="catalog-card-actions">
-            <button type="button" class="catalog-copy-btn">Kopiera prompt</button>
+            <button type="button" class="primary-btn catalog-select-btn">Välj</button>
+            <button type="button" class="secondary-btn catalog-preview-btn">Förhandsvisa</button>
         </div>
     `;
-    card.addEventListener('click', () => openCatalogPromptDetail(prompt.slug));
-    card.querySelector('.catalog-copy-btn').addEventListener('click', (event) => {
+    card.addEventListener('click', () => selectCatalogPromptInSidebar(prompt));
+    card.querySelector('.catalog-select-btn').addEventListener('click', (event) => {
         event.stopPropagation();
-        copyCatalogEntityText(normalizeCatalogTemplateEntity(prompt), event.currentTarget);
+        selectCatalogPromptInSidebar(prompt);
+    });
+    card.querySelector('.catalog-preview-btn').addEventListener('click', (event) => {
+        event.stopPropagation();
+        openCatalogPromptDetail(prompt.slug);
     });
     return card;
 }
@@ -611,7 +670,7 @@ function renderCatalogDetailVariant(variant) {
                 <div class="catalog-package-item">
                     <h4>${escapeHtml(item.title)}</h4>
                     <p>${escapeHtml(item.summary)}</p>
-                    <button type="button" class="catalog-copy-btn" data-package-item-index="${index}">Kopiera prompt</button>
+                    <button type="button" class="primary-btn catalog-select-btn" data-package-item-index="${index}">Välj</button>
                 </div>
              `).join('')}
            </div>`
@@ -635,7 +694,7 @@ function renderCatalogDetailVariant(variant) {
     body.querySelectorAll('.catalog-package-item [data-package-item-index]').forEach((button) => {
         button.addEventListener('click', (event) => {
             const item = catalogDetailPackageItems[Number(event.currentTarget.dataset.packageItemIndex)];
-            if (item) copyCatalogEntityText(normalizeCatalogTemplateEntity(item), event.currentTarget);
+            if (item) selectCatalogPromptInSidebar(item);
         });
     });
 }
@@ -837,6 +896,7 @@ async function loadCatalogPackages() {
         let resolvePromptbankenReady;
         window.promptbankenReady = new Promise((resolve) => { resolvePromptbankenReady = resolve; });
         let selectedPromptId = null;
+        window.__clearLegacySelectedPromptId = () => { selectedPromptId = null; };
         let activeCategoryFilter = 'all';
         let activeAudienceFilter = 'all';
         let activeRoleFilter = 'all';
@@ -1354,6 +1414,11 @@ async function loadCatalogPackages() {
             selectedPromptId = promptId;
             const prompt = allPrompts.find((item) => item.id === promptId);
             if (!prompt) return;
+            activeCatalogPromptEntity = null;
+            document.getElementById('detail-risk')?.style.removeProperty('display');
+            ['detail-meta-row', 'detail-example-section', 'detail-phrase-section'].forEach((id) => {
+                document.getElementById(id)?.style.removeProperty('display');
+            });
             document.body.classList.remove('detail-panel-closed');
             if (shouldReveal) {
                 document.body.classList.add('detail-sheet-open');

@@ -5463,6 +5463,9 @@ body.detail-panel-closed .prompt-detail-panel {
 
 .catalog-card-actions {
     margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .catalog-copy-btn {
