@@ -437,6 +437,28 @@ function renderGlobalContextStatus() {
     status.textContent = `Anpassar prompttext för ${active ? active.label : 'Alla'} med rollen ${renderState.roll || state.roll}, målgruppen ${renderState.malgrupp || state.malgrupp} och tonen ${renderState.ton || state.ton}.`;
 }
 
+function getQuickInputValue() {
+    return document.getElementById('quick-input-textarea')?.value || '';
+}
+
+async function copyCatalogEntityText(entity, button) {
+    const text = replaceInputMarkers(renderCatalogTemplateField(entity, 'prompt_text'), getQuickInputValue());
+    if (!text) return;
+    try {
+        await navigator.clipboard.writeText(text);
+        const originalText = button.textContent;
+        button.textContent = 'Kopierat';
+        button.classList.add('copied');
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.classList.remove('copied');
+        }, 2000);
+    } catch (error) {
+        console.error('Kunde inte kopiera prompten:', error);
+        alert('Kunde inte kopiera. Prova igen eller kopiera manuellt.');
+    }
+}
+
 function createCatalogPromptCard(prompt) {
     const card = document.createElement('div');
     card.className = 'catalog-card';
@@ -450,8 +472,15 @@ function createCatalogPromptCard(prompt) {
         <h4>${title}</h4>
         <p>${summary}</p>
         ${fallbackBadge}
+        <div class="catalog-card-actions">
+            <button type="button" class="catalog-copy-btn">Kopiera prompt</button>
+        </div>
     `;
     card.addEventListener('click', () => openCatalogPromptDetail(prompt.slug));
+    card.querySelector('.catalog-copy-btn').addEventListener('click', (event) => {
+        event.stopPropagation();
+        copyCatalogEntityText(normalizeCatalogTemplateEntity(prompt), event.currentTarget);
+    });
     return card;
 }
 
@@ -491,6 +520,7 @@ async function loadCatalogPrompts() {
 }
 
 let catalogDetailVariants = [];
+let catalogDetailPackageItems = [];
 const staticCatalogPromptVariantCache = new Map();
 const staticCatalogPromptVariantPromises = new Map();
 
@@ -565,18 +595,49 @@ function renderCatalogDetailVariant(variant) {
     const body = document.getElementById('catalog-detail-body');
     if (!body) return;
     const normalizedVariant = normalizeCatalogTemplateEntity(variant);
+    const isPrompt = 'prompt_text' in normalizedVariant;
 
-    const introOrPromptHtml = 'prompt_text' in normalizedVariant
-        ? `<pre class="catalog-detail-prompt-text">${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'prompt_text'))}</pre>`
+    const introOrPromptHtml = isPrompt
+        ? `<pre class="catalog-detail-prompt-text">${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'prompt_text'))}</pre>
+           <div class="catalog-card-actions"><button type="button" class="catalog-copy-btn" id="catalog-detail-copy-btn">Kopiera prompt</button></div>`
         : (normalizedVariant.intro_text
             ? `<p>${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'intro_text'))}</p>`
+            : '');
+
+    const packageItemsHtml = (!isPrompt && catalogDetailPackageItems.length)
+        ? `<div class="catalog-package-items">
+             <p class="catalog-package-items-heading">Innehåller ${catalogDetailPackageItems.length} ${catalogDetailPackageItems.length === 1 ? 'prompt' : 'prompter'}:</p>
+             ${catalogDetailPackageItems.map((item, index) => `
+                <div class="catalog-package-item">
+                    <h4>${escapeHtml(item.title)}</h4>
+                    <p>${escapeHtml(item.summary)}</p>
+                    <button type="button" class="catalog-copy-btn" data-package-item-index="${index}">Kopiera prompt</button>
+                </div>
+             `).join('')}
+           </div>`
+        : (!isPrompt && catalogDetailVariants.length
+            ? '<p class="catalog-package-items-empty">Det här paketet har inga prompter ännu.</p>'
             : '');
 
     body.innerHTML = `
         <h3>${escapeHtml(normalizedVariant.title)}</h3>
         <p>${escapeHtml(normalizedVariant.summary)}</p>
         ${introOrPromptHtml}
+        ${packageItemsHtml}
     `;
+
+    if (isPrompt) {
+        document.getElementById('catalog-detail-copy-btn')?.addEventListener('click', (event) => {
+            copyCatalogEntityText(normalizedVariant, event.currentTarget);
+        });
+    }
+
+    body.querySelectorAll('.catalog-package-item [data-package-item-index]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+            const item = catalogDetailPackageItems[Number(event.currentTarget.dataset.packageItemIndex)];
+            if (item) copyCatalogEntityText(normalizeCatalogTemplateEntity(item), event.currentTarget);
+        });
+    });
 }
 
 function rerenderActiveCatalogDetailVariant() {
@@ -616,6 +677,7 @@ async function openCatalogPromptDetail(slug) {
     const tabsContainer = document.getElementById('catalog-detail-tabs');
     if (!panel || !tabsContainer) return;
 
+    catalogDetailPackageItems = [];
     try {
         catalogDetailVariants = (await callCatalogRpc('get_published_prompt', {
             p_slug: slug,
@@ -649,6 +711,16 @@ async function openCatalogPackageDetail(slug) {
     }
 
     if (!catalogDetailVariants.length) return;
+
+    try {
+        catalogDetailPackageItems = await callCatalogRpc('list_published_package_prompts', {
+            p_package_slug: slug,
+            p_context_keys: getActiveContextKeys()
+        });
+    } catch (error) {
+        console.error('Kunde inte ladda paketets prompter:', error);
+        catalogDetailPackageItems = [];
+    }
 
     renderCatalogDetailTabs(catalogDetailVariants);
     renderCatalogDetailVariant(catalogDetailVariants[0]);
