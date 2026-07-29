@@ -326,6 +326,12 @@ async function callCatalogRpc(functionName, payload) {
 
 const libraryUsageThrottle = new Map();
 const LIBRARY_USAGE_SAFE_SLUG = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+const LIBRARY_USAGE_CANONICAL_PROMPT_SLUGS = new Map([
+    ['enkel_infografik', 'enkel-infografik'],
+    ['illustration_informationsutskick', 'illustration-informationsutskick'],
+    ['ikon_symbolbild', 'ikon-symbolbild'],
+    ['alt_text_bild', 'alt-text-bild']
+]);
 const LIBRARY_USAGE_AREAS = new Set([
     'kommunikation',
     'forandringsledning',
@@ -356,6 +362,11 @@ function shouldTrackLibraryUsage(key, ttlMs) {
     return true;
 }
 
+function getSafeLibraryUsagePromptSlug(promptSlug) {
+    const canonicalSlug = LIBRARY_USAGE_CANONICAL_PROMPT_SLUGS.get(promptSlug) || promptSlug;
+    return LIBRARY_USAGE_SAFE_SLUG.test(canonicalSlug || '') ? canonicalSlug : null;
+}
+
 function getSafeLibraryUsageMetadata(metadata) {
     const safeMetadata = {};
     if (metadata?.copy_surface === 'detail_panel' || metadata?.copy_surface === 'card') {
@@ -382,7 +393,7 @@ function getSafeLibraryUsageMetadata(metadata) {
 async function trackLibraryUsageEvent(payload) {
     if (!isCatalogConfigUsable()) return;
 
-    const promptSlug = LIBRARY_USAGE_SAFE_SLUG.test(payload.promptSlug || '') ? payload.promptSlug : null;
+    const promptSlug = getSafeLibraryUsagePromptSlug(payload.promptSlug);
     const packageSlug = LIBRARY_USAGE_SAFE_SLUG.test(payload.packageSlug || '') ? payload.packageSlug : null;
 
     try {
@@ -872,6 +883,14 @@ async function openCatalogPromptDetail(slug) {
     renderCatalogDetailTabs(catalogDetailVariants);
     renderCatalogDetailVariant(catalogDetailVariants[0]);
     panel.hidden = false;
+
+    const promptViewKey = `prompt_view:${slug}:${getActiveCatalogContextKeys().join(',')}`;
+    if (shouldTrackLibraryUsage(promptViewKey, 60 * 60 * 1000)) {
+        trackLibraryUsageEvent({
+            eventType: 'prompt_view',
+            promptSlug: slug
+        });
+    }
 }
 
 async function openCatalogPackageDetail(slug) {
