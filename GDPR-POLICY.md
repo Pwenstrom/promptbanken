@@ -129,8 +129,8 @@ Denna tjänst är utformad enligt:
 
 ### Tekniska åtgärder
 - ✅ HTTPS (krypterad överföring)
-- ✅ Lokal lagring (ingen molnserver)
-- ✅ Ingen tredje-part-integration
+- ✅ Prompttext och kataloganvändning hålls lokalt i webbläsaren där det är tillämpligt
+- ✅ Små anonyma statistikhändelser kan lagras i Supabase (EU-region) för aggregerad uppföljning
 
 ### Administrativa åtgärder
 - ✅ Åtkomst begränsad till behöriga handläggare
