@@ -129,7 +129,7 @@ Denna tjänst är utformad enligt:
 
 ### Tekniska åtgärder
 - ✅ HTTPS (krypterad överföring)
-- ✅ Prompttext och kataloganvändning hålls lokalt i webbläsaren där det är tillämpligt
+- ✅ Prompttext och själva kopieringen hålls lokalt i webbläsaren; anonyma statistikhändelser omfattas av punkten nedan
 - ✅ Små anonyma statistikhändelser kan lagras i Supabase (EU-region) för aggregerad uppföljning
 
 ### Administrativa åtgärder
