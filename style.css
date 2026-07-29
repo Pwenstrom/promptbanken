@@ -5622,3 +5622,43 @@ body.detail-panel-closed .prompt-detail-panel {
     color: #1a1a1a;
     margin: 0.75rem 0 0;
 }
+
+.library-admin-content .workspace-section {
+    scroll-margin-top: 96px;
+}
+
+.library-period-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.library-period-controls button.active {
+    background: #111827;
+    color: #fff;
+}
+
+.library-insight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.library-insight-grid article {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 14px;
+    background: #fff;
+}
+
+.library-insight-grid strong {
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.library-insight-grid span {
+    color: #4b5563;
+    font-size: 0.92rem;
+}
