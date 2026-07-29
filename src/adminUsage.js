@@ -14,6 +14,7 @@ const state = {
 const statusElement = document.querySelector('[data-admin-status]');
 const dashboardElement = document.querySelector('[data-admin-dashboard]');
 const deniedElement = document.querySelector('[data-admin-denied]');
+let latestRequestId = 0;
 
 function setStatus(message, isError = false) {
   if (!statusElement) return;
@@ -148,36 +149,43 @@ function renderAll() {
 }
 
 async function loadDashboard() {
+  const requestId = ++latestRequestId;
   setStatus('Laddar statistik...');
   const days = state.periodDays;
-  const [summary, prompts, packages, errors, search] = await Promise.all([
-    supabase.rpc('get_library_usage_summary', { p_days: days }),
-    supabase.rpc('get_library_prompt_usage', { p_days: days, p_limit: 50 }),
-    supabase.rpc('get_library_package_usage', { p_days: days, p_limit: 50 }),
-    supabase.rpc('get_library_usage_errors', { p_days: days, p_limit: 50 }),
-    supabase.rpc('get_library_search_feedback', { p_days: days, p_limit: 50 })
-  ]);
+  try {
+    const [summary, prompts, packages, errors, search] = await Promise.all([
+      supabase.rpc('get_library_usage_summary', { p_days: days }),
+      supabase.rpc('get_library_prompt_usage', { p_days: days, p_limit: 50 }),
+      supabase.rpc('get_library_package_usage', { p_days: days, p_limit: 50 }),
+      supabase.rpc('get_library_usage_errors', { p_days: days, p_limit: 50 }),
+      supabase.rpc('get_library_search_feedback', { p_days: days, p_limit: 50 })
+    ]);
 
-  const failed = [summary, prompts, packages, errors, search].find((result) => result.error);
-  if (failed) {
-    if (/plattformsägare|platform/i.test(failed.error.message || '')) {
-      dashboardElement.hidden = true;
-      deniedElement.hidden = false;
-      setStatus('Ingen åtkomst.', true);
-      return;
+    if (requestId !== latestRequestId) return;
+
+    const failed = [summary, prompts, packages, errors, search].find((result) => result.error);
+    if (failed) {
+      if (/plattformsägare|platform/i.test(failed.error.message || '')) {
+        dashboardElement.hidden = true;
+        deniedElement.hidden = false;
+        setStatus('Ingen åtkomst.', true);
+        return;
+      }
+      throw failed.error;
     }
-    throw failed.error;
-  }
 
-  state.summary = summary.data;
-  state.prompts = prompts.data || [];
-  state.packages = packages.data || [];
-  state.errors = errors.data || [];
-  state.search = search.data;
-  deniedElement.hidden = true;
-  dashboardElement.hidden = false;
-  setStatus(`Visar anonym statistik för ${days} dagar.`);
-  renderAll();
+    state.summary = summary.data;
+    state.prompts = prompts.data || [];
+    state.packages = packages.data || [];
+    state.errors = errors.data || [];
+    state.search = search.data;
+    deniedElement.hidden = true;
+    dashboardElement.hidden = false;
+    setStatus(`Visar anonym statistik för ${days} dagar.`);
+    renderAll();
+  } catch (error) {
+    if (requestId === latestRequestId) throw error;
+  }
 }
 
 function downloadBlob(filename, content, type) {
