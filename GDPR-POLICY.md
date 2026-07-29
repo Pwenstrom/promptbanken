@@ -10,14 +10,17 @@
 
 ### 1.1 Vilka data samlar vi?
 
-**Vi samlar INTE några data** från användare som använder promptmallarna.
+Vi samlar inte personuppgifter från användare som använder de öppna promptmallarna. Promptbanken samlar däremot anonym, aggregerad användningsstatistik för det öppna biblioteket, till exempel när en prompt visas, öppnas eller kopieras i webbgränssnittet och när öppna MCP-anrop listar, söker, öppnar eller hämtar prompts.
+
+Statistiken används för återkoppling och produktutveckling av biblioteket, inte för individuell spårning. Payloads hålls avsiktligt små och anonyma.
 
 **Specifikt:**
 - ✅ Vi lagrar inte det som du skriver/kopierar
-- ✅ Vi lagrar inte vilka prompts du använder
+- ✅ Vi lagrar inte promptinnehåll från användare eller råa söktermer
+- ✅ Vi använder inte statistiken för att följa enskilda personer
 - ✅ Vi lagrar inte din IP-adress eller webbläsarinfo
 - ✅ Vi använder inga cookies för spårning
-- ✅ Vi skickar ingenting till externa servrar
+- ✅ Vi lagrar inte e-postadresser, user-agent, nyckelmaterial eller personidentifierande klientdata i användningsstatistiken
 
 ### 1.2 Clipboard-API (kopiera-funktionen)
 
