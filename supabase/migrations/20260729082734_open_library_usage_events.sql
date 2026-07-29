@@ -1,6 +1,7 @@
 create table if not exists public.library_usage_events (
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz not null default now(),
+    expires_at timestamptz not null default (now() + interval '180 days'),
     event_version smallint not null default 1,
     source text not null,
     event_type text not null,
@@ -25,6 +26,8 @@ create table if not exists public.library_usage_events (
       check (outcome in ('success', 'empty', 'not_found', 'invalid_input', 'rate_limited', 'error')),
     constraint library_usage_result_count_check
       check (result_count is null or result_count >= 0),
+    constraint library_usage_expires_at_check
+      check (expires_at >= created_at and expires_at <= created_at + interval '180 days'),
     constraint library_usage_metadata_size_check
       check (octet_length(metadata::text) <= 2048),
     constraint library_usage_prompt_slug_len_check
@@ -40,6 +43,9 @@ drop policy if exists "library_usage_events_no_direct_write" on public.library_u
 
 create index if not exists library_usage_events_created_at_idx
     on public.library_usage_events (created_at desc);
+
+create index if not exists library_usage_events_expires_at_idx
+    on public.library_usage_events (expires_at);
 
 create index if not exists library_usage_events_source_type_created_idx
     on public.library_usage_events (source, event_type, created_at desc);
@@ -59,13 +65,29 @@ create index if not exists library_usage_events_outcome_created_idx
 revoke all on public.library_usage_events from public;
 grant insert on public.library_usage_events to anon, authenticated;
 
+create or replace function app_private.library_usage_safe_slug(p_value text, p_max_length integer)
+returns boolean
+language sql
+immutable
+set search_path = ''
+as $$
+    select p_value is null
+        or (
+            length(p_value) between 1 and p_max_length
+            and p_value ~ '^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$'
+        );
+$$;
+
+revoke all on function app_private.library_usage_safe_slug(text, integer) from public;
+
 create or replace function app_private.library_usage_allowed_metadata(p_metadata jsonb)
 returns boolean
 language sql
 stable
 set search_path = ''
 as $$
-    select coalesce(jsonb_typeof(p_metadata), 'object') = 'object'
+    select coalesce(
+       jsonb_typeof(p_metadata) = 'object'
        and not exists (
              select 1
                from jsonb_object_keys(coalesce(p_metadata, '{}'::jsonb)) as key(name)
@@ -77,7 +99,43 @@ as $$
                 'filter_key',
                 'filter_value'
               )
-       );
+       )
+       and (not p_metadata ? 'tool'
+            or (jsonb_typeof(p_metadata->'tool') = 'string'
+                and p_metadata->>'tool' in ('get_prompt', 'list_packages', 'get_package', 'list_package_prompts'))
+       and (not p_metadata ? 'package_type'
+            or p_metadata->>'package_type' in ('collection', 'workflow'))
+       and (not p_metadata ? 'copy_surface'
+            or p_metadata->>'copy_surface' in ('detail_panel', 'card'))
+       and (not p_metadata ? 'query_length'
+            or (jsonb_typeof(p_metadata->'query_length') = 'number'
+                and (p_metadata->>'query_length') ~ '^[0-9]{1,3}$'
+                and (p_metadata->>'query_length')::integer between 0 and 200))
+       and (not p_metadata ? 'filter_key'
+            or (jsonb_typeof(p_metadata->'filter_key') = 'string'
+                and p_metadata->>'filter_key' in ('context', 'category')))
+       and (
+            not p_metadata ? 'filter_value'
+            or (
+                jsonb_typeof(p_metadata->'filter_value') = 'string'
+                and (
+                    p_metadata->>'filter_key' = 'context'
+                    and p_metadata->>'filter_value' ~ '^(generell|kommun|skola|företag|förening|privat)(,(generell|kommun|skola|företag|förening|privat))*$'
+                    or p_metadata->>'filter_key' = 'category'
+                    and p_metadata->>'filter_value' in (
+                        'Skriva och förbättra text',
+                        'Svara och kommunicera',
+                        'Sammanfatta och strukturera',
+                        'Möten och workshops',
+                        'Beslut och rutiner',
+                        'Bilder och infografik'
+                    )
+                )
+            )
+       )
+       and ((p_metadata ? 'filter_key') = (p_metadata ? 'filter_value')),
+       false
+    );
 $$;
 
 revoke all on function app_private.library_usage_allowed_metadata(jsonb) from public;
@@ -124,13 +182,51 @@ begin
         raise exception 'Ogiltig statistikmetadata.';
     end if;
 
+    if not app_private.library_usage_safe_slug(nullif(trim(coalesce(p_prompt_slug, '')), ''), 120)
+       or not app_private.library_usage_safe_slug(nullif(trim(coalesce(p_package_slug, '')), ''), 120) then
+        raise exception 'Ogiltig katalogslug.';
+    end if;
+
+    if p_area is not null and trim(p_area) not in (
+        'kommunikation', 'forandringsledning', 'processer', 'beslutsberedning',
+        'visuellt', 'ledarskap', 'arbetsbank',
+        'Skriva och förbättra text', 'Svara och kommunicera',
+        'Sammanfatta och strukturera', 'Möten och workshops',
+        'Beslut och rutiner', 'Bilder och infografik'
+    ) then
+        raise exception 'Ogiltigt statistikområde.';
+    end if;
+
+    if p_risk_level is not null and trim(p_risk_level) not in (
+        'low', 'medium', 'high', 'Låg risk', 'Medelrisk', 'Hög risk'
+    ) then
+        raise exception 'Ogiltig risknivå.';
+    end if;
+
+    if p_catalog_version is not null
+       and trim(p_catalog_version) !~ '^[0-9]{1,10}$' then
+        raise exception 'Ogiltig katalogversion.';
+    end if;
+
+    if exists (
+        select 1
+          from unnest(coalesce(p_context_keys, '{}'::text[])) as values(value)
+         where trim(value) <> ''
+           and trim(value) not in ('generell', 'kommun', 'skola', 'företag', 'förening', 'privat')
+    ) then
+        raise exception 'Ogiltig statistikkontext.';
+    end if;
+
     select case
         when p_context_keys is null then null
         else (
-            select array_agg(left(trim(value), 40))
-              from unnest(p_context_keys) as value
-             where trim(value) <> ''
-             limit 10
+            select array_agg(left(trim(limited.value), 40) order by limited.ordinality)
+              from (
+                select value, ordinality
+                  from unnest(p_context_keys) with ordinality as values(value, ordinality)
+                 where trim(value) <> ''
+                 limit 10
+              ) as limited
         )
     end into v_context_keys;
 
@@ -150,13 +246,13 @@ begin
         p_source,
         p_event_type,
         coalesce(p_outcome, 'success'),
-        nullif(left(trim(coalesce(p_prompt_slug, '')), 120), ''),
-        nullif(left(trim(coalesce(p_package_slug, '')), 120), ''),
+        nullif(trim(coalesce(p_prompt_slug, '')), ''),
+        nullif(trim(coalesce(p_package_slug, '')), ''),
         v_context_keys,
-        nullif(left(trim(coalesce(p_area, '')), 80), ''),
-        nullif(left(trim(coalesce(p_risk_level, '')), 40), ''),
+        nullif(trim(coalesce(p_area, '')), ''),
+        nullif(trim(coalesce(p_risk_level, '')), ''),
         p_result_count,
-        nullif(left(trim(coalesce(p_catalog_version, '')), 80), ''),
+        nullif(trim(coalesce(p_catalog_version, '')), ''),
         v_metadata
     );
 
@@ -170,6 +266,36 @@ revoke all on function public.track_library_usage_event(
 grant execute on function public.track_library_usage_event(
     text, text, text, text, text, text[], text, text, integer, text, jsonb
 ) to anon, authenticated;
+
+create extension if not exists pg_cron;
+
+create or replace function app_private.purge_library_usage_events()
+returns integer
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+    v_deleted integer;
+begin
+    delete from public.library_usage_events
+     where expires_at <= now();
+    get diagnostics v_deleted = row_count;
+    return v_deleted;
+end;
+$$;
+
+revoke all on function app_private.purge_library_usage_events() from public;
+
+select cron.unschedule(jobid)
+  from cron.job
+ where jobname = 'purge-library-usage-events';
+
+select cron.schedule(
+    'purge-library-usage-events',
+    '15 2 * * *',
+    $$select app_private.purge_library_usage_events();$$
+);
 
 create or replace function public.get_library_usage_summary(p_days integer default 30)
 returns jsonb
