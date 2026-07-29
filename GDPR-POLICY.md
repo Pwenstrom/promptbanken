@@ -1,8 +1,8 @@
 # GDPR-policy & Dataskydd
 ## Promptmallar för kommun
 
-**Version:** 1.0  
-**Datum:** 2026-01-26
+**Version:** 1.1
+**Datum:** 2026-07-29
 
 ---
 
@@ -26,7 +26,8 @@ Statistiken används för återkoppling och produktutveckling av biblioteket, in
 
 Knappen "Kopiera" använder webbläsarens **Clipboard-API**:
 - All kopiering sker **lokalt på din dator**
-- Ingen data överförs över nätverk
+- Prompttexten överförs inte över nätverk till Promptbanken
+- En liten anonym användningshändelse kan skickas för att mäta att en prompt kopierades, utan promptinnehåll eller personidentifierande klientdata
 - Du är ensam ansvarig för vad du gör med den kopierade texten
 
 ---
@@ -65,19 +66,19 @@ Du har rätt att veta att denna webbsida använder AI-assisterade verktyg.
 
 ### 3.2 Rätt till åtkomst
 Du kan begära veta vilka data vi har om dig.  
-→ **Vi har ingen data om dig** (se punkt 1.1)
+→ **Vi har inga personuppgifter eller användarpromptar från den öppna katalogen**. Den anonyma användningsstatistiken är aggregerad och är inte avsedd att kopplas till enskilda personer (se punkt 1.1).
 
 ### 3.3 Rätt till rättelse
 Du kan begära att vi rättar felaktig data om dig.  
-→ **Inte tillämpligt** (vi lagrar ingen data)
+→ **Inte tillämpligt för den öppna katalogens anonyma statistik**, eftersom den inte innehåller personuppgifter eller användarpromptar som kan rättas för en enskild person.
 
 ### 3.4 Rätt till radering
 Du kan begära att vi raderar data om dig.  
-→ **Inte tillämpligt** (vi lagrar ingen data)
+→ **Inte tillämpligt för den öppna katalogens anonyma statistik**, eftersom den inte är kopplad till en identifierbar användare.
 
 ### 3.5 Rätt till begränsning
 Du kan begära att vi begränsar vår behandling av dina data.  
-→ **Inte tillämpligt** (vi behandlar ingen data)
+→ **Inte tillämpligt för den öppna katalogens anonyma statistik**, eftersom vi inte behandlar personuppgifter eller användarpromptar i den statistiken.
 
 ---
 
@@ -95,6 +96,7 @@ Du kan begära att vi begränsar vår behandling av dina data.
 
 Vi kan uppdatera denna policy när som helst. Ändringar publiceras här:
 
+- **Version 1.1 (2026-07-29):** Förtydligar anonym användningsstatistik för öppna bibliotekshändelser och kopiering
 - **Version 1.0 (2026-01-26):** Initial policy
 
 ---
@@ -141,4 +143,5 @@ Denna tjänst är utformad enligt:
 
 | Version | Datum | Ändringar |
 |---|---|---|
+| 1.1 | 2026-07-29 | Förtydligar att prompttext stannar lokalt vid kopiering, men att en liten anonym användningshändelse kan skickas. Skiljer personuppgiftsbehandling från anonym, aggregerad användningsstatistik. |
 | 1.0 | 2026-01-26 | Initial GDPR-policy |

@@ -1486,3 +1486,25 @@ git commit -m "docs: disclose anonymous library usage statistics"
 ```
 
 Only stage whichever file was actually changed.
+
+---
+
+### Task 6 Review Fix Round: Privacy Disclosure Alignment
+
+**Date:** 2026-07-29
+
+**Scope:** Documentation/privacy text only.
+
+- [x] Reworded `GDPR-POLICY.md` Clipboard-API section so prompt text remains local while disclosing that a small anonymous copy usage event may be sent.
+- [x] Reworded `GDPR-POLICY.md` GDPR-rights responses to distinguish no personal data/user prompt processing from anonymous aggregate usage statistics.
+- [x] Changed `privacy.html` "Anonym användningsstatistik" from `h2` to `h3` so it remains a subsection under "1. Vad vi samlar in".
+- [x] Updated privacy-relevant metadata dates/version/history in `privacy.html` and `GDPR-POLICY.md`.
+
+**Verification run for this fix round:**
+
+```powershell
+npm run build  # pass; existing Vite warnings about unset Supabase env placeholders and non-module copied scripts
+git diff --check  # pass
+rg -n "Ingen data överförs över nätverk|Vi har ingen data om dig|vi lagrar ingen data|vi behandlar ingen data|Senast uppdaterad:|Version|2026-07-29|Anonym användningsstatistik|Prompttexten överförs|användningshändelse" GDPR-POLICY.md privacy.html
+rg -n "<h[1-6]>|Senast uppdaterad" privacy.html
+```
