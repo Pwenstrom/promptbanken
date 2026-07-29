@@ -498,7 +498,8 @@ function selectCatalogPromptInSidebar(entity) {
         copyButton.textContent = 'Kopiera';
         copyButton.classList.remove('copied', 'is-copied');
     }
-    ['selected-prompt-chat-btn', 'selected-prompt-view-btn', 'selected-prompt-export-btn'].forEach((id) => {
+    document.getElementById('selected-prompt-view-btn')?.removeAttribute('disabled');
+    ['selected-prompt-chat-btn', 'selected-prompt-export-btn'].forEach((id) => {
         document.getElementById(id)?.setAttribute('disabled', 'disabled');
     });
 
@@ -514,6 +515,11 @@ function selectCatalogPromptInSidebar(entity) {
 document.getElementById('selected-prompt-copy-btn')?.addEventListener('click', (event) => {
     if (!activeCatalogPromptEntity) return;
     copyCatalogEntityText(activeCatalogPromptEntity, event.currentTarget);
+});
+
+document.getElementById('selected-prompt-view-btn')?.addEventListener('click', () => {
+    if (!activeCatalogPromptEntity?.slug) return;
+    openCatalogPromptDetail(activeCatalogPromptEntity.slug);
 });
 
 async function copyCatalogEntityText(entity, button) {
