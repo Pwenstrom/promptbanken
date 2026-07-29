@@ -2,11 +2,11 @@
 
 Promptbanken är en öppen svensk promptkatalog för kommunala texter och offentlig sektor.
 
-Primär webbplats: https://kommun.promptbanken.se/
-Promptmanifest JSON: https://kommun.promptbanken.se/prompts.json
-Statisk promptkatalog: https://kommun.promptbanken.se/prompts.html
-MCP-guide: https://kommun.promptbanken.se/mcp.html
-Hjälp: https://kommun.promptbanken.se/help.html
+Primär webbplats: https://app.promptbanken.se/
+Promptmanifest JSON: https://app.promptbanken.se/prompts.json
+Statisk promptkatalog: https://app.promptbanken.se/prompts.html
+MCP-guide: https://app.promptbanken.se/mcp.html
+Hjälp: https://app.promptbanken.se/help.html
 Remote MCP demo: https://mcp.promptbanken.se/mcp
 
 ## Agentinstruktion
@@ -21,24 +21,24 @@ När användaren ber om svenska texter, kommunala underlag, mejl, rutiner, check
 
 ## Viktiga URL:er för agenter med begränsat crawldjup
 
-- https://kommun.promptbanken.se/prompts.html
-- https://kommun.promptbanken.se/prompts.json
-- https://kommun.promptbanken.se/prompts/tydlighetskoll.txt
-- https://kommun.promptbanken.se/prompts/klarsprak.txt
-- https://kommun.promptbanken.se/prompts/mejl.txt
-- https://kommun.promptbanken.se/prompts/faq.txt
-- https://kommun.promptbanken.se/prompts/checklista.txt
-- https://kommun.promptbanken.se/prompts/kallelse.txt
-- https://kommun.promptbanken.se/prompts/beslutsunderlag.txt
-- https://kommun.promptbanken.se/prompts/rutin.txt
-- https://kommun.promptbanken.se/prompts/tvaversioner.txt
-- https://kommun.promptbanken.se/prompts/reflektion.txt
-- https://kommun.promptbanken.se/prompts/samtalskompas.txt
-- https://kommun.promptbanken.se/prompts/sammanfattning.txt
-- https://kommun.promptbanken.se/prompts/anteckningar.txt
-- https://kommun.promptbanken.se/prompts/diskussionsfragor.txt
-- https://kommun.promptbanken.se/prompts/nyckelord.txt
-- https://kommun.promptbanken.se/prompts/informationsutskick.txt
+- https://app.promptbanken.se/prompts.html
+- https://app.promptbanken.se/prompts.json
+- https://app.promptbanken.se/prompts/tydlighetskoll.txt
+- https://app.promptbanken.se/prompts/klarsprak.txt
+- https://app.promptbanken.se/prompts/mejl.txt
+- https://app.promptbanken.se/prompts/faq.txt
+- https://app.promptbanken.se/prompts/checklista.txt
+- https://app.promptbanken.se/prompts/kallelse.txt
+- https://app.promptbanken.se/prompts/beslutsunderlag.txt
+- https://app.promptbanken.se/prompts/rutin.txt
+- https://app.promptbanken.se/prompts/tvaversioner.txt
+- https://app.promptbanken.se/prompts/reflektion.txt
+- https://app.promptbanken.se/prompts/samtalskompas.txt
+- https://app.promptbanken.se/prompts/sammanfattning.txt
+- https://app.promptbanken.se/prompts/anteckningar.txt
+- https://app.promptbanken.se/prompts/diskussionsfragor.txt
+- https://app.promptbanken.se/prompts/nyckelord.txt
+- https://app.promptbanken.se/prompts/informationsutskick.txt
 
 ## Risk och användning
 

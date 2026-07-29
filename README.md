@@ -4,12 +4,12 @@ Centraliserad webbplattform med AI-assisterade kommunikationsmallar för svenska
 
 Webbplatsen är även gjord för att kunna läsas av AI-agenter och indexeringstjänster:
 
-- Webbsida: https://kommun.promptbanken.se
-- Hjälp: https://kommun.promptbanken.se/help.html
-- MCP-guide: https://kommun.promptbanken.se/mcp.html
-- Statisk promptkatalog: https://kommun.promptbanken.se/prompts.html
-- Promptmanifest: https://kommun.promptbanken.se/prompts.json
-- Agentguide: https://kommun.promptbanken.se/llms.txt
+- Webbsida: https://app.promptbanken.se
+- Hjälp: https://app.promptbanken.se/help.html
+- MCP-guide: https://app.promptbanken.se/mcp.html
+- Statisk promptkatalog: https://app.promptbanken.se/prompts.html
+- Promptmanifest: https://app.promptbanken.se/prompts.json
+- Agentguide: https://app.promptbanken.se/llms.txt
 - Remote MCP (publik): https://mcp.promptbanken.se/mcp
 
 **Status:** ✅ Live på GitHub Pages | **Version:** 1.0.0
@@ -31,7 +31,7 @@ Alla prompter är utformade med **GDPR** och **EU AI Act** i åtanke. Du ansvara
 ## 🚀 Snabbstart
 
 ### Online (GitHub Pages)
-1. Öppna: https://kommun.promptbanken.se
+1. Öppna: https://app.promptbanken.se
 2. **Inställningar (⚙️)**: Klicka på kugghjulet i övre högra hörnet för att:
    -aktivera anpassade prompter om du vill.
    - Aktivera **Favoritläge** för att spara och visa favoriter

@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://kommun.promptbanken.se/sitemap.xml
+Sitemap: https://app.promptbanken.se/sitemap.xml
