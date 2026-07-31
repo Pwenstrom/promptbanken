@@ -1,4 +1,4 @@
-# Mob AI: operativ modell för Promptbanken
+﻿# Mob AI: operativ modell för Promptbanken
 
 Datum: 2026-07-31
 
@@ -92,6 +92,13 @@ Releaseomfattning:
 Om skrivytan inte kan anges tydligt är modulen inte redo för självständig
 agentutveckling.
 
+## Operativ ingång
+
+Repoagenter börjar i `.agents/mob-ai/README.md` och skapar ett konkret kort
+från `.agents/mob-ai/task-card-template.md`. Genomförda piloter sparas i
+`.agents/mob-ai/pilots/`. Dokumenten under `docs/` är fortsatt styrande om
+en lokal instruktion skulle vara oklar.
+
 ## Arbetsflöde
 
 1. **Triage:** Mob-ledaren kopplar uppgiften till modulkartan och bedömer
@@ -140,6 +147,10 @@ en implementerande agent och en separat verifiering. Efter piloten bedöms:
 - om granskningen hittade något implementeraren missade;
 - om överlämningen innehöll tillräckliga bevis;
 - om arbetssättet minskade eller ökade ledtiden på ett motiverat sätt.
+
+Dokumentationsbootstrapen för Mob AI-arbetssättet är en repetition av
+agentdriften och inte denna produktmodulpilot. Den första skarpa gröna
+modulpiloten återstår och ska namnge en exakt modul från modulkartan.
 
 Först därefter bör modellen användas för gula moduler eller för arbetet med
 att stycka katalog-UI:t.
