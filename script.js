@@ -572,6 +572,10 @@ function setElementHiddenState(element, hidden) {
     }
 }
 
+function setCatalogDetailPanelOpen(open) {
+    setElementHiddenState(document.getElementById('catalog-prompt-detail'), !open);
+}
+
 function selectCatalogPromptInSidebar(entity) {
     const normalized = normalizeCatalogTemplateEntity(entity);
     activeCatalogPromptEntity = normalized;
@@ -579,7 +583,7 @@ function selectCatalogPromptInSidebar(entity) {
 
     document.body.classList.remove('detail-panel-closed');
     document.body.classList.add('detail-sheet-open');
-    setElementHiddenState(document.getElementById('catalog-prompt-detail'), true);
+    setCatalogDetailPanelOpen(false);
 
     const title = document.getElementById('selected-prompt-title');
     const description = document.getElementById('selected-prompt-description');
@@ -890,6 +894,8 @@ function renderCatalogDetailVariant(variant) {
 
     body.querySelectorAll('.catalog-package-item [data-package-item-index]').forEach((button) => {
         button.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
             const item = catalogDetailPackageItems[Number(event.currentTarget.dataset.packageItemIndex)];
             if (item) selectCatalogPromptInSidebar(item);
         });
@@ -948,7 +954,7 @@ async function openCatalogPromptDetail(slug) {
 
     renderCatalogDetailTabs(catalogDetailVariants);
     renderCatalogDetailVariant(catalogDetailVariants[0]);
-    panel.hidden = false;
+    setCatalogDetailPanelOpen(true);
 
     const promptViewKey = `prompt_view:${slug}:${getActiveCatalogContextKeys().join(',')}`;
     if (shouldTrackLibraryUsage(promptViewKey, 60 * 60 * 1000)) {
@@ -988,7 +994,7 @@ async function openCatalogPackageDetail(slug) {
 
     renderCatalogDetailTabs(catalogDetailVariants);
     renderCatalogDetailVariant(catalogDetailVariants[0]);
-    panel.hidden = false;
+    setCatalogDetailPanelOpen(true);
 
     const packageViewKey = `package_view:${slug}:${getActiveCatalogContextKeys().join(',')}`;
     if (shouldTrackLibraryUsage(packageViewKey, 60 * 60 * 1000)) {
@@ -1004,7 +1010,7 @@ async function openCatalogPackageDetail(slug) {
 }
 
 document.getElementById('catalog-detail-close')?.addEventListener('click', () => {
-    document.getElementById('catalog-prompt-detail').hidden = true;
+    setCatalogDetailPanelOpen(false);
 });
 
 function createCatalogPackageCard(pkg) {
