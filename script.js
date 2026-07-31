@@ -579,6 +579,7 @@ function selectCatalogPromptInSidebar(entity) {
 
     document.body.classList.remove('detail-panel-closed');
     document.body.classList.add('detail-sheet-open');
+    setElementHiddenState(document.getElementById('catalog-prompt-detail'), true);
 
     const title = document.getElementById('selected-prompt-title');
     const description = document.getElementById('selected-prompt-description');
@@ -600,18 +601,29 @@ function selectCatalogPromptInSidebar(entity) {
         if (el) el.style.display = 'none';
     });
 
+    const panel = document.getElementById('prompt-detail-panel');
+    if (panel) {
+        panel.dataset.catalogPromptSlug = normalized.slug || '';
+    }
+
     const copyButton = document.getElementById('selected-prompt-copy-btn');
     if (copyButton) {
         copyButton.removeAttribute('disabled');
         copyButton.textContent = 'Kopiera';
         copyButton.classList.remove('copied', 'is-copied');
+        copyButton.dataset.catalogAction = 'copy';
+        copyButton.dataset.catalogPromptSlug = normalized.slug || '';
     }
-    document.getElementById('selected-prompt-view-btn')?.removeAttribute('disabled');
+    const viewButton = document.getElementById('selected-prompt-view-btn');
+    if (viewButton) {
+        viewButton.removeAttribute('disabled');
+        viewButton.dataset.catalogAction = 'preview';
+        viewButton.dataset.catalogPromptSlug = normalized.slug || '';
+    }
     ['selected-prompt-chat-btn', 'selected-prompt-export-btn'].forEach((id) => {
         document.getElementById(id)?.setAttribute('disabled', 'disabled');
     });
 
-    const panel = document.getElementById('prompt-detail-panel');
     if (panel && window.matchMedia('(max-width: 1180px)').matches) {
         window.requestAnimationFrame(() => {
             panel.focus({ preventScroll: true });
@@ -620,14 +632,36 @@ function selectCatalogPromptInSidebar(entity) {
     }
 }
 
+function getSelectedCatalogPromptEntity(button) {
+    if (activeCatalogPromptEntity) return activeCatalogPromptEntity;
+
+    const slug = button?.dataset?.catalogPromptSlug
+        || document.getElementById('prompt-detail-panel')?.dataset?.catalogPromptSlug
+        || '';
+    if (!slug) return null;
+
+    const match = catalogDetailPackageItems
+        .map(normalizeCatalogTemplateEntity)
+        .find((item) => item.slug === slug);
+
+    if (match) {
+        activeCatalogPromptEntity = match;
+        return match;
+    }
+
+    return null;
+}
+
 document.getElementById('selected-prompt-copy-btn')?.addEventListener('click', (event) => {
-    if (!activeCatalogPromptEntity) return;
-    copyCatalogEntityText(activeCatalogPromptEntity, event.currentTarget);
+    const entity = getSelectedCatalogPromptEntity(event.currentTarget);
+    if (!entity) return;
+    copyCatalogEntityText(entity, event.currentTarget);
 });
 
-document.getElementById('selected-prompt-view-btn')?.addEventListener('click', () => {
-    if (!activeCatalogPromptEntity?.slug) return;
-    openCatalogPromptDetail(activeCatalogPromptEntity.slug);
+document.getElementById('selected-prompt-view-btn')?.addEventListener('click', (event) => {
+    const entity = getSelectedCatalogPromptEntity(event.currentTarget);
+    if (!entity?.slug) return;
+    openCatalogEntityPreviewModal(entity);
 });
 
 async function copyCatalogEntityText(entity, button) {
@@ -726,10 +760,33 @@ const staticCatalogPromptVariantPromises = new Map();
 function normalizeCatalogTemplateEntity(entity) {
     return {
         ...entity,
+        slug: entity?.slug || entity?.prompt_slug || '',
         parameter_schema: entity?.parameter_schema || null,
         default_bindings: entity?.default_bindings || {},
         binding_overrides: Array.isArray(entity?.binding_overrides) ? entity.binding_overrides : []
     };
+}
+
+function openCatalogEntityPreviewModal(entity) {
+    const normalized = normalizeCatalogTemplateEntity(entity);
+    const promptText = replaceInputMarkers(renderCatalogTemplateField(normalized, 'prompt_text'), getQuickInputValue());
+    if (!promptText) {
+        if (normalized.slug) openCatalogPromptDetail(normalized.slug);
+        return;
+    }
+
+    const promptModal = document.getElementById('prompt-modal');
+    const promptModalTitle = document.getElementById('modal-title');
+    const promptModalText = document.getElementById('modal-text');
+    const promptModalClose = document.getElementById('modal-close');
+    if (!promptModal || !promptModalTitle || !promptModalText) return;
+
+    promptModal.dataset.promptId = normalized.slug;
+    promptModalTitle.textContent = `Förhandsvisning: ${normalized.title || 'Prompt'}`;
+    promptModalText.textContent = promptText;
+    promptModal.hidden = false;
+    promptModal.classList.add('active');
+    promptModalClose?.focus({ preventScroll: true });
 }
 
 function getStaticCatalogPromptVariantCacheKey(promptId) {
@@ -1671,9 +1728,13 @@ async function loadCatalogPackages() {
             renderGlobalContextStatus();
             refreshPromptPreviewFromCatalog(promptId);
 
+            activeCatalogPromptEntity = null;
+            document.getElementById('prompt-detail-panel')?.removeAttribute('data-catalog-prompt-slug');
             document.querySelectorAll('#selected-prompt-chat-btn, #selected-prompt-copy-btn, #selected-prompt-view-btn, #selected-prompt-export-btn')
                 .forEach((button) => {
                     button.removeAttribute('disabled');
+                    button.removeAttribute('data-catalog-action');
+                    button.removeAttribute('data-catalog-prompt-slug');
                     if (button.id === 'selected-prompt-copy-btn') {
                         button.textContent = 'Kopiera';
                         button.classList.remove('copied', 'is-copied');
@@ -1701,13 +1762,19 @@ async function loadCatalogPackages() {
 
         function closePromptDetailPanel() {
             selectedPromptId = null;
+            activeCatalogPromptEntity = null;
             document.body.classList.add('detail-panel-closed');
             document.body.classList.remove('detail-sheet-open');
+            document.getElementById('prompt-detail-panel')?.removeAttribute('data-catalog-prompt-slug');
             grid.querySelectorAll('.prompt-card.selected').forEach((card) => {
                 card.classList.remove('selected');
             });
             document.querySelectorAll('#selected-prompt-chat-btn, #selected-prompt-copy-btn, #selected-prompt-view-btn, #selected-prompt-export-btn')
-                .forEach((button) => button.setAttribute('disabled', 'disabled'));
+                .forEach((button) => {
+                    button.setAttribute('disabled', 'disabled');
+                    button.removeAttribute('data-catalog-action');
+                    button.removeAttribute('data-catalog-prompt-slug');
+                });
         }
 
         function loadLocalChatMode() {
@@ -2092,6 +2159,20 @@ async function loadCatalogPackages() {
             const relatedButton = event.target.closest('[data-related-prompt]');
             if (relatedButton) {
                 selectPrompt(relatedButton.getAttribute('data-related-prompt'), { reveal: true });
+                return;
+            }
+
+            const selectedCopyButton = event.target.closest('#selected-prompt-copy-btn');
+            const selectedCatalogCopyEntity = getSelectedCatalogPromptEntity(selectedCopyButton);
+            if (selectedCatalogCopyEntity && selectedCopyButton) {
+                copyCatalogEntityText(selectedCatalogCopyEntity, selectedCopyButton);
+                return;
+            }
+
+            const selectedViewButton = event.target.closest('#selected-prompt-view-btn');
+            const selectedCatalogViewEntity = getSelectedCatalogPromptEntity(selectedViewButton);
+            if (selectedCatalogViewEntity && selectedViewButton) {
+                openCatalogEntityPreviewModal(selectedCatalogViewEntity);
                 return;
             }
 
