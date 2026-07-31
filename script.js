@@ -1444,6 +1444,11 @@ async function loadCatalogPackages() {
                 resultCount.textContent = `Visar ${visibleCount} av ${allPrompts.length} prompter`;
             }
 
+            const emptyState = document.getElementById('prompt-grid-empty');
+            if (emptyState) {
+                emptyState.hidden = visibleCount !== 0;
+            }
+
             clearTimeout(window.promptbankenSearchUsageTimer);
             window.promptbankenSearchUsageTimer = setTimeout(() => {
                 if (!query) return;
@@ -1523,26 +1528,33 @@ async function loadCatalogPackages() {
                 });
             }
 
-            if (clearFiltersBtn) {
-                clearFiltersBtn.addEventListener('click', () => {
-                    activeCategoryFilter = 'all';
-                    activeAudienceFilter = 'all';
-                    activeRoleFilter = 'all';
-                    activeRiskFilter = 'all';
-                    favoritesOnlyFilter = false;
-                    if (categoryFilter) categoryFilter.value = 'all';
-                    if (audienceFilter) audienceFilter.value = 'all';
-                    if (roleFilter) roleFilter.value = 'all';
-                    if (riskFilter) riskFilter.value = 'all';
-                    const searchInput = document.getElementById('prompt-search');
-                    if (searchInput) searchInput.value = '';
-                    document.querySelectorAll('[data-category-filter]').forEach((item) => {
-                        item.classList.toggle('active', item.getAttribute('data-category-filter') === 'all');
-                    });
-                    const favoritesSidebarBtn = document.getElementById('favorites-sidebar-btn');
-                    if (favoritesSidebarBtn) favoritesSidebarBtn.classList.remove('active');
-                    applyPromptFilters();
+            function clearAllPromptFilters() {
+                activeCategoryFilter = 'all';
+                activeAudienceFilter = 'all';
+                activeRoleFilter = 'all';
+                activeRiskFilter = 'all';
+                favoritesOnlyFilter = false;
+                if (categoryFilter) categoryFilter.value = 'all';
+                if (audienceFilter) audienceFilter.value = 'all';
+                if (roleFilter) roleFilter.value = 'all';
+                if (riskFilter) riskFilter.value = 'all';
+                const searchInput = document.getElementById('prompt-search');
+                if (searchInput) searchInput.value = '';
+                document.querySelectorAll('[data-category-filter]').forEach((item) => {
+                    item.classList.toggle('active', item.getAttribute('data-category-filter') === 'all');
                 });
+                const favoritesSidebarBtn = document.getElementById('favorites-sidebar-btn');
+                if (favoritesSidebarBtn) favoritesSidebarBtn.classList.remove('active');
+                applyPromptFilters();
+            }
+
+            if (clearFiltersBtn) {
+                clearFiltersBtn.addEventListener('click', clearAllPromptFilters);
+            }
+
+            const emptyStateClearBtn = document.getElementById('empty-state-clear-btn');
+            if (emptyStateClearBtn) {
+                emptyStateClearBtn.addEventListener('click', clearAllPromptFilters);
             }
         }
 

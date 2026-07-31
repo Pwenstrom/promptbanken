@@ -442,6 +442,10 @@
 
                 <section class="prompt-grid" id="prompt-grid" aria-label="Tillgängliga prompter">
                     <div class="loading-message">Laddar promptmallar...</div>
+                    <div class="empty-state" id="prompt-grid-empty" hidden>
+                        <p>Inga prompter matchar dina filter.</p>
+                        <button type="button" class="filter-more" id="empty-state-clear-btn">Rensa filter</button>
+                    </div>
                 </section>
                 <p class="result-count" id="result-count">Visar prompter</p>
 
