@@ -148,5 +148,9 @@ en implementerande agent och en separat verifiering. Efter piloten bedöms:
 - om överlämningen innehöll tillräckliga bevis;
 - om arbetssättet minskade eller ökade ledtiden på ett motiverat sätt.
 
+Dokumentationsbootstrapen för Mob AI-arbetssättet är en repetition av
+agentdriften och inte denna produktmodulpilot. Den första skarpa gröna
+modulpiloten återstår och ska namnge en exakt modul från modulkartan.
+
 Först därefter bör modellen användas för gula moduler eller för arbetet med
 att stycka katalog-UI:t.
