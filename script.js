@@ -563,6 +563,15 @@ function applyCatalogSearchFilter() {
 
 let activeCatalogPromptEntity = null;
 
+function setElementHiddenState(element, hidden) {
+    if (!element) return;
+    element.hidden = hidden;
+    element.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+    if ('inert' in element) {
+        element.inert = hidden;
+    }
+}
+
 function selectCatalogPromptInSidebar(entity) {
     const normalized = normalizeCatalogTemplateEntity(entity);
     activeCatalogPromptEntity = normalized;
@@ -1435,7 +1444,7 @@ async function loadCatalogPackages() {
                 const matchesFavorites = !favoritesOnlyFilter || favorites.includes(prompt.id);
                 const isVisible = matchesSearch && matchesCategory && matchesAudience && matchesRole && matchesRisk && matchesFavorites;
 
-                card.hidden = !isVisible;
+                setElementHiddenState(card, !isVisible);
                 if (isVisible) visibleCount += 1;
             });
 
@@ -1446,7 +1455,7 @@ async function loadCatalogPackages() {
 
             const emptyState = document.getElementById('prompt-grid-empty');
             if (emptyState) {
-                emptyState.hidden = visibleCount !== 0;
+                setElementHiddenState(emptyState, visibleCount !== 0);
             }
 
             clearTimeout(window.promptbankenSearchUsageTimer);
@@ -1784,12 +1793,12 @@ async function loadCatalogPackages() {
                 <div class="actions card-actions">
                     <button class="primary-btn export-btn advanced-only" data-export="${prompt.id}">Anpassa prompt</button>
                     <button class="select-prompt-btn" type="button">Välj</button>
-                    <button class="copy-btn copy-btn-primary" data-prompt="${prompt.id}" type="button" hidden>Kopiera</button>
-                    <button class="secondary-btn info-btn" data-show-full="${prompt.id}" title="Förhandsvisa">Förhandsvisa</button>
+                    <button class="copy-btn copy-btn-primary" data-prompt="${prompt.id}" type="button" hidden aria-hidden="true" tabindex="-1">Kopiera</button>
+                    <button class="secondary-btn info-btn" data-show-full="${prompt.id}" type="button" title="Förhandsvisa">Förhandsvisa</button>
                     <button class="secondary-btn local-chat-btn" data-chat-local="${prompt.id}">Chatta lokalt</button>
                     <button class="secondary-btn direct-chat-btn" type="button" disabled aria-disabled="true" title="Kommer snart">Chatta direkt (kommer snart)</button>
                 </div>
-                <textarea id="textarea-${prompt.id}">${combinedText}</textarea>
+                <textarea id="textarea-${prompt.id}" aria-hidden="true" tabindex="-1">${combinedText}</textarea>
             `;
             return card;
         }
@@ -1885,7 +1894,8 @@ async function loadCatalogPackages() {
             // Toggle examples - event delegation
             grid.addEventListener('click', (event) => {
                 const card = event.target.closest('.prompt-card');
-                if (card) {
+                const clickedControl = event.target.closest('button, a, input, select, textarea, label');
+                if (card && !clickedControl) {
                     selectPrompt(card.dataset.promptId, { reveal: true });
                 }
 
@@ -1903,6 +1913,14 @@ async function loadCatalogPackages() {
                     handleCopyClick(event.target, event);
                 }
 
+                if (event.target.classList.contains('select-prompt-btn')) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (card) {
+                        selectPrompt(card.dataset.promptId, { reveal: true });
+                    }
+                }
+
                 // Favorite button click
                 if (event.target.classList.contains('favorite-btn')) {
                     handleFavoriteClick(event.target);
@@ -1910,6 +1928,8 @@ async function loadCatalogPackages() {
 
                 // Info button click
                 if (event.target.classList.contains('info-btn')) {
+                    event.preventDefault();
+                    event.stopPropagation();
                     handleInfoClick(event.target);
                 }
 
@@ -2054,6 +2074,15 @@ async function loadCatalogPackages() {
             });
         }
 
+        const filterToggle = document.getElementById('filter-toggle');
+        const advancedFilters = document.getElementById('advanced-filters');
+        if (filterToggle && advancedFilters) {
+            filterToggle.addEventListener('click', () => {
+                const isOpen = advancedFilters.classList.toggle('is-open');
+                filterToggle.setAttribute('aria-expanded', String(isOpen));
+            });
+        }
+
         document.addEventListener('click', (event) => {
             if (event.target.closest('#detail-close')) {
                 closePromptDetailPanel();
@@ -2078,8 +2107,7 @@ async function loadCatalogPackages() {
             }
 
             if (event.target.id === 'selected-prompt-view-btn') {
-                const cardButton = grid.querySelector(`.info-btn[data-show-full="${selectedPromptId}"]`);
-                if (cardButton) handleInfoClick(cardButton);
+                openPromptPreviewModal(selectedPromptId);
             }
 
             if (event.target.id === 'selected-prompt-export-btn') {
@@ -2093,16 +2121,17 @@ async function loadCatalogPackages() {
         const promptModalText = document.getElementById('modal-text');
         const promptModalClose = document.getElementById('modal-close');
 
-        async function handleInfoClick(button) {
-            const promptId = button.getAttribute('data-show-full');
+        async function openPromptPreviewModal(promptId) {
             const textArea = document.getElementById(`textarea-${promptId}`);
             const prompt = allPrompts.find(p => p.id === promptId);
 
             if (textArea && prompt) {
                 promptModal.dataset.promptId = promptId;
-                promptModalTitle.textContent = prompt.title;
+                promptModalTitle.textContent = `Förhandsvisning: ${stripLeadingIcon(prompt.title)}`;
                 promptModalText.textContent = getPromptText(promptId);
+                promptModal.hidden = false;
                 promptModal.classList.add('active');
+                promptModalClose?.focus({ preventScroll: true });
                 const variant = await ensureStaticCatalogPromptVariant(promptId);
                 if (variant && promptModal.classList.contains('active') && promptModal.dataset.promptId === promptId) {
                     promptModalText.textContent = getPromptText(promptId);
@@ -2110,8 +2139,14 @@ async function loadCatalogPackages() {
             }
         }
 
+        async function handleInfoClick(button) {
+            const promptId = button.getAttribute('data-show-full');
+            openPromptPreviewModal(promptId);
+        }
+
         function closeModal() {
             promptModal.classList.remove('active');
+            promptModal.hidden = true;
             delete promptModal.dataset.promptId;
         }
 
