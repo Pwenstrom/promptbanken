@@ -3886,7 +3886,7 @@ body.favorites-mode-on .favorites-menu.hidden {
 .landing-lead {
     max-width: 58ch;
     margin: 1.35rem 0 0;
-    color: #475467;
+    color: #667085;
     font-size: clamp(1rem, 1.45vw, 1.16rem);
     line-height: 1.55;
 }
@@ -4030,7 +4030,7 @@ body.favorites-mode-on .favorites-menu.hidden {
     height: 0.5rem;
     flex: 0 0 auto;
     border-radius: 999px;
-    background: #15803d;
+    background: #067647;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -4069,8 +4069,8 @@ body.favorites-mode-on .favorites-menu.hidden {
     height: 2.25rem;
     flex: 0 0 2.25rem;
     border-radius: 8px;
-    background: #eaf4ee;
-    color: #15803d;
+    background: #ecfdf3;
+    color: #067647;
 }
 
 .trust-icon svg {
@@ -4080,7 +4080,7 @@ body.favorites-mode-on .favorites-menu.hidden {
 
 .landing-trust-strip p {
     margin: 0;
-    color: #475467;
+    color: #667085;
     font-size: 0.92rem;
     line-height: 1.5;
 }
@@ -4109,7 +4109,7 @@ body.favorites-mode-on .favorites-menu.hidden {
 .landing-section-heading p:not(.landing-kicker),
 .landing-info-panel p:not(.landing-kicker),
 .landing-choice-card p {
-    color: #475467;
+    color: #667085;
     line-height: 1.55;
 }
 
