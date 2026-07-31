@@ -11,6 +11,7 @@ export default defineConfig({
         { src: 'robots.txt', dest: '.' },
         { src: 'sitemap.xml', dest: '.' },
         { src: 'prompts', dest: '.' },
+        { src: 'fonts', dest: '.' },
         { src: 'script.js', dest: '.' },
         { src: 'style.css', dest: '.' },
         { src: '.nojekyll', dest: '.' },
