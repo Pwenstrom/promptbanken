@@ -1,4 +1,4 @@
-# Mob AI för Promptbanken
+﻿# Mob AI för Promptbanken
 
 Detta är den operativa ingången för agentarbete enligt Promptbankens Mob
 AI-modell. Ytan ger inga extra behörigheter och ersätter inte projektets

@@ -1,4 +1,4 @@
-# Mob AI-uppdragskort
+﻿# Mob AI-uppdragskort
 
 Använd instruktionerna under varje rubrik när ett nytt kort skapas. Det
 färdiga kortet ska ersätta instruktionerna med konkreta beslut.
