@@ -324,6 +324,97 @@ async function callCatalogRpc(functionName, payload) {
     return response.json();
 }
 
+const libraryUsageThrottle = new Map();
+const LIBRARY_USAGE_SAFE_SLUG = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+const LIBRARY_USAGE_CANONICAL_PROMPT_SLUGS = new Map([
+    ['enkel_infografik', 'enkel-infografik'],
+    ['illustration_informationsutskick', 'illustration-informationsutskick'],
+    ['ikon_symbolbild', 'ikon-symbolbild'],
+    ['alt_text_bild', 'alt-text-bild']
+]);
+const LIBRARY_USAGE_AREAS = new Set([
+    'kommunikation',
+    'forandringsledning',
+    'processer',
+    'beslutsberedning',
+    'visuellt',
+    'ledarskap',
+    'arbetsbank',
+    'Skriva och förbättra text',
+    'Svara och kommunicera',
+    'Sammanfatta och strukturera',
+    'Möten och workshops',
+    'Beslut och rutiner',
+    'Bilder och infografik'
+]);
+const LIBRARY_USAGE_RISK_LEVELS = new Set(['low', 'medium', 'high', 'Låg risk', 'Medelrisk', 'Hög risk']);
+const LIBRARY_USAGE_CONTEXT_KEYS = new Set(['generell', 'kommun', 'skola', 'företag', 'förening', 'privat']);
+
+function getActiveCatalogContextKeys() {
+    return getActiveContextKeys();
+}
+
+function shouldTrackLibraryUsage(key, ttlMs) {
+    const now = Date.now();
+    const previous = libraryUsageThrottle.get(key) || 0;
+    if (now - previous < ttlMs) return false;
+    libraryUsageThrottle.set(key, now);
+    return true;
+}
+
+function getSafeLibraryUsagePromptSlug(promptSlug) {
+    const canonicalSlug = LIBRARY_USAGE_CANONICAL_PROMPT_SLUGS.get(promptSlug) || promptSlug;
+    return LIBRARY_USAGE_SAFE_SLUG.test(canonicalSlug || '') ? canonicalSlug : null;
+}
+
+function getSafeLibraryUsageMetadata(metadata) {
+    const safeMetadata = {};
+    if (metadata?.copy_surface === 'detail_panel' || metadata?.copy_surface === 'card') {
+        safeMetadata.copy_surface = metadata.copy_surface;
+    }
+    if (metadata?.package_type === 'collection' || metadata?.package_type === 'workflow') {
+        safeMetadata.package_type = metadata.package_type;
+    }
+    if (Number.isInteger(metadata?.query_length) && metadata.query_length >= 0 && metadata.query_length <= 200) {
+        safeMetadata.query_length = metadata.query_length;
+    }
+    const contextKeys = (metadata?.filter_value || '').split(',');
+    if (metadata?.filter_key === 'context' && contextKeys.length && contextKeys.every((key) => LIBRARY_USAGE_CONTEXT_KEYS.has(key))) {
+        safeMetadata.filter_key = 'context';
+        safeMetadata.filter_value = metadata.filter_value;
+    }
+    if (metadata?.filter_key === 'category' && LIBRARY_USAGE_AREAS.has(metadata.filter_value)) {
+        safeMetadata.filter_key = 'category';
+        safeMetadata.filter_value = metadata.filter_value;
+    }
+    return safeMetadata;
+}
+
+async function trackLibraryUsageEvent(payload) {
+    if (!isCatalogConfigUsable()) return;
+
+    const promptSlug = getSafeLibraryUsagePromptSlug(payload.promptSlug);
+    const packageSlug = LIBRARY_USAGE_SAFE_SLUG.test(payload.packageSlug || '') ? payload.packageSlug : null;
+
+    try {
+        await callCatalogRpc('track_library_usage_event', {
+            p_source: 'web',
+            p_event_type: payload.eventType,
+            p_outcome: payload.outcome || 'success',
+            p_prompt_slug: promptSlug,
+            p_package_slug: packageSlug,
+            p_context_keys: payload.contextKeys || getActiveCatalogContextKeys(),
+            p_area: LIBRARY_USAGE_AREAS.has(payload.area) ? payload.area : null,
+            p_risk_level: LIBRARY_USAGE_RISK_LEVELS.has(payload.riskLevel) ? payload.riskLevel : null,
+            p_result_count: Number.isInteger(payload.resultCount) ? payload.resultCount : null,
+            p_catalog_version: null,
+            p_metadata: getSafeLibraryUsageMetadata(payload.metadata)
+        });
+    } catch (error) {
+        console.debug('Kunde inte logga anonym biblioteksstatistik', error);
+    }
+}
+
 function isCatalogConfigUsable() {
     return isUsableCatalogEnvValue(SUPABASE_CATALOG_URL, '%VITE_SUPABASE_URL%')
         && isUsableCatalogEnvValue(SUPABASE_CATALOG_ANON_KEY, '%VITE_SUPABASE_PUBLISHABLE_KEY%');
@@ -388,6 +479,14 @@ function renderCatalogProfileFilters() {
         renderGlobalContextStatus();
         syncGlobalRenderControls();
         refreshGlobalRenderOutputs();
+        trackLibraryUsageEvent({
+            eventType: 'filter_apply',
+            resultCount: document.querySelectorAll('.prompt-card:not([hidden])').length,
+            metadata: {
+                filter_key: 'context',
+                filter_value: getActiveCatalogContextKeys().join(',')
+            }
+        });
     };
 
     buttons.forEach((button, index) => {
@@ -527,6 +626,11 @@ async function copyCatalogEntityText(entity, button) {
     if (!text) return;
     try {
         await navigator.clipboard.writeText(text);
+        trackLibraryUsageEvent({
+            eventType: 'prompt_copy',
+            promptSlug: entity.slug || null,
+            metadata: { copy_surface: button.id === 'selected-prompt-copy-btn' ? 'detail_panel' : 'card' }
+        });
         const originalText = button.textContent;
         button.textContent = 'Kopierat';
         button.classList.add('copied');
@@ -779,6 +883,14 @@ async function openCatalogPromptDetail(slug) {
     renderCatalogDetailTabs(catalogDetailVariants);
     renderCatalogDetailVariant(catalogDetailVariants[0]);
     panel.hidden = false;
+
+    const promptViewKey = `prompt_view:${slug}:${getActiveCatalogContextKeys().join(',')}`;
+    if (shouldTrackLibraryUsage(promptViewKey, 60 * 60 * 1000)) {
+        trackLibraryUsageEvent({
+            eventType: 'prompt_view',
+            promptSlug: slug
+        });
+    }
 }
 
 async function openCatalogPackageDetail(slug) {
@@ -811,6 +923,18 @@ async function openCatalogPackageDetail(slug) {
     renderCatalogDetailTabs(catalogDetailVariants);
     renderCatalogDetailVariant(catalogDetailVariants[0]);
     panel.hidden = false;
+
+    const packageViewKey = `package_view:${slug}:${getActiveCatalogContextKeys().join(',')}`;
+    if (shouldTrackLibraryUsage(packageViewKey, 60 * 60 * 1000)) {
+        const packageType = catalogDetailVariants[0]?.package_type;
+        trackLibraryUsageEvent({
+            eventType: 'package_view',
+            packageSlug: slug,
+            metadata: packageType === 'collection' || packageType === 'workflow'
+                ? { package_type: packageType }
+                : {}
+        });
+    }
 }
 
 document.getElementById('catalog-detail-close')?.addEventListener('click', () => {
@@ -1319,9 +1443,32 @@ async function loadCatalogPackages() {
             if (resultCount) {
                 resultCount.textContent = `Visar ${visibleCount} av ${allPrompts.length} prompter`;
             }
+
+            clearTimeout(window.promptbankenSearchUsageTimer);
+            window.promptbankenSearchUsageTimer = setTimeout(() => {
+                if (!query) return;
+                trackLibraryUsageEvent({
+                    eventType: 'search',
+                    outcome: visibleCount > 0 ? 'success' : 'empty',
+                    resultCount: visibleCount,
+                    metadata: { query_length: Math.min(query.length, 200) }
+                });
+            }, 800);
         }
 
         function initCategoryFilters() {
+            const trackCategoryFilter = () => {
+                if (activeCategoryFilter === 'all') return;
+                trackLibraryUsageEvent({
+                    eventType: 'filter_apply',
+                    resultCount: document.querySelectorAll('.prompt-card:not([hidden])').length,
+                    metadata: {
+                        filter_key: 'category',
+                        filter_value: activeCategoryFilter
+                    }
+                });
+            };
+
             document.querySelectorAll('[data-category-filter]').forEach((button) => {
                 button.addEventListener('click', () => {
                     activeCategoryFilter = button.getAttribute('data-category-filter') || 'all';
@@ -1334,6 +1481,7 @@ async function loadCatalogPackages() {
                     const favoritesSidebarBtn = document.getElementById('favorites-sidebar-btn');
                     if (favoritesSidebarBtn) favoritesSidebarBtn.classList.remove('active');
                     applyPromptFilters();
+                    trackCategoryFilter();
                 });
             });
 
@@ -1350,6 +1498,7 @@ async function loadCatalogPackages() {
                         item.classList.toggle('active', item.getAttribute('data-category-filter') === activeCategoryFilter);
                     });
                     applyPromptFilters();
+                    trackCategoryFilter();
                 });
             }
 
@@ -1453,6 +1602,16 @@ async function loadCatalogPackages() {
 
             const meta = getPromptMeta(prompt);
             const title = stripLeadingIcon(prompt.title);
+
+            const promptViewKey = `prompt_view:${promptId}:${getActiveCatalogContextKeys().join(',')}`;
+            if (shouldTrackLibraryUsage(promptViewKey, 60 * 60 * 1000)) {
+                trackLibraryUsageEvent({
+                    eventType: 'prompt_view',
+                    promptSlug: promptId,
+                    area: meta.category || null,
+                    riskLevel: meta.risk || null
+                });
+            }
 
             if (shouldMarkSelected) {
                 grid.querySelectorAll('.prompt-card').forEach((card) => {
@@ -1989,6 +2148,18 @@ async function loadCatalogPackages() {
 
             try {
                 await navigator.clipboard.writeText(textToCopy);
+
+                const prompt = allPrompts.find((item) => item.id === promptId);
+                const meta = prompt ? getPromptMeta(prompt) : {};
+                trackLibraryUsageEvent({
+                    eventType: 'prompt_copy',
+                    promptSlug: promptId,
+                    area: meta.category || null,
+                    riskLevel: meta.risk || null,
+                    metadata: {
+                        copy_surface: feedbackButton.id === 'selected-prompt-copy-btn' ? 'detail_panel' : 'card'
+                    }
+                });
 
                 // Visual feedback
                 const originalText = feedbackButton.textContent;
