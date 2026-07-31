@@ -3873,14 +3873,48 @@ body.favorites-mode-on .favorites-menu.hidden {
 }
 
 .landing-hero h1 {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
     max-width: 18ch;
     margin: 0;
     color: #101828;
     font-family: "Source Serif 4", Georgia, serif;
+    letter-spacing: 0;
+}
+
+.landing-hero h1 .line-main {
     font-size: clamp(2.35rem, 4.1vw, 3.65rem);
     font-weight: 700;
     line-height: 1.08;
-    letter-spacing: 0;
+}
+
+.landing-hero h1 .line-sub {
+    font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+    font-weight: 500;
+    color: #667085;
+    line-height: 1.15;
+}
+
+.hero-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.9rem 0 0;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    background: #edf4ff;
+    color: #0b63ce;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
 .landing-lead {
@@ -3934,6 +3968,21 @@ body.favorites-mode-on .favorites-menu.hidden {
 .landing-secondary:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px rgba(11, 99, 206, 0.15);
+}
+
+.landing-actions .landing-secondary {
+    border: none;
+    background: transparent;
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
+    text-decoration: underline;
+    text-decoration-color: #bfd7ff;
+    text-underline-offset: 3px;
+}
+
+.landing-actions .landing-secondary:hover {
+    background: transparent;
+    text-decoration-color: #0b63ce;
 }
 
 .landing-visual {
@@ -4034,15 +4083,20 @@ body.favorites-mode-on .favorites-menu.hidden {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    .klarsprak-after {
-        animation: klarsprak-reveal 0.6s ease-out 0.35s backwards;
+    .klarsprak-card > * {
+        animation: klarsprak-reveal 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards;
     }
+
+    .klarsprak-card > *:nth-child(1) { animation-delay: 0.05s; }
+    .klarsprak-card > *:nth-child(2) { animation-delay: 0.15s; }
+    .klarsprak-card > *:nth-child(3) { animation-delay: 0.25s; }
+    .klarsprak-card > *:nth-child(4) { animation-delay: 0.35s; }
 }
 
 @keyframes klarsprak-reveal {
     from {
         opacity: 0;
-        transform: translateY(6px);
+        transform: translateY(8px);
     }
     to {
         opacity: 1;
@@ -4192,6 +4246,9 @@ body.favorites-mode-on .favorites-menu.hidden {
 
     .landing-hero h1 {
         max-width: 18ch;
+    }
+
+    .landing-hero h1 .line-main {
         font-size: clamp(2.2rem, 8vw, 3.2rem);
     }
 

@@ -29,3 +29,6 @@ supabase/.temp/
 
 # Supabase CLI recovery snapshots
 supabase/.temp.bak-*/
+
+# Impeccable live-mode session state (tokens, ephemeral injection config)
+.impeccable/live/
