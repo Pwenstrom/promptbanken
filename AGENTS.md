@@ -16,6 +16,15 @@ Detta repo ar Promptbanken: en svensk kommunal promptkatalog med statisk/Vite-fr
 - Supabase-schema och RLS finns i `supabase/migrations/`; verifieringsplaner finns i `supabase/tests/`.
 - Projektspecifika agentskills finns under `.agents/skills/`, framfor allt Supabase-relaterade instruktioner.
 
+## Mob AI
+
+- Vid Mob AI-arbete: las `.agents/mob-ai/README.md` efter snabb
+  orientering.
+- Skapa ett uppdragskort innan implementation och hall dig inom dess
+  skrivyta.
+- Modulmognad och kollisionspunkter finns i
+  `docs/module-map-2026-07-31.md` och `docs/agent-boundaries.md`.
+
 ## Vanliga kommandon
 
 Kor fran repo-roten om inget annat anges.
