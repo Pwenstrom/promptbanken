@@ -1253,8 +1253,8 @@ body.local-chat-enabled .card-actions .local-chat-btn {
 }
 
 .quick-input-file-label:focus-within {
-    box-shadow: 0 0 0 3px rgba(31, 95, 191, 0.12);
-    border-color: #1f5fbf;
+    box-shadow: 0 0 0 3px rgba(11, 99, 206, 0.12);
+    border-color: #0b63ce;
 }
 
 #quick-input-file {
@@ -3446,8 +3446,7 @@ body {
 }
 
 .card-actions .local-chat-btn,
-.card-actions .direct-chat-btn,
-.card-actions > .info-btn:not(.secondary-btn) {
+.card-actions .direct-chat-btn {
     display: none;
 }
 

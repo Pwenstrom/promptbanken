@@ -1776,7 +1776,6 @@ async function loadCatalogPackages() {
                     <button class="secondary-btn info-btn" data-show-full="${prompt.id}" title="Förhandsvisa">Förhandsvisa</button>
                     <button class="secondary-btn local-chat-btn" data-chat-local="${prompt.id}">Chatta lokalt</button>
                     <button class="secondary-btn direct-chat-btn" type="button" disabled aria-disabled="true" title="Kommer snart">Chatta direkt (kommer snart)</button>
-                    <button class="info-btn" data-show-full="${prompt.id}" title="Se hela prompt">ℹ️ Se hela prompt</button>
                 </div>
                 <textarea id="textarea-${prompt.id}">${combinedText}</textarea>
             `;

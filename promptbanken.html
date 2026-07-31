@@ -23,8 +23,8 @@
             gap: 0.35rem;
             padding: 0.2rem 0.55rem;
             border-radius: 999px;
-            background: #e8f1ff;
-            color: #1f5fbf;
+            background: #edf4ff;
+            color: #0b63ce;
             font-size: 0.82rem;
             font-weight: 700;
             text-transform: uppercase;
@@ -141,7 +141,7 @@
         .selected-prompt-label {
             font-size: 0.85rem;
             font-weight: 700;
-            color: #1f5fbf;
+            color: #0b63ce;
             text-transform: uppercase;
             letter-spacing: 0.03em;
         }
@@ -185,9 +185,8 @@
         }
 
         .prompt-grid .prompt-card.workflow-selected {
-            border-color: #1f5fbf;
-            box-shadow: 0 0 0 3px rgba(31, 95, 191, 0.12);
-            transform: translateY(-1px);
+            border-color: #0b63ce;
+            box-shadow: 0 0 0 3px rgba(11, 99, 206, 0.12);
         }
 
         .prompt-grid .prompt-card .card-actions {
@@ -213,9 +212,9 @@
         }
 
         .prompt-grid .prompt-card.workflow-selected .select-prompt-btn {
-            background: #e8f1ff;
-            color: #1f5fbf;
-            border-color: #bfd3f2;
+            background: #edf4ff;
+            color: #0b63ce;
+            border-color: #bfd7ff;
         }
 
         @media (max-width: 700px) {
@@ -337,11 +336,11 @@
                     <div class="context-filter-options" id="catalog-profile-filters" role="radiogroup" aria-label="Kontextval"></div>
                     <div class="context-filter-controls" aria-label="Inställningar för prompttext">
                         <label class="context-filter-control" for="global-role-select">
-                            <span>Roll</span>
+                            <span>Skriv som (roll)</span>
                             <select id="global-role-select"></select>
                         </label>
                         <label class="context-filter-control" for="global-audience-select">
-                            <span>Målgrupp</span>
+                            <span>Skriv för (målgrupp)</span>
                             <select id="global-audience-select"></select>
                         </label>
                         <label class="context-filter-control" for="global-tone-select">
@@ -395,13 +394,13 @@
                     </label>
                     <div class="advanced-filters" id="advanced-filters">
                     <label class="filter-control" for="audience-filter">
-                        <span>Målgrupp</span>
+                        <span>Filtrera: målgrupp</span>
                         <select id="audience-filter">
                             <option value="all">Alla målgrupper</option>
                         </select>
                     </label>
                     <label class="filter-control" for="role-filter">
-                        <span>Roll</span>
+                        <span>Filtrera: roll</span>
                         <select id="role-filter">
                             <option value="all">Alla roller</option>
                         </select>
