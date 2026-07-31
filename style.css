@@ -3875,14 +3875,14 @@ body.favorites-mode-on .favorites-menu.hidden {
 }
 
 .landing-hero h1 {
-    max-width: 13ch;
+    max-width: 18ch;
     margin: 0;
     color: #101828;
     font-family: "Source Serif 4", Georgia, serif;
-    font-size: clamp(2.9rem, 5.4vw, 4.7rem);
+    font-size: clamp(2.35rem, 4.1vw, 3.65rem);
     font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -0.01em;
+    line-height: 1.08;
+    letter-spacing: 0;
 }
 
 .landing-lead {
@@ -4185,7 +4185,8 @@ body.favorites-mode-on .favorites-menu.hidden {
     }
 
     .landing-hero h1 {
-        max-width: 12ch;
+        max-width: 18ch;
+        font-size: clamp(2.2rem, 8vw, 3.2rem);
     }
 
     .klarsprak-card {
