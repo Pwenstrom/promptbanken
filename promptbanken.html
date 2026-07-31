@@ -6,6 +6,12 @@
     <title>Promptkatalog | Promptbanken</title>
     <meta name="description" content="Promptbanken är en öppen promptkatalog med svenska mallar för klarspråk, mejl, informationsutskick, checklistor, FAQ, rutiner och beslutsunderlag.">
     <meta name="robots" content="index,follow">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Promptbanken">
+    <meta property="og:title" content="Promptkatalog | Promptbanken">
+    <meta property="og:description" content="Öppen promptkatalog med svenska mallar för tydligare texter, underlag och arbetsflöden.">
+    <meta property="og:url" content="https://app.promptbanken.se/promptbanken.html">
+    <meta name="twitter:card" content="summary">
     <link rel="canonical" href="https://app.promptbanken.se/promptbanken.html">
     <link rel="alternate" type="application/json" href="prompts.json" title="Promptbanken promptmanifest">
     <link rel="alternate" type="text/plain" href="llms.txt" title="Promptbanken för AI-agenter">
@@ -442,11 +448,11 @@
 
                 <section class="prompt-grid" id="prompt-grid" aria-label="Tillgängliga prompter">
                     <div class="loading-message">Laddar promptmallar...</div>
-                    <div class="empty-state" id="prompt-grid-empty" hidden>
-                        <p>Inga prompter matchar dina filter.</p>
-                        <button type="button" class="filter-more" id="empty-state-clear-btn">Rensa filter</button>
-                    </div>
                 </section>
+                <div class="empty-state" id="prompt-grid-empty" hidden>
+                    <p>Inga prompter matchar dina filter.</p>
+                    <button type="button" class="filter-more" id="empty-state-clear-btn">Rensa filter</button>
+                </div>
                 <p class="result-count" id="result-count">Visar prompter</p>
 
                 <section class="catalog-section" id="catalog-section">
