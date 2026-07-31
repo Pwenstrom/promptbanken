@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-31T00:00:00Z",
+  "title": "Design System: Promptbanken",
+  "extensions": {
+    "colorMeta": {
+      "civic-blue": { "role": "primary", "displayName": "Civic Blue", "canonical": "#0b63ce", "tonalRamp": ["#0b3a82", "#0b4aa0", "#0b5ab8", "#0b63ce", "#3b82e0", "#7bb0ec", "#bfd7ff", "#edf4ff"] },
+      "neutral-ink": { "role": "neutral", "displayName": "Ink", "canonical": "#101828", "tonalRamp": ["#0a0f16", "#101828", "#1f2937", "#344054", "#475467", "#667085", "#98a2b3", "#f8fafc"] },
+      "neutral-border": { "role": "neutral", "displayName": "Border Gray", "canonical": "#dfe6ee", "tonalRamp": ["#98a2b3", "#b9c9df", "#cbd5e1", "#dfe6ee", "#e6eaf0", "#f0f3f7", "#f8fafc", "#ffffff"] },
+      "error": { "role": "error", "displayName": "Error Red", "canonical": "#b42318" },
+      "success": { "role": "success", "displayName": "Success Green", "canonical": "#067647" },
+      "warm-accent": { "role": "tertiary", "displayName": "Warm Amber", "canonical": "#b7791f" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Landing/marketing headlines only." },
+      "kicker": { "displayName": "Kicker/Label", "purpose": "Uppercase monospace eyebrow labels above headlines and technical field labels." },
+      "body": { "displayName": "Body", "purpose": "Running text, nav, forms, everything read at working speed." }
+    },
+    "shadows": [
+      { "name": "resting", "value": "0 1px 2px rgba(16, 24, 40, 0.04)", "purpose": "Default card/control state at rest." },
+      { "name": "hover", "value": "0 8px 24px rgba(16, 24, 40, 0.08)", "purpose": "Interactive lift on pointer hover." },
+      { "name": "selected-ring", "value": "0 0 0 2px rgba(11, 99, 206, 0.15)", "purpose": "Selection/focus state, Civic Blue at low opacity." },
+      { "name": "showcase", "value": "0 28px 70px rgba(16, 24, 40, 0.12)", "purpose": "Reserved for hero-level signature elements only." }
+    ],
+    "motion": [],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main call-to-action, e.g. landing hero \"Hitta en prompt\".",
+      "html": "<button class=\"ds-btn-primary\">Hitta en prompt</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; min-height: 48px; padding: 0.8rem 1.05rem; border: none; border-radius: 7px; background: #0b63ce; color: #fff; font-weight: 850; font-size: 1rem; cursor: pointer; transition: background 0.15s; } .ds-btn-primary:hover { background: #084f9e; } .ds-btn-primary:focus-visible { outline: 2px solid #0b63ce; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary action alongside a primary button, e.g. landing hero \"MCP how-to\".",
+      "html": "<button class=\"ds-btn-secondary\">MCP how-to</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; min-height: 48px; padding: 0.8rem 1.05rem; border: 1px solid #bfd7ff; border-radius: 7px; background: #fff; color: #0b63ce; font-weight: 850; font-size: 1rem; cursor: pointer; transition: background 0.15s; } .ds-btn-secondary:hover { background: #f4f8ff; } .ds-btn-secondary:focus-visible { outline: 2px solid #0b63ce; outline-offset: 2px; }"
+    },
+    {
+      "name": "Prompt Card",
+      "kind": "card",
+      "refersTo": "card-prompt",
+      "description": "Catalog card representing one prompt template; selectable, with icon chip, title and description.",
+      "html": "<div class=\"ds-prompt-card\"><span class=\"ds-prompt-card-icon\">A</span><h3 class=\"ds-prompt-card-title\">Klarspråk för medborgarbrev</h3><p class=\"ds-prompt-card-desc\">Skriv om texter till tydligt, vänligt språk för invånare.</p></div>",
+      "css": ".ds-prompt-card { min-height: 225px; padding: 1rem; border: 1px solid #dfe6ee; border-radius: 8px; background: #fff; box-shadow: 0 1px 2px rgba(16,24,40,0.04); cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; } .ds-prompt-card:hover { border-color: #b9c9df; box-shadow: 0 8px 24px rgba(16,24,40,0.08); } .ds-prompt-card-icon { display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 8px; background: #edf4ff; color: #0b63ce; font-weight: 800; margin-bottom: 0.7rem; } .ds-prompt-card-title { margin: 0 0 0.4rem; color: #1f2937; font-size: 1rem; } .ds-prompt-card-desc { margin: 0; color: #4b5563; font-size: 0.88rem; }"
+    },
+    {
+      "name": "Nav Link",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Top navigation link, e.g. landing topbar links.",
+      "html": "<a class=\"ds-nav-link\" href=\"#\">Hjälp</a>",
+      "css": ".ds-nav-link { display: inline-flex; align-items: center; padding: 0.55rem 0.8rem; border-radius: 7px; color: #344054; font-weight: 750; text-decoration: none; transition: background 0.15s, color 0.15s; } .ds-nav-link:hover { background: #edf4ff; color: #0b63ce; }"
+    },
+    {
+      "name": "Selection Badge",
+      "kind": "custom",
+      "refersTo": "selected-check",
+      "description": "Circular checkmark badge shown on a selected prompt card.",
+      "html": "<span class=\"ds-selected-check\">✓</span>",
+      "css": ".ds-selected-check { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #0b63ce; color: #fff; font-size: 0.75rem; text-align: center; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Civic AI Workbench",
+    "overview": "Promptbanken presents itself as a calm, trustworthy workspace — not a consumer app and not a flashy AI product. The system reads as institutional without being cold: a serif display face gives headlines quiet authority, while a plain system-font body keeps working content scannable. Civic Blue is used sparingly and consistently as the single signal of interactivity and trust; everything else stays near-neutral ink and gray. Cards and controls sit flush against the page at rest — depth appears only as a response to hover or selection, never as ambient decoration. The whole system optimizes for people who need to trust a tool quickly and then get back to their actual work.",
+    "keyCharacteristics": [
+      "One accent color (Civic Blue), used narrowly and repeated exactly",
+      "Serif display type for headline authority, system sans for everything read at speed",
+      "Flat-by-default surfaces; shadow is a state signal, not a resting decoration",
+      "Small, consistent radii (4–8px) — precise, not playful",
+      "Monospace used only for kickers/labels/technical strings, never body copy"
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Civic Blue is the only color that means \"act here.\" It never competes with a second bright accent on the same screen; warm accent and semantic colors are reserved for their own distinct meanings (favorite, error, success), never substituted for the primary action color.", "section": "colors" },
+      { "name": "The Serif-Is-Rare Rule", "body": "The serif display face appears only on true headline moments (landing hero, top-level page titles). Every operational surface — cards, forms, nav, admin — stays in the sans body font. Serif never leaks into UI chrome.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest. Shadow only appears as a response to state (hover, selection, focus) or on the single hero showcase element per page — never as ambient decoration on ordinary cards or panels.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep Civic Blue as the only color that signals an action — buttons, active nav, selection, links.",
+      "Do keep shadows flat at rest and reserve elevation for hover/selection/focus state changes.",
+      "Do use the serif display face only for true headline moments; keep every operational surface in the sans body font.",
+      "Do use small radii (4–8px) consistently; reserve 10px+ and pill/circle shapes for the specific container types already using them (showcase cards, pills, circular badges)."
+    ],
+    "donts": [
+      "Don't introduce a second bright accent color competing with Civic Blue for attention.",
+      "Don't add ambient/resting shadows to ordinary cards or panels — depth is earned by interaction, not decoration.",
+      "Don't use the serif face in UI chrome, forms, or admin surfaces — it is reserved for landing/marketing headlines.",
+      "Don't add motion/lift transforms to buttons or cards; the system signals state through color and shadow only, not transform."
+    ]
+  }
+}
