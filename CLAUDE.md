@@ -4,6 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 See [AGENTS.md](AGENTS.md) for multi-agent workflow conventions, common commands, verification steps, and code/architecture rules used in this project.
 
+## Mob AI
+
+Claude ska följa samma Mob AI-gränser som repoagenterna. Börja i
+`.agents/mob-ai/README.md` när en uppgift ska drivas av flera agenter eller
+en modul ska förbättras av en specialiserad agent. Skapa konkreta uppdrag från
+`.agents/mob-ai/task-card-template.md` och håll skrivytan inom den modul och
+det gränssnittsartefakt som uppdragskortet anger.
+
+Aktuell bootstrap och lärdomar finns i
+`.agents/mob-ai/pilots/2026-07-31-bootstrap.md`. Den är en bootstrap av
+arbetssättet, inte den första skarpa gröna produktmodulpiloten. För första
+skarpa pilot: välj en grön modul från `docs/module-map-2026-07-31.md`, använd
+exakt modulnamn därifrån och låt separat QA verifiera skrivyta, kontrakt och
+obligatoriska kommandon innan merge.
+
 ## Aktuellt produktionsläge (2026-07-27)
 
 - Supabase-migrationerna `20260727141513_repair_valvet_provenance_schema.sql`
