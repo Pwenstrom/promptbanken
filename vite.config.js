@@ -7,6 +7,9 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         { src: 'prompts.json', dest: '.' },
+        { src: 'llms.txt', dest: '.' },
+        { src: 'robots.txt', dest: '.' },
+        { src: 'sitemap.xml', dest: '.' },
         { src: 'prompts', dest: '.' },
         { src: 'script.js', dest: '.' },
         { src: 'style.css', dest: '.' },
@@ -25,6 +28,7 @@ export default defineConfig({
         about: resolve(__dirname, 'about.html'),
         planer: resolve(__dirname, 'planer.html'),
         mcp: resolve(__dirname, 'mcp.html'),
+        prompts: resolve(__dirname, 'prompts.html'),
         privacy: resolve(__dirname, 'privacy.html'),
         terms: resolve(__dirname, 'terms.html'),
         'local-chat': resolve(__dirname, 'local-chat.html'),
