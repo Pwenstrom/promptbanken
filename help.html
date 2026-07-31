@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hjälp och vägledning - Promptbanken</title>
-    <meta name="description" content="Hjälp för Promptbanken: sök, filtrera, välj prompt, kopiera promptar, använd MCP och hantera personuppgifter.">
+    <meta name="description" content="Hjälp för Promptbanken: hitta promptmallar, kopiera promptar, använda öppen MCP och hantera AI-underlag ansvarsfullt.">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="https://app.promptbanken.se/help.html">
     <link rel="stylesheet" href="style.css">
@@ -18,7 +18,7 @@
             </a>
 
             <nav class="sidebar-nav">
-                <a class="sidebar-link" href="index.html"><span aria-hidden="true">▦</span>Alla prompter</a>
+                <a class="sidebar-link" href="promptbanken.html"><span aria-hidden="true">▦</span>Alla prompter</a>
                 <a class="sidebar-link mcp-feature-link" href="mcp.html"><span aria-hidden="true">◇</span>MCP och användning</a>
                 <a class="sidebar-link active" href="help.html"><span aria-hidden="true">?</span>Hjälp</a>
             </nav>
@@ -33,7 +33,7 @@
 
         <div class="app-main">
             <header class="topbar">
-                <a class="help-btn" href="index.html">Tillbaka till prompter</a>
+                <a class="help-btn" href="promptbanken.html">Tillbaka till prompter</a>
                 <a class="help-btn mcp-top-link" href="mcp.html">MCP och användning</a>
                 <div class="info-class">
                     <span class="shield" aria-hidden="true">◇</span>
@@ -45,23 +45,30 @@
                 <article class="article-page">
                     <p class="article-kicker">Hjälp</p>
                     <h1>Hjälp och vägledning</h1>
-                    <p class="article-lead">Promptbanken är ett bibliotek med färdiga svenska promptmallar för texter, underlag och arbetsflöden.</p>
+                    <p class="article-lead">Promptbanken är ett öppet bibliotek med svenska promptmallar för texter, underlag och arbetsflöden. Du kan använda mallarna direkt på webben eller låta ett AI-verktyg hämta dem via öppen MCP.</p>
 
                     <section>
-                        <h2>Kom igång</h2>
+                        <h2>Kom igång på webben</h2>
                         <ol>
                             <li>Sök eller filtrera fram en prompt som passar uppgiften.</li>
                             <li>Klicka på promptkortet för att se detaljer och prompttext.</li>
-                            <li>Klistra in din egen text i rutan <strong>Din text</strong> om prompten ska använda underlag.</li>
-                            <li>Klicka på <strong>Använd</strong> för att kopiera prompten.</li>
+                            <li>Anpassa kontext, roll, målgrupp och ton om du vill göra prompten mer relevant.</li>
+                            <li>Lägg bara in avidentifierat underlag om prompten ska bearbeta en text.</li>
+                            <li>Klicka på <strong>Använd</strong> eller kopiera prompttexten.</li>
                             <li>Klistra in prompten i ditt AI-verktyg och granska alltid resultatet.</li>
                         </ol>
                     </section>
 
                     <section>
                         <h2>Sök och filter</h2>
-                        <p>Sökfältet letar i titel, beskrivning, kategori, målgrupp, roll, risknivå och exempeltext. Du kan kombinera sökning med filter för kategori, målgrupp, roll och risknivå.</p>
-                        <p>Vänstermenyn filtrerar snabbt på huvudkategori. Knappen <strong>Rensa filter</strong> återställer filter och sökfält.</p>
+                        <p>Sökfältet letar i titel, beskrivning, kategori, målgrupp, roll, risknivå och exempeltext. Du kan kombinera sökning med filter för kategori, målgrupp, roll, risknivå och användningsområde.</p>
+                        <p>Vänstermenyn filtrerar snabbt på huvudkategori. <strong>Rensa filter</strong> tar bort dina val och visar hela biblioteket igen.</p>
+                    </section>
+
+                    <section>
+                        <h2>Anpassa prompten</h2>
+                        <p>Välj kontext, roll, målgrupp och ton om du vill att mallen ska passa en viss situation. Förhandsvisningen och den kopierade prompten uppdateras med dina val.</p>
+                        <p>Om en prompt innehåller fält för eget underlag ska du avidentifiera texten först. Ta bort namn, kontaktuppgifter, personnummer, ärendenummer och andra uppgifter som kan peka ut en person.</p>
                     </section>
 
                     <section>
@@ -71,12 +78,13 @@
 
                     <section>
                         <h2>MCP</h2>
-                        <p>Vill du använda Promptbanken direkt i ett AI-verktyg som stödjer MCP? Läs sidan <a href="mcp.html">MCP och användning</a>.</p>
+                        <p>MCP gör att ett AI-verktyg kan hämta Promptbankens öppna mallar direkt. Det kräver inget konto och ingen nyckel. Läs den praktiska guiden på <a href="mcp.html">MCP och användning</a>.</p>
                     </section>
 
                     <section>
                         <h2>Anonym användningsstatistik</h2>
-                        <p>Promptbanken mäter anonym, aggregerad användning av det öppna biblioteket: när prompts visas, öppnas eller kopieras i webben och när öppna MCP-anrop listar, söker, öppnar eller hämtar prompts. Statistiken används för återkoppling och produktutveckling, inte för individuell spårning. Payloads hålls avsiktligt små och anonyma och innehåller inte promptinnehåll från användare, råa söktermer, IP-adresser, e-postadresser, user-agent eller nyckelmaterial.</p>
+                        <p>Promptbanken mäter anonym, aggregerad användning av det öppna biblioteket: när prompts visas, öppnas eller kopieras i webben och när öppna MCP-anrop listar, söker, öppnar eller hämtar prompts. Statistiken används för återkoppling och produktutveckling, inte för individuell spårning.</p>
+                        <p>Mätningen innehåller inte egna prompttexter, användarens underlag, råa söktermer, IP-adresser, e-postadresser, user-agent eller nyckelmaterial.</p>
                     </section>
 
                     <section>

@@ -40,19 +40,26 @@
             <main class="article-shell">
                 <article class="article-page">
                     <p class="article-kicker">Guide</p>
-                    <h1>Hur använder man Promptbanken i praktiken?</h1>
-                    <p class="article-lead">Det finns två sätt att använda Promptbanken: som vanlig webbsida, eller som öppen MCP-server i ett AI-verktyg — helt utan konto eller nyckel. Vill du spara egna prompts och bygga ett eget bibliotek finns det i <a href="https://valvet.promptbanken.se">Valvet</a>.</p>
+                    <h1>Använd Promptbanken via öppen MCP</h1>
+                    <p class="article-lead">Promptbanken kan användas direkt på webben eller kopplas till ett AI-verktyg via en öppen MCP-server. Servern ger åtkomst till de öppna promptmallarna utan konto, nyckel eller inloggning.</p>
 
                     <section>
-                        <h2>Det enkla sättet</h2>
+                        <h2>Använd webben först</h2>
                         <p>Gå till <a href="https://app.promptbanken.se">app.promptbanken.se</a>.</p>
                         <p>Där kan du läsa promptarna, kontrollera hur de är uppbyggda och kopiera dem till en vanlig AI-chatt. Det passar bra om du vill testa snabbt, förstå innehållet eller använda en mall manuellt.</p>
                     </section>
 
                     <section>
-                        <h2>Öppen MCP — utan konto eller nyckel</h2>
-                        <p>Lägg till Promptbanken som en MCP-server i en AI-klient som stödjer MCP. Då kan klienten hämta de öppna promptmallarna när du behöver stöd för exempelvis klarspråk, informationsutskick, checklistor, FAQ:er eller beslutsunderlag — inget konto krävs.</p>
-                        <p>I klienter som stödjer remote MCP via Streamable HTTP kan konfigurationen ofta se ut ungefär så här:</p>
+                        <h2>Vad MCP gör</h2>
+                        <p>MCP står för Model Context Protocol. I praktiken betyder det att ett AI-verktyg kan fråga Promptbanken efter mallar medan du arbetar, i stället för att du själv behöver söka fram och kopiera prompttexten varje gång.</p>
+                        <p>Den öppna servern kan lista, söka och hämta promptmallar från biblioteket. Den tar inte emot dina egna underlag och kräver ingen personlig nyckel.</p>
+                    </section>
+
+                    <section>
+                        <h2>Serveradress</h2>
+                        <p>Använd den här adressen i AI-klienter som stödjer remote MCP:</p>
+                        <pre><code>https://mcp.promptbanken.se/mcp</code></pre>
+                        <p>I klienter som använder en konfigurationsfil kan inställningen ofta se ut ungefär så här:</p>
                         <pre><code>{
   "mcpServers": {
     "promptbanken": {
@@ -60,17 +67,12 @@
     }
   }
 }</code></pre>
-                        <p>Vissa klienter har ett grafiskt gränssnitt där man lägger till en ny MCP-server och klistrar in adressen. Andra använder en konfigurationsfil — se de verktygsspecifika avsnitten längre ner på sidan.</p>
+                        <p>Vissa klienter har ett grafiskt gränssnitt där du lägger till en ny MCP-server och klistrar in adressen. Om klienten frågar efter autentisering väljer du alternativet för ingen autentisering om det finns.</p>
                     </section>
 
                     <section>
-                        <h2>Vill du ha ett eget valv?</h2>
-                        <p>Hela promptbiblioteket är öppet — inget konto behövs för att läsa eller använda mallarna, varken på webben eller via MCP. Vill du spara egna prompts, aktivera promptpaket och få en egen MCP-nyckel för det, gör du det i <a href="https://valvet.promptbanken.se">Valvet</a>.</p>
-                    </section>
-
-                    <section>
-                        <h2>Ett sätt att få AI-verktyget att använda Promptbanken</h2>
-                        <p>Man kan lägga in en enkel anvisning i sina Custom Instructions, så att AI-verktyget vet när Promptbanken ska användas.</p>
+                        <h2>Be AI-verktyget använda Promptbanken</h2>
+                        <p>Lägg gärna in en enkel anvisning i AI-verktygets instruktioner, så att det vet när Promptbanken ska användas.</p>
                         <blockquote>När jag ber om svenska texter, underlag, mejl, rutiner, checklistor, informationsutskick, FAQ eller beslutsunderlag ska du först kontrollera om Promptbanken har en relevant mall. Om en mall passar ska du använda den och säga vilken mall du valt.</blockquote>
                         <p>Det gör att man inte behöver skriva “använd Promptbanken” varje gång. Men vill man vara extra tydlig kan man börja chatten med:</p>
                         <ul>
@@ -84,8 +86,8 @@
                         <h2>Vilken väg passar dig?</h2>
                         <div class="article-table">
                             <div><strong>Vill du läsa och kopiera manuellt?</strong><span>Använd app.promptbanken.se.</span></div>
-                            <div><strong>Vill du komma igång snabbt utan konto?</strong><span>Använd den publika MCP-servern utan nyckel — ger de öppna mallarna.</span></div>
-                            <div><strong>Vill du spara egna prompts och ha en personlig MCP-nyckel?</strong><span>Använd <a href="https://valvet.promptbanken.se">Valvet</a>.</span></div>
+                            <div><strong>Vill du att AI-verktyget hittar mallar åt dig?</strong><span>Lägg till den öppna MCP-servern i klienten.</span></div>
+                            <div><strong>Vill du testa utan teknisk inställning?</strong><span>Börja på webben och kopiera prompten manuellt.</span></div>
                         </div>
                         <p>Den publika MCP-servern är <a href="https://mcp.promptbanken.se/mcp">https://mcp.promptbanken.se/mcp</a>.</p>
                     </section>
@@ -103,37 +105,13 @@
                     </section>
 
                     <section>
-                        <h2>Personlig MCP-nyckel (Valvet)</h2>
-                        <p>Vill du att AI-verktyget även ska nå dina egna sparade prompts och aktiverade promptpaket, skapar du en personlig MCP-nyckel i <a href="https://valvet.promptbanken.se">Valvet</a> (Min workspace → MCP-nyckel). Nyckeln kopplas till samma MCP-server som de öppna mallarna, se avsnittet "Koppla din nyckel till ett AI-verktyg" nedan.</p>
-                        <p>Nyckeln ger bara åtkomst till ditt eget valv — aldrig andra användares privata prompts. Förvaltning och Kommun använder egna organisationsägda MCP-nycklar istället för personliga.</p>
-                    </section>
-
-                    <section>
-                        <h2>Koppla din nyckel till ett AI-verktyg</h2>
-                        <p>I ett AI-verktyg som stödjer remote MCP lägger du till Promptbankens MCP-server på <code>https://mcp.promptbanken.se/mcp</code> och skickar med din nyckel som ett Bearer-token. En konfiguration kan ofta se ut ungefär så här:</p>
-                        <pre><code>{
-  "mcpServers": {
-    "promptbanken": {
-      "url": "https://mcp.promptbanken.se/mcp",
-      "headers": {
-        "Authorization": "Bearer DIN_MCP_NYCKEL"
-      }
-    }
-  }
-}</code></pre>
-                        <p>Byt ut <code>DIN_MCP_NYCKEL</code> mot din egen nyckel från Valvet. Vissa klienter använder ett annat fält än <code>headers</code>, eller har ett särskilt fält för token/API-nyckel — följ då verktygets egen instruktion och använd samma MCP-adress och samma nyckel.</p>
-                    </section>
-
-                    <section>
                         <h2>Säkerhet</h2>
-                        <p>Behandla MCP-nyckeln som ett lösenord. Gör inte detta:</p>
+                        <p>Den öppna MCP-servern behöver ingen nyckel och ska bara användas för att hämta mallar. Tänk ändå på detta:</p>
                         <ul>
-                            <li>klistra inte in nyckeln i offentliga chattar</li>
-                            <li>lägg inte nyckeln i GitHub</li>
-                            <li>dela inte nyckeln med andra</li>
-                            <li>skicka inte nyckeln i mejl om det kan undvikas</li>
+                            <li>skicka inte personuppgifter eller sekretessnära underlag till externa AI-verktyg</li>
+                            <li>kontrollera alltid AI-svar innan de används</li>
+                            <li>följ organisationens regler för vilka externa verktyg som får kopplas in</li>
                         </ul>
-                        <p>Om du misstänker att nyckeln har läckt: gå till <a href="https://valvet.promptbanken.se">MCP-nyckel i Valvet</a>, återkalla nyckeln och skapa en ny.</p>
                     </section>
 
                     <section>
@@ -147,23 +125,19 @@
     }
   }
 }</code></pre>
-                        <p>Vill du även nå dina egna sparade mallar via samma publika server, lägg till din nyckel som ett <code>headers</code>-fält enligt avsnittet "Koppla din nyckel till ett AI-verktyg" ovan. Starta om Claude Desktop efter att du sparat filen. I Claude Code fungerar samma <code>mcpServers</code>-block i projektets <code>.claude</code>-konfiguration.</p>
+                        <p>Starta om Claude Desktop efter att du sparat filen. I Claude Code fungerar samma <code>mcpServers</code>-block i projektets <code>.claude</code>-konfiguration.</p>
                         <p>Verktyget <code>list_pro_templates</code> (namnet är historiskt) visar promptbibliotekets öppna mallar med full prompttext för alla — ingen nyckel eller plan krävs.</p>
                     </section>
 
                     <section>
                         <h2>OpenAI / ChatGPT</h2>
-                        <p>MCP stöds i ChatGPT via OpenAIs API (Responses API/Agents SDK) eller via ChatGPTs Connectors (Team/Enterprise-planer), och kräver en <strong>remote</strong> MCP-adress:</p>
-                        <figure class="article-figure">
-                            <img src="docs/bilder/mcp-openai-setup.png" alt="ChatGPTs dialog 'Ny app' med Server-URL ifylld till https://mcp.promptbanken.se/mcp, Autentisering satt till Åtkomsttoken/API-nyckel och Sidhuvudsschema satt till Bearer-token.">
-                            <figcaption>Så här ser det ut när du lägger till Promptbanken som en anpassad connector i ChatGPT: klistra in serveradressen, välj "Åtkomsttoken/API-nyckel" som autentisering och "Bearer-token" som sidhuvudsschema, och klistra sedan in din MCP-nyckel.</figcaption>
-                        </figure>
+                        <p>I OpenAI-miljöer används remote MCP som ett verktyg eller en anpassad connector när funktionen är aktiverad för kontot eller arbetsytan. Lägg in serveradressen som remote MCP-server:</p>
                         <pre><code>{
   "type": "mcp",
   "server_label": "promptbanken",
   "server_url": "https://mcp.promptbanken.se/mcp"
 }</code></pre>
-                        <p>Bygger du en egen integration mot OpenAIs API lägger du in detta som ett verktyg i din anropskod. Har du inte tillgång till Connectors eller API:et kan du fortfarande använda den enkla vägen: kopiera prompttexten direkt från <a href="https://app.promptbanken.se">app.promptbanken.se</a> in i ChatGPT.</p>
+                        <p>Har du inte tillgång till remote MCP eller connectors kan du fortfarande använda den enkla vägen: kopiera prompttexten direkt från <a href="https://app.promptbanken.se">app.promptbanken.se</a> in i ChatGPT.</p>
                     </section>
 
                     <section>
@@ -181,7 +155,6 @@
                         <h2>Praktisk slutsats</h2>
                         <p>Vill man testa de öppna promptarna som vanlig webbsida är <a href="https://app.promptbanken.se">app.promptbanken.se</a> enklast.</p>
                         <p>Vill man komma igång direkt utan konto är den publika MCP-servern <a href="https://mcp.promptbanken.se/mcp">mcp.promptbanken.se/mcp</a> rätt väg — den ger de öppna mallarna.</p>
-                        <p>Vill man spara egna prompts, aktivera promptpaket eller ha en personlig MCP-nyckel använder man <a href="https://valvet.promptbanken.se">Valvet</a>.</p>
                     </section>
                 </article>
             </main>
