@@ -100,9 +100,9 @@ as $$
                 'filter_value'
               )
        )
-       and (not p_metadata ? 'tool'
-            or (jsonb_typeof(p_metadata->'tool') = 'string'
-                and p_metadata->>'tool' in ('list_prompts', 'search_prompts', 'get_prompt', 'list_packages', 'get_package', 'list_package_prompts'))
+        and (not p_metadata ? 'tool'
+             or (jsonb_typeof(p_metadata->'tool') = 'string'
+                and p_metadata->>'tool' in ('list_prompts', 'search_prompts', 'get_prompt', 'list_packages', 'get_package', 'list_package_prompts')))
        and (not p_metadata ? 'package_type'
             or p_metadata->>'package_type' in ('collection', 'workflow'))
        and (not p_metadata ? 'copy_surface'
