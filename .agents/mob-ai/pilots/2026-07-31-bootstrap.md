@@ -1,4 +1,4 @@
-# Pilot: Mob AI-bootstrap
+﻿# Pilot: Mob AI-bootstrap
 
 Datum: 2026-07-31
 Status: Redo för implementering
