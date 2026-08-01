@@ -4694,16 +4694,13 @@ body.detail-panel-closed .prompt-detail-panel {
     }
 
     .context-filter-controls {
-        display: flex;
-        gap: 0.45rem;
+        grid-template-columns: 1fr;
+        gap: 0.65rem;
         margin-top: 0.75rem;
-        overflow-x: auto;
-        padding-bottom: 0.2rem;
-        scrollbar-width: thin;
     }
 
     .context-filter-control {
-        flex: 0 0 148px;
+        flex: 1 1 auto;
         gap: 0.25rem;
     }
 
@@ -5760,16 +5757,13 @@ body.detail-panel-closed .prompt-detail-panel {
     }
 
     .context-filter-controls {
-        display: flex;
-        gap: 0.45rem;
+        grid-template-columns: 1fr;
+        gap: 0.65rem;
         margin-top: 0.75rem;
-        overflow-x: auto;
-        padding-bottom: 0.2rem;
-        scrollbar-width: thin;
     }
 
     .context-filter-control {
-        flex: 0 0 148px;
+        flex: 1 1 auto;
         gap: 0.25rem;
     }
 

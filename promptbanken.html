@@ -600,7 +600,7 @@
 
         const link = document.getElementById('auth-nav-link');
         const label = document.getElementById('auth-nav-label');
-        if (session) {
+        if (session && link && label) {
           link.href = 'admin.html';
           label.textContent = 'Min workspace';
         }
