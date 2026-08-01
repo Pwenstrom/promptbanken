@@ -1,7 +1,7 @@
 # Pilot: Ta bort död kod i promptUiMeta (script.js)
 
 Datum: 2026-08-01
-Status: Blockerad — felaktig premiss upptäckt av modulagenten
+Status: Godkänd (blockerad-med-rätta — processen fungerade)
 
 ## Resultat (delvis — se Lärdomar)
 
@@ -34,6 +34,45 @@ Ingen kodändring gjordes. `git diff` bekräftat tomt av modulagenten.
   fortfarande läsa `promptUiMeta[prompt.id]` (nu bara aldrig
   förhandsifylld) — det är fortfarande en giltig, mindre städning, men
   kräver ett nytt uppdragskort med korrekt skrivyta.
+
+## Oberoende QA-verifiering
+
+QA-agenten (separat, isolerad från modulagentens resonemang, såg bara
+uppdragskortet + det uppdaterade Resultat-avsnittet) verifierade varje
+enskild delclaim på nytt från grunden:
+
+1. Full osankrad sökning efter `promptUiMeta` i hela filen gav exakt
+   samma fyra träffar som modulagenten angav (1130, 1226, 1891, 1934) —
+   inga fler, inga färre.
+2. Spårade anropskedjan: `registerOwnPrompts`/`registerProTemplates`
+   exponeras som `window.*` (script.js:1963-1964) och anropas ovillkorligt
+   från `loadMyPrompts()`/`loadProTemplates()` i promptbanken.html
+   (rad 684, 703, 706-708) när Supabase är konfigurerat — dvs i
+   produktion. Inte död kod.
+3. Bekräftade att `promptUiMeta[item.id] = {...}` kräver att `const`-
+   bindningen finns — radering hade gett `ReferenceError` för varje
+   inloggad användare med egna prompts eller Pro-mallar.
+4. Räknade om de 20 statiska nycklarna mot `mcpPromptMeta` självständigt
+   (inte bara litat på uppdragskortets siffror) — bekräftade 20/20
+   överlapp, `mcpPromptMeta` har en extra nyckel (`tydlighetskoll`).
+5. `git status`/`git diff --stat`: bekräftade att ingen fil ändrats.
+
+**QA-domslut: PASS.** Modulagentens vägran var korrekt och fullt
+motiverad i varje enskild detalj. QA hittade inget modulagenten missat
+eller haft fel om.
+
+## Resultat (slutgiltigt)
+
+- Uppgiften som ursprungligen skopad var felaktig och blockerades korrekt.
+- Ingen kod ändrades — rätt utfall givet den felaktiga premissen.
+- Modulagent + oberoende QA-agent fungerade som modellen avser:
+  implementation och domslut hölls isär, och QA bekräftade snarare än
+  bara stämplade av modulagentens slutsats.
+- En korrigerad uppföljningspilot (tom `promptUiMeta = {}` + radera bara
+  seed-posterna) är redo att köras som nästa uppdrag, med QA-agentens
+  tillägg till acceptanskriterierna: verifiera live att
+  `registerOwnPrompts`/`registerProTemplates` fortfarande fyller
+  `promptUiMeta[item.id]` korrekt för en inloggad testanvändare.
 
 ## Mål
 
