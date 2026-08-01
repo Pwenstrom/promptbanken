@@ -29,6 +29,40 @@ mänskliga produktägaren behåller prioritering, undantag och releasebeslut.
 6. **Bevis före status.** "Klart" kräver verifieringsresultat, inte bara en
    kodändring.
 
+## Team-autonomi vs uppgifts-autonomi
+
+Modellen har två olika axlar för självständighet. De ska inte blandas ihop.
+
+**Axel 1 — mellan moduler: full självorganisering.** Varje modul-team väljer
+själv sitt arbetssätt, sin takt och sin interna rollsättning. Det enda som
+är låst är gränssnittet mot andra moduler. Ska en modul ändra sitt
+gränssnitt måste den antingen bygga en adapter (nya beteendet bakom det
+gamla kontraktet) eller eskalera till samordning mellan de berörda teamen —
+aldrig bryta kontraktet ensidigt. Detta är målet, inte ett undantag: gröna
+moduler ska kunna drivas som oberoende team så länge
+`Gränssnittsartefakt`-fältet i respektive uppdragskort hålls stabilt.
+
+**Axel 2 — inuti en enskild uppgift: ingen fri rekrytering.** En modulagent
+som mitt i en uppgift kallar in fler agenter för att utöka sin egen räckvidd
+är inte samma sak som två team som jobbar oberoende av varandra — det är en
+enskild agent som expanderar sitt uppdrag utan att uppdragskortet
+uppdaterats. Stötte modulagenten på oväntad komplexitet (som i piloten
+2026-08-01) är den enda tillåtna reaktionen att stanna och rapportera
+tillbaka till mob-ledaren, aldrig att själv organisera om. Ett uppdragskort
+får i förväg godkänna en snäv, läsande hjälpagent ("modulagenten får spawna
+EN read-only undersökningsagent om den stöter på oklarhet, men den agenten
+får aldrig skriva kod och måste redovisas i slutrapporten") — men skrivande
+hjälp eller en ny granskningsroll kommer alltid från mob-ledaren via ett
+nytt eller uppdaterat kort, aldrig genom att agenten själv rekryterar.
+
+**Om samtidighet.** Källkonceptet (mob programming, Zuill/Justice) bygger på
+att hela mobben jobbar på samma sak, samtidigt, i samma rum. Denna modell
+gör det inte — agenter körs isolerat, parallellt eller i sekvens, och möts
+bara vid en granskningsgrind efteråt. Det är en medveten anpassning till hur
+agentverktyg faktiskt fungerar, inte en bristfällig kopia av samtidig
+mobbing. Kalla den vid namn: **parallell isolerad implementation +
+konvergent granskning.**
+
 ## Roller
 
 ### Mänsklig produktägare
@@ -73,6 +107,20 @@ En liten, grön uppgift behöver inte aktivera alla roller. Minsta säkra mob ä
 en modulagent och en oberoende verifierare. Kontraktsdomare krävs när ett
 externt kontrakt eller en kollisionspunkt påverkas.
 
+**Mobstorlek styrs av en regel, inte av mob-ledarens fria omdöme** — det var
+exakt mob-ledarens ofullständiga förhandskoll som orsakade den första
+blockerade piloten 2026-08-01, inte modulagenten eller QA-agenten.
+
+| Modulmognad | Uppskattad diff | Minsta mob |
+|---|---|---|
+| Grön | Liten (enstaka fil/funktion) | Modulagent + QA-agent |
+| Grön | Större (flera filer/ny funktion) | + Kontraktsdomare om ett kontrakt berörs |
+| Gul | Alla storlekar | Modulagent + QA-agent + samordning med andra berörda team |
+| Röd | Endast avgränsnings-/extraktionsarbete | Modulagent + QA-agent, aldrig vanligt feature-arbete |
+
+Mob-ledaren avviker från tabellen bara med en uttrycklig, skriven motivering
+i uppdragskortet (som undantaget för röd-modul-piloten 2026-08-01).
+
 ## Uppdragskort
 
 Varje agentuppgift ska börja med följande information:
@@ -92,6 +140,16 @@ Releaseomfattning:
 Om skrivytan inte kan anges tydligt är modulen inte redo för självständig
 agentutveckling.
 
+**Uppdragskortsmallen utvecklas via lärdomar, inte via rollrotation.**
+Källkonceptets driver/navigator-rotation sprider kunskap genom att ständigt
+byta vem som håller pennan. Det är meningslöst för agenter — ingen agent
+"tröttnar" eller behöver omväxling. Motsvarigheten här: varje pilots
+Lärdomar-avsnitt är input till nästa version av
+`.agents/mob-ai/task-card-template.md`. Hittar en pilot ett hål i mallen
+(som avsaknaden av "sök hela filen, inte bara det ankrade mönstret" i
+piloten 2026-08-01) ska mallen uppdateras innan nästa uppgift av samma typ,
+inte bara noteras i journalen.
+
 ## Operativ ingång
 
 Repoagenter börjar i `.agents/mob-ai/README.md` och skapar ett konkret kort
@@ -105,7 +163,12 @@ en lokal instruktion skulle vara oklar.
    mognadsnivån.
 2. **Avgränsning:** Uppdragskortet låser skrivyta, kontrakt och
    acceptanskriterier.
-3. **Implementering:** Modulagenten gör minsta sammanhängande ändring.
+3. **Implementering:** Modulagenten gör minsta sammanhängande ändring. För
+   gula och röda moduler: om uppgiften har flera steg ska modulagenten
+   rapportera tillbaka till mob-ledaren efter första steget innan den
+   fortsätter — en billig motsvarighet till källkonceptets kontinuerliga
+   styrning ("idén måste gå genom någon annans händer"), utan att göra hela
+   uppgiften synkron. Gröna moduler kör i ett svep.
 4. **Verifiering:** Agenten kör modulens tester och redovisar faktisk output.
 5. **Oberoende granskning:** QA-agenten testar beteendet; kontraktsdomaren
    kopplas in när gränssnitt eller kollisionspunkter berörs.
@@ -154,3 +217,16 @@ modulpiloten återstår och ska namnge en exakt modul från modulkartan.
 
 Först därefter bör modellen användas för gula moduler eller för arbetet med
 att stycka katalog-UI:t.
+
+## Retro-rytm
+
+Källkonceptet har täta, korta retros som vana, inte en engångsutvärdering.
+Motsvarigheten här:
+
+- Varje pilotjournal avslutas med ett `## Lärdomar`-avsnitt — obligatoriskt,
+  inte valfritt.
+- Var femte pilot läser mob-ledaren igenom de ackumulerade lärdomarna från
+  alla piloter sedan senaste genomgången och uppdaterar detta dokument samt
+  `.agents/mob-ai/task-card-template.md` därefter.
+- En pilot som inte gav någon lärdom värd att skriva in är i sig en
+  observation värd att notera (mallen fungerade som den skulle).
