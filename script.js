@@ -76,7 +76,7 @@ const DEFAULT_RENDER_STATE = {
 };
 const PERSISTED_RENDER_STATE_KEYS = ['roll', 'malgrupp', 'ton'];
 const GLOBAL_RENDER_BINDING_KEYS = Object.keys(DEFAULT_RENDER_STATE);
-const GLOBAL_ROLE_OPTIONS = ['handläggare', 'chef', 'kommunikatör', 'pedagog', 'samordnare'];
+const GLOBAL_ROLE_OPTIONS = ['handläggare', 'chef', 'kommunikatör', 'samordnare', 'kundcenter', 'verksamhetsutvecklare', 'administratör', 'utredare', 'sekreterare', 'facilitator', 'analytiker', 'pedagog'];
 const GLOBAL_AUDIENCE_OPTIONS = ['invånare', 'medarbetare', 'allmänhet', 'vårdnadshavare', 'elever'];
 const GLOBAL_TONE_OPTIONS = ['neutral', 'tydligt och vänligt', 'formellt', 'rakt och handlingsorienterat', 'varmt och tryggt', 'pedagogiskt'];
 const LEGACY_RENDER_VALUE_ALIASES = {
