@@ -1666,14 +1666,16 @@ async function loadCatalogPackages() {
             const meta = getPromptMeta(prompt);
             const title = stripLeadingIcon(prompt.title);
 
-            const promptViewKey = `prompt_view:${promptId}:${getActiveCatalogContextKeys().join(',')}`;
-            if (shouldTrackLibraryUsage(promptViewKey, 60 * 60 * 1000)) {
-                trackLibraryUsageEvent({
-                    eventType: 'prompt_view',
-                    promptSlug: promptId,
-                    area: meta.category || null,
-                    riskLevel: meta.risk || null
-                });
+            if (shouldReveal) {
+                const promptViewKey = `prompt_view:${promptId}:${getActiveCatalogContextKeys().join(',')}`;
+                if (shouldTrackLibraryUsage(promptViewKey, 60 * 60 * 1000)) {
+                    trackLibraryUsageEvent({
+                        eventType: 'prompt_view',
+                        promptSlug: promptId,
+                        area: meta.category || null,
+                        riskLevel: meta.risk || null
+                    });
+                }
             }
 
             if (shouldMarkSelected) {
