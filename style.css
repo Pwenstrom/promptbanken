@@ -3483,8 +3483,8 @@ body {
 .card-actions .copy-btn,
 .card-actions .secondary-btn {
     width: auto;
-    min-height: 32px;
-    padding: 0.45rem 0.65rem;
+    min-height: 44px;
+    padding: 0.6rem 0.65rem;
     border-radius: 5px;
     font-size: 0.8rem;
 }
@@ -3731,11 +3731,20 @@ footer {
         overflow-x: auto;
         padding-bottom: 0.25rem;
         scrollbar-width: thin;
+        /* Fade the right edge so horizontal scrollability is visible, not silent */
+        mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
     }
 
-    .sidebar-nav.secondary,
-    .sidebar-footer {
+    .sidebar-nav.secondary {
         display: none;
+    }
+
+    .sidebar-footer {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.4rem 0.9rem;
+        margin-top: 0.6rem;
     }
 
     .sidebar-link {
@@ -4452,9 +4461,9 @@ body.favorites-mode-on .favorites-menu.hidden {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 32px;
+    min-height: 44px;
     min-width: 84px;
-    padding: 0.45rem 0.75rem;
+    padding: 0.6rem 0.75rem;
     border: 1px solid #0b63ce;
     border-radius: 5px;
     background: #0b63ce;
@@ -4671,12 +4680,9 @@ body.detail-panel-closed .prompt-detail-panel {
     }
 
     .context-filter-options {
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         gap: 0.45rem;
         margin-top: 0.65rem;
-        overflow-x: auto;
-        padding-bottom: 0.2rem;
-        scrollbar-width: thin;
     }
 
     .context-filter-option {
@@ -5740,12 +5746,9 @@ body.detail-panel-closed .prompt-detail-panel {
     }
 
     .context-filter-options {
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         gap: 0.45rem;
         margin-top: 0.65rem;
-        overflow-x: auto;
-        padding-bottom: 0.2rem;
-        scrollbar-width: thin;
     }
 
     .context-filter-option {
