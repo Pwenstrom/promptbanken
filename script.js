@@ -1537,11 +1537,6 @@ async function loadCatalogPackages() {
                 if (isVisible) visibleCount += 1;
             });
 
-            const resultCount = document.getElementById('result-count');
-            if (resultCount) {
-                resultCount.textContent = `Visar ${visibleCount} av ${allPrompts.length} prompter`;
-            }
-
             const emptyState = document.getElementById('prompt-grid-empty');
             if (emptyState) {
                 setElementHiddenState(emptyState, visibleCount !== 0);
@@ -1557,12 +1552,25 @@ async function loadCatalogPackages() {
                     metadata: { query_length: Math.min(query.length, 200) }
                 });
             }, 800);
+
+            return visibleCount;
         }
 
         function applyAllFilters() {
-            applyPromptFilters();
+            const legacyVisible = applyPromptFilters();
             applyCatalogPromptFilters();
             applyCatalogPackageFilters();
+
+            const catalogPromptVisible = document.querySelectorAll('#catalog-prompt-grid .catalog-card:not([hidden])').length;
+            const catalogPackageVisible = document.querySelectorAll('#catalog-package-grid .catalog-card:not([hidden])').length;
+            const totalVisible = legacyVisible + catalogPromptVisible + catalogPackageVisible;
+
+            const totalAll = allPrompts.length + catalogPromptsById.size + catalogLabelToArea.size;
+
+            const resultCount = document.getElementById('result-count');
+            if (resultCount) {
+                resultCount.textContent = `Visar ${totalVisible} av ${totalAll} prompter`;
+            }
         }
 
         function initCategoryFilters() {
