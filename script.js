@@ -691,10 +691,16 @@ async function copyCatalogEntityText(entity, button) {
     }
 }
 
+const catalogPromptsById = new Map();
+const catalogAreaLabels = new Map();
+const catalogLabelToArea = new Map();
+const catalogRiskLabels = { low: 'Låg risk', medium: 'Medelrisk', high: 'Hög risk' };
+
 function createCatalogPromptCard(prompt) {
     const card = document.createElement('div');
     card.className = 'catalog-card';
     card.dataset.catalogPromptSlug = prompt.slug;
+    card.dataset.catalogPromptId = prompt.id;
     const title = escapeHtml(prompt.title);
     const summary = escapeHtml(prompt.summary);
     const fallbackBadge = prompt.isFallback
@@ -736,6 +742,7 @@ async function loadCatalogPrompts() {
             p_context_keys: getActiveContextKeys()
         });
         grid.innerHTML = '';
+        catalogPromptsById.clear();
         if (!prompts.length) {
             renderCatalogEmptyState(grid, 'prompter');
             return;
@@ -749,7 +756,10 @@ async function loadCatalogPrompts() {
                 isFallback: activeContextKey !== DEFAULT_CONTEXT_KEY && (!prompt.context_key || prompt.context_key === DEFAULT_CONTEXT_KEY),
                 fallbackLabel: prompt.context_key ? 'Generell version' : 'Kan vara generell version'
             }))
-            .forEach((prompt) => grid.appendChild(createCatalogPromptCard(prompt)));
+            .forEach((prompt) => {
+                catalogPromptsById.set(prompt.id, prompt);
+                grid.appendChild(createCatalogPromptCard(prompt));
+            });
     } catch (error) {
         console.error('Kunde inte ladda katalogprompts:', error);
         grid.innerHTML = '<div class="catalog-empty-state error-message">⚠️ Kunde inte ladda katalogprompts.</div>';
@@ -1049,6 +1059,8 @@ async function loadCatalogPackages() {
             p_package_type: null
         });
         grid.innerHTML = '';
+        catalogAreaLabels.clear();
+        catalogLabelToArea.clear();
         if (!packages.length) {
             renderCatalogEmptyState(grid, 'paket eller arbetssätt');
             return;
@@ -1059,7 +1071,13 @@ async function loadCatalogPackages() {
                 isFallback: activeContextKey !== DEFAULT_CONTEXT_KEY && (!pkg.context_key || pkg.context_key === DEFAULT_CONTEXT_KEY),
                 fallbackLabel: pkg.context_key ? 'Generell version' : 'Kan vara generell version'
             }))
-            .forEach((pkg) => grid.appendChild(createCatalogPackageCard(pkg)));
+            .forEach((pkg) => {
+                if (pkg.slug && pkg.title) {
+                    catalogAreaLabels.set(pkg.slug, pkg.title);
+                    catalogLabelToArea.set(pkg.title, pkg.slug);
+                }
+                grid.appendChild(createCatalogPackageCard(pkg));
+            });
     } catch (error) {
         console.error('Kunde inte ladda katalogpaket:', error);
         grid.innerHTML = '<div class="catalog-empty-state error-message">⚠️ Kunde inte ladda katalogpaket.</div>';
