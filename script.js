@@ -1078,6 +1078,7 @@ async function loadCatalogPackages() {
                 }
                 grid.appendChild(createCatalogPackageCard(pkg));
             });
+        populateFilterOptions(allPrompts);
     } catch (error) {
         console.error('Kunde inte ladda katalogpaket:', error);
         grid.innerHTML = '<div class="catalog-empty-state error-message">⚠️ Kunde inte ladda katalogpaket.</div>';
@@ -1421,7 +1422,9 @@ async function loadCatalogPackages() {
 
         function populateFilterOptions(prompts) {
             const metadata = prompts.map(getPromptMeta);
-            setFilterOptions('category-filter', metadata.map((meta) => meta.category), 'Alla kategorier');
+            const legacyCategories = metadata.map((meta) => meta.category);
+            const catalogCategories = Array.from(catalogAreaLabels.values());
+            setFilterOptions('category-filter', [...legacyCategories, ...catalogCategories], 'Alla kategorier');
             setFilterOptions('audience-filter', metadata.flatMap((meta) => meta.audiences), 'Alla målgrupper');
             setFilterOptions('role-filter', metadata.flatMap((meta) => meta.roles), 'Alla roller');
             setFilterOptions('risk-filter', metadata.map((meta) => meta.risk), 'Alla risknivåer');
