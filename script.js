@@ -76,7 +76,7 @@ const DEFAULT_RENDER_STATE = {
 };
 const PERSISTED_RENDER_STATE_KEYS = ['roll', 'malgrupp', 'ton'];
 const GLOBAL_RENDER_BINDING_KEYS = Object.keys(DEFAULT_RENDER_STATE);
-const GLOBAL_ROLE_OPTIONS = ['handläggare', 'chef', 'kommunikatör', 'samordnare', 'kundcenter', 'verksamhetsutvecklare', 'administratör', 'utredare', 'sekreterare', 'facilitator', 'analytiker', 'pedagog'];
+const GLOBAL_ROLE_OPTIONS = ['handläggare', 'chef', 'kommunikatör', 'samordnare', 'kundcenter', 'verksamhetsutvecklare', 'administratör', 'utredare', 'sekreterare', 'facilitator', 'analytiker', 'pedagog', 'privatperson', 'förälder'];
 const GLOBAL_AUDIENCE_OPTIONS = ['invånare', 'medarbetare', 'allmänhet', 'vårdnadshavare', 'elever'];
 const GLOBAL_TONE_OPTIONS = ['neutral', 'tydligt och vänligt', 'formellt', 'rakt och handlingsorienterat', 'varmt och tryggt', 'pedagogiskt'];
 const LEGACY_RENDER_VALUE_ALIASES = {
@@ -1669,6 +1669,15 @@ async function loadCatalogPackages() {
                 const favoritesSidebarBtn = document.getElementById('favorites-sidebar-btn');
                 if (favoritesSidebarBtn) favoritesSidebarBtn.classList.remove('active');
                 applyAllFilters();
+
+                saveGlobalRenderState({
+                    roll: DEFAULT_RENDER_STATE.roll,
+                    malgrupp: DEFAULT_RENDER_STATE.malgrupp,
+                    ton: DEFAULT_RENDER_STATE.ton
+                });
+                syncGlobalRenderControls();
+                renderGlobalContextStatus();
+                refreshGlobalRenderOutputs();
             }
 
             if (clearFiltersBtn) {
