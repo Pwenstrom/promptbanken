@@ -1,4 +1,4 @@
-# Enhetlig sök/filter över legacy- och katalogrutnätet Implementation Plan
+﻿# Enhetlig sök/filter över legacy- och katalogrutnätet Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -29,7 +29,7 @@
 **Interfaces:**
 - Produces: modul-scope `catalogPromptsById` (`Map<string, object>`, nyckel = `prompt.id`), `catalogAreaLabels` (`Map<string, string>`, nyckel = `area`-slug, värde = läsbar etikett), `catalogLabelToArea` (`Map<string, string>`, omvänd av `catalogAreaLabels`), `catalogRiskLabels` (plain object `{low: 'Låg risk', medium: 'Medelrisk', high: 'Hög risk'}`). Dessa konsumeras av Task 2 och Task 3.
 
-- [ ] **Step 1: Lägg till modul-scope-variablerna**
+- [x] **Step 1: Lägg till modul-scope-variablerna**
 
 I `script.js`, direkt före `function createCatalogPromptCard(prompt) {` (rad 694), lägg till:
 
@@ -40,7 +40,7 @@ const catalogLabelToArea = new Map();
 const catalogRiskLabels = { low: 'Låg risk', medium: 'Medelrisk', high: 'Hög risk' };
 ```
 
-- [ ] **Step 2: Fyll `catalogPromptsById` när katalogprompts laddas**
+- [x] **Step 2: Fyll `catalogPromptsById` när katalogprompts laddas**
 
 I `loadCatalogPrompts()` (rad 724-757), ersätt raden `grid.innerHTML = '';` (rad 738) och forEach-blocket (rad 746-752) med:
 
@@ -68,7 +68,7 @@ I `loadCatalogPrompts()` (rad 724-757), ersätt raden `grid.innerHTML = '';` (ra
 
 (Endast `catalogPromptsById.clear()` tillagt före tom-kontrollen, och forEach-kroppen utökad med `catalogPromptsById.set(...)` — resten oförändrat.)
 
-- [ ] **Step 3: Sätt `dataset.catalogPromptId` på kortet**
+- [x] **Step 3: Sätt `dataset.catalogPromptId` på kortet**
 
 I `createCatalogPromptCard(prompt)` (rad 694-722), lägg till en rad direkt efter `card.dataset.catalogPromptSlug = prompt.slug;` (rad 697):
 
@@ -77,7 +77,7 @@ I `createCatalogPromptCard(prompt)` (rad 694-722), lägg till en rad direkt efte
     card.dataset.catalogPromptId = prompt.id;
 ```
 
-- [ ] **Step 4: Fyll `catalogAreaLabels`/`catalogLabelToArea` när paket laddas**
+- [x] **Step 4: Fyll `catalogAreaLabels`/`catalogLabelToArea` när paket laddas**
 
 I `loadCatalogPackages()` (rad 1036-1066), ersätt raden `grid.innerHTML = '';` (rad 1051) och forEach-blocket (rad 1056-1062) med:
 
@@ -104,7 +104,7 @@ I `loadCatalogPackages()` (rad 1036-1066), ersätt raden `grid.innerHTML = '';` 
             });
 ```
 
-- [ ] **Step 5: Verifiera i webbläsaren**
+- [x] **Step 5: Verifiera i webbläsaren**
 
 Kör:
 
@@ -120,7 +120,7 @@ console.log(catalogPromptsById.size, catalogAreaLabels.size, catalogLabelToArea.
 
 Förväntat: alla tre > 0 (matchar antalet laddade katalogprompts respektive paket). Om `catalogAreaLabels.size` är 0, kontrollera att `loadCatalogPackages()` hann köra (asynkront) innan konsolkommandot körs.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add script.js
@@ -139,7 +139,7 @@ git commit -m "feat(web): build catalog metadata lookup maps for prompt id, area
 - Consumes: `catalogAreaLabels` (Task 1).
 - Produces: `populateFilterOptions(prompts)` tar nu även med katalogens kategori-etiketter i `#category-filter`-dropdownen och sidopanelens kategori-knappar (om sådana finns via `data-category-filter`). Signaturen är oförändrad — funktionen läser `catalogAreaLabels` direkt (modul-scope), ingen ny parameter.
 
-- [ ] **Step 1: Utöka `populateFilterOptions` med katalogkategorier**
+- [x] **Step 1: Utöka `populateFilterOptions` med katalogkategorier**
 
 I `script.js`, ersätt `populateFilterOptions` (rad 1404-1410):
 
@@ -155,7 +155,7 @@ I `script.js`, ersätt `populateFilterOptions` (rad 1404-1410):
         }
 ```
 
-- [ ] **Step 2: Kör om `populateFilterOptions` när katalogpaket blivit klara**
+- [x] **Step 2: Kör om `populateFilterOptions` när katalogpaket blivit klara**
 
 I `loadCatalogPackages()` (efter ändringen i Task 1 Step 4), lägg till en rad direkt efter forEach-blockets stängande `);` (dvs. efter `catalogLabelToArea`-fyllningen, innan `catch`-blocket):
 
@@ -168,11 +168,11 @@ I `loadCatalogPackages()` (efter ändringen i Task 1 Step 4), lägg till en rad 
 
 (`populateFilterOptions(allPrompts)` läggs till som en ny rad mellan forEach-anropet och `} catch`. `allPrompts` är den redan existerande modul-variabeln för legacy-prompts, oförändrad av detta steg — om `loadCatalogPackages()` körs innan `loadPrompts()` hunnit fylla `allPrompts` är den bara en tom array här, vilket är ofarligt: `populateFilterOptions` körs igen naturligt varje gång `loadPrompts()` själv anropar den, se rad 1896/1937/1941.)
 
-- [ ] **Step 3: Verifiera i webbläsaren**
+- [x] **Step 3: Verifiera i webbläsaren**
 
 Med dev-servern igång, öppna kategori-dropdownen (`#category-filter`) i webbläsaren. Förväntat: innehåller nu både legacy-kategorier (t.ex. "Beslut och rutiner") och katalog-kategorier (paketens titlar, t.ex. "Förändringsledning och införande").
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```powershell
 git add script.js
@@ -190,7 +190,7 @@ git commit -m "feat(web): include catalog categories in the category filter drop
 - Consumes: `catalogPromptsById`, `catalogLabelToArea`, `catalogRiskLabels` (Task 1); globala filtervariabler `activeCategoryFilter`, `activeAudienceFilter`, `activeRiskFilter` (redan existerande, definierade rad 1123-1127); `getSearchQuery()` (redan existerande, rad 1412-1414).
 - Produces: `applyCatalogPromptFilters()` och `applyCatalogPackageFilters()` — inga parametrar, inga returvärden, itererar DOM direkt (samma mönster som `applyPromptFilters()`). Konsumeras av Task 4.
 
-- [ ] **Step 1: Ta bort `applyCatalogSearchFilter` och skriv de två nya funktionerna**
+- [x] **Step 1: Ta bort `applyCatalogSearchFilter` och skriv de två nya funktionerna**
 
 I `script.js`, ersätt hela blocket rad 543-562 (kommentaren + `applyCatalogSearchFilter`):
 
@@ -243,7 +243,7 @@ function applyCatalogPackageFilters() {
 }
 ```
 
-- [ ] **Step 2: Verifiera att `applyCatalogSearchFilter` inte längre refereras någonstans**
+- [x] **Step 2: Verifiera att `applyCatalogSearchFilter` inte längre refereras någonstans**
 
 Kör:
 
@@ -255,7 +255,7 @@ Förväntat: inga träffar (referenser till den tas bort i Task 4).
 
 Obs: det här steget kommer visa kvarvarande träffar tills Task 4 är klar (som byter ut anropen i `initPromptSearch`). Om körd innan Task 4, notera bara att den gamla funktionsdefinitionen är borta men anropet ännu inte uppdaterat — inte en bugg i det här steget.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```powershell
 git add script.js
@@ -276,7 +276,7 @@ git commit -m "feat(web): add category/audience/risk-aware filtering for catalog
 - Consumes: `applyPromptFilters()` (redan existerande), `applyCatalogPromptFilters()`, `applyCatalogPackageFilters()` (Task 3).
 - Produces: `applyAllFilters()` — inga parametrar, inget returvärde. Detta är den nya standardfunktionen alla filter-UI-lyssnare anropar; `applyPromptFilters()` behåller sitt eget namn och sin egen logik oförändrad (bara anropen till den byts, inte funktionen själv).
 
-- [ ] **Step 1: Lägg till `applyAllFilters()` direkt efter `applyPromptFilters()`**
+- [x] **Step 1: Lägg till `applyAllFilters()` direkt efter `applyPromptFilters()`**
 
 I `script.js`, direkt efter `applyPromptFilters()`s stängande `}` (efter rad 1513, före `function initCategoryFilters() {` på rad 1515), lägg till:
 
@@ -289,7 +289,7 @@ I `script.js`, direkt efter `applyPromptFilters()`s stängande `}` (efter rad 15
 
 ```
 
-- [ ] **Step 2: Byt ut samtliga direktanrop av `applyPromptFilters()` till `applyAllFilters()`**
+- [x] **Step 2: Byt ut samtliga direktanrop av `applyPromptFilters()` till `applyAllFilters()`**
 
 Kör (PowerShell, i repo-roten):
 
@@ -301,7 +301,7 @@ Detta byter ut varje `applyPromptFilters();`-anrop (rad 1282, 1461, 1539, 1556, 
 
 **Viktigt:** kör steg 3 (verifiering) direkt efteråt och inspektera `applyAllFilters()`s egen kropp — om den globala ersättningen råkat träffa raden `applyPromptFilters();` inuti `applyAllFilters()` själv (vilket den kommer göra, eftersom mönstret är identiskt), rätta manuellt tillbaka just den raden till `applyPromptFilters();` (annars blir det oändlig rekursion).
 
-- [ ] **Step 3: Rätta den självrefererande raden manuellt om den bytts**
+- [x] **Step 3: Rätta den självrefererande raden manuellt om den bytts**
 
 Öppna `script.js`, sök upp `function applyAllFilters() {` och kontrollera att kroppen är exakt:
 
@@ -315,7 +315,7 @@ Detta byter ut varje `applyPromptFilters();`-anrop (rad 1282, 1461, 1539, 1556, 
 
 Om den första raden i kroppen råkat bli `applyAllFilters();` (rekursion) istället för `applyPromptFilters();`, rätta den manuellt till `applyPromptFilters();`.
 
-- [ ] **Step 4: Byt sökfältets katalogfunktion i `initPromptSearch`**
+- [x] **Step 4: Byt sökfältets katalogfunktion i `initPromptSearch`**
 
 I `script.js`, i `initPromptSearch()` (runt rad 2089-2097 innan tidigare tasks flyttat rader), ersätt:
 
@@ -336,7 +336,7 @@ med:
 
 (Ett enda `applyAllFilters`-anrop ersätter de två separata lyssnarna, eftersom `applyAllFilters` redan täcker alla tre rutnät.)
 
-- [ ] **Step 5: Verifiera att inga döda referenser finns kvar**
+- [x] **Step 5: Verifiera att inga döda referenser finns kvar**
 
 Kör:
 
@@ -358,7 +358,7 @@ node --check script.js
 
 Förväntat: ingen output (giltig JS-syntax).
 
-- [ ] **Step 6: Manuell verifiering i webbläsaren**
+- [x] **Step 6: Manuell verifiering i webbläsaren**
 
 Med `npm run web:dev` igång, öppna `index.html`:
 - Skriv en sökterm i sökfältet som bara matchar en katalogprompt → katalogkortet ska synas, andra katalogkort döljas.
@@ -366,7 +366,7 @@ Med `npm run web:dev` igång, öppna `index.html`:
 - Välj ett rollfilter → legacy-kort filtreras, katalogprompt-kort förblir alla synliga.
 - Klicka "Rensa filter" → alla rutnät återgår till fullt synliga.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```powershell
 git add script.js
@@ -384,13 +384,13 @@ git commit -m "feat(web): route all filter UI through a shared applyAllFilters t
 - Consumes: DOM-state efter `applyPromptFilters()`, `applyCatalogPromptFilters()`, `applyCatalogPackageFilters()` (Task 3/4) har körts.
 - Produces: `#result-count`-texten uppdateras nu i `applyAllFilters()` istället för inuti `applyPromptFilters()`, och räknar synliga kort över alla tre grids.
 
-- [ ] **Step 1: Flytta `resultCount`-uppdateringen från `applyPromptFilters` till `applyAllFilters`**
+- [x] **Step 1: Flytta `resultCount`-uppdateringen från `applyPromptFilters` till `applyAllFilters`**
 
 I `script.js`, i `applyPromptFilters()`, ta bort raderna som sätter `#result-count` (den befintliga `const resultCount = document.getElementById('result-count');` + `if (resultCount) { resultCount.textContent = ...; }`-blocket, ca rad 1493-1497) och behåll bara `visibleCount`-räkningen och `emptyState`-hanteringen (som bara rör legacy-griden och ska vara kvar där).
 
 `applyPromptFilters()` behöver nu returnera sitt `visibleCount` så `applyAllFilters()` kan summera. Ändra funktionssignaturen minimalt: lägg till `return visibleCount;` som sista rad i `applyPromptFilters()`, direkt före dess stängande `}`.
 
-- [ ] **Step 2: Räkna synliga katalogkort och uppdatera `applyAllFilters`**
+- [x] **Step 2: Räkna synliga katalogkort och uppdatera `applyAllFilters`**
 
 Ersätt `applyAllFilters()` (skriven i Task 4 Step 1) med:
 
@@ -415,11 +415,11 @@ Ersätt `applyAllFilters()` (skriven i Task 4 Step 1) med:
 
 Obs: `catalogLabelToArea.size` används som antal paket eftersom det är en 1:1-map byggd från paketlistan i Task 1 Step 4 (ett `set`-anrop per paket med giltig `slug`+`title`) — om ett paket saknar `slug` eller `title` räknas det inte med i mappen och därmed inte i totalen; det är samma edge case som redan hanteras tyst av `if (pkg.slug && pkg.title)`-villkoret i Task 1.
 
-- [ ] **Step 3: Verifiera i webbläsaren**
+- [x] **Step 3: Verifiera i webbläsaren**
 
 Med dev-servern igång, öppna `index.html`, kontrollera att `#result-count`-texten direkt vid sidladdning (efter att katalogen hunnit ladda) visar en högre total än bara legacy-prompternas antal. Rensa alla filter och bekräfta att `Visar X av Y` har `X === Y`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```powershell
 git add script.js
@@ -432,7 +432,7 @@ git commit -m "fix(web): count catalog prompt and package cards in the result co
 
 **Files:** Inga kodändringar — verifieringssteg.
 
-- [ ] **Step 1: Kör hela testplanen från specen**
+- [x] **Step 1: Kör hela testplanen från specen**
 
 Med `npm run web:dev` igång, gå igenom testplanen i
 `docs/superpowers/specs/2026-08-02-catalog-search-filter-unification-design.md`
@@ -444,11 +444,11 @@ punkt för punkt:
 4. Välj ett rollfilter → legacy-grid filtreras, katalogprompts och paket förblir alla synliga.
 5. Klicka "Rensa filter" → alla tre rutnät återgår till fullt synliga, räknaren stämmer.
 
-- [ ] **Step 2: Kontrollera att inget annat i sidan gått sönder**
+- [x] **Step 2: Kontrollera att inget annat i sidan gått sönder**
 
 Öppna dev-konsolen, ladda om sidan, kontrollera att inga nya JS-fel loggas (jämför mot ett känt referensläge — ett `favicon.ico 404` är förväntat och ofarligt, inget annat ska synas).
 
-- [ ] **Step 3: Uppdatera octopus-statusen**
+- [x] **Step 3: Uppdatera octopus-statusen**
 
 Logga i `C:/Users/petwen/OneDrive - Höglandsförbundet/Projekt/octopus/STATUS.md` under `promptbanken` att sök/kategori-enhetligheten mellan legacy- och katalogrutnätet är klar, med commit-hashar från Task 1-5.
 
