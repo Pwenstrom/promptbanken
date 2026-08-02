@@ -1324,7 +1324,7 @@ async function loadCatalogPackages() {
             if (favoritesSidebarBtn) {
                 favoritesSidebarBtn.classList.toggle('active', favoritesOnlyFilter);
             }
-            applyPromptFilters();
+            applyAllFilters();
         }
 
         function initFavoritesToggle() {
@@ -1505,7 +1505,7 @@ async function loadCatalogPackages() {
             sortSelect.addEventListener('change', () => {
                 activeSort = sortSelect.value || 'newest';
                 applyPromptSort();
-                applyPromptFilters();
+                applyAllFilters();
             });
         }
 
@@ -1559,6 +1559,12 @@ async function loadCatalogPackages() {
             }, 800);
         }
 
+        function applyAllFilters() {
+            applyPromptFilters();
+            applyCatalogPromptFilters();
+            applyCatalogPackageFilters();
+        }
+
         function initCategoryFilters() {
             const trackCategoryFilter = () => {
                 if (activeCategoryFilter === 'all') return;
@@ -1583,7 +1589,7 @@ async function loadCatalogPackages() {
                     });
                     const favoritesSidebarBtn = document.getElementById('favorites-sidebar-btn');
                     if (favoritesSidebarBtn) favoritesSidebarBtn.classList.remove('active');
-                    applyPromptFilters();
+                    applyAllFilters();
                     trackCategoryFilter();
                 });
             });
@@ -1600,7 +1606,7 @@ async function loadCatalogPackages() {
                     document.querySelectorAll('[data-category-filter]').forEach((item) => {
                         item.classList.toggle('active', item.getAttribute('data-category-filter') === activeCategoryFilter);
                     });
-                    applyPromptFilters();
+                    applyAllFilters();
                     trackCategoryFilter();
                 });
             }
@@ -1608,21 +1614,21 @@ async function loadCatalogPackages() {
             if (audienceFilter) {
                 audienceFilter.addEventListener('change', () => {
                     activeAudienceFilter = audienceFilter.value || 'all';
-                    applyPromptFilters();
+                    applyAllFilters();
                 });
             }
 
             if (roleFilter) {
                 roleFilter.addEventListener('change', () => {
                     activeRoleFilter = roleFilter.value || 'all';
-                    applyPromptFilters();
+                    applyAllFilters();
                 });
             }
 
             if (riskFilter) {
                 riskFilter.addEventListener('change', () => {
                     activeRiskFilter = riskFilter.value || 'all';
-                    applyPromptFilters();
+                    applyAllFilters();
                 });
             }
 
@@ -1643,7 +1649,7 @@ async function loadCatalogPackages() {
                 });
                 const favoritesSidebarBtn = document.getElementById('favorites-sidebar-btn');
                 if (favoritesSidebarBtn) favoritesSidebarBtn.classList.remove('active');
-                applyPromptFilters();
+                applyAllFilters();
             }
 
             if (clearFiltersBtn) {
@@ -1944,7 +1950,7 @@ async function loadCatalogPackages() {
             updateLibraryStats(allPrompts);
             loadFavoriteStates();
             applyPromptSort();
-            applyPromptFilters();
+            applyAllFilters();
         }
 
         async function registerProTemplates(items) {
@@ -1985,7 +1991,7 @@ async function loadCatalogPackages() {
             updateLibraryStats(allPrompts);
             loadFavoriteStates();
             applyPromptSort();
-            applyPromptFilters();
+            applyAllFilters();
         }
 
         window.registerOwnPrompts = registerOwnPrompts;
@@ -2077,7 +2083,7 @@ async function loadCatalogPackages() {
 
             // Update favorites menu
             updateFavoritesMenu();
-            applyPromptFilters();
+            applyAllFilters();
         }
 
         function loadFavoriteStates() {
@@ -2138,8 +2144,7 @@ async function loadCatalogPackages() {
             if (!searchInput) return;
 
             ['input', 'keyup', 'search', 'change'].forEach((eventName) => {
-                searchInput.addEventListener(eventName, applyPromptFilters);
-                searchInput.addEventListener(eventName, applyCatalogSearchFilter);
+                searchInput.addEventListener(eventName, applyAllFilters);
             });
         }
 
@@ -2160,7 +2165,7 @@ async function loadCatalogPackages() {
 
                 // Update favorites menu
                 updateFavoritesMenu();
-                applyPromptFilters();
+                applyAllFilters();
             }
         }
 
@@ -3431,7 +3436,7 @@ ${initialUserInput.trim()}`
                 document.querySelectorAll('[data-category-filter]').forEach((item) => {
                     item.classList.remove('active');
                 });
-                applyPromptFilters();
+                applyAllFilters();
             });
         }
 
