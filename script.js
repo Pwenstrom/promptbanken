@@ -569,7 +569,8 @@ function applyCatalogPromptFilters() {
         const matchesSearch = !query || haystack.includes(query);
         const matchesCategory = activeCategoryFilter === 'all'
             || !prompt.area
-            || catalogLabelToArea.get(activeCategoryFilter) === prompt.area;
+            || catalogLabelToArea.get(activeCategoryFilter) === prompt.area
+            || activeCategoryFilter === prompt.area;
         const matchesAudience = activeAudienceFilter === 'all'
             || (prompt.audience_label || '').toLowerCase().includes(activeAudienceFilter.toLowerCase());
         const matchesRisk = activeRiskFilter === 'all'
