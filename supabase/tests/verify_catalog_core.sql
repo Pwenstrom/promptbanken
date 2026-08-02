@@ -66,3 +66,14 @@ where p.proname in (
   'list_published_package_prompts'
 )
 order by p.proname;
+
+-- security_examples: kolumn finns, och de tre publika läs-RPC:erna samt
+-- write-RPC:n har fältet i sin signatur.
+select column_name from information_schema.columns
+ where table_schema = 'public' and table_name = 'catalog_prompt_variants'
+   and column_name = 'security_examples';
+
+select p.proname, pg_get_function_result(p.oid) as return_type
+  from pg_proc p
+ where p.proname in ('list_published_prompts', 'get_published_prompt', 'get_catalog_prompt_by_id')
+   and pg_get_function_result(p.oid) like '%security_examples%';
