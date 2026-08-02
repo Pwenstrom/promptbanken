@@ -92,7 +92,14 @@ legacy-griden redan använder (`activeCategoryFilter`, `activeAudienceFilter`,
   `includes()` mot `activeAudienceFilter`, till skillnad från legacy-grids
   exakt-matchning mot en array — katalogens fält är inte samma kontrollerade
   vokabulär.
-- **Risk:** `risk_level` jämförs direkt mot `activeRiskFilter`.
+- **Risk:** katalogens `risk_level` lagras som engelska nycklar
+  (`low`/`medium`/`high`), men `activeRiskFilter` innehåller svenska
+  visningssträngar (`Låg risk`/`Medelrisk`/`Hög risk`) — samma format som
+  redan används i `promptbanken.html`s `riskLabels`-map. En likadan
+  `catalogRiskLabels`-map (`{low: 'Låg risk', medium: 'Medelrisk', high:
+  'Hög risk'}`) läggs till i `script.js`, och matchningen blir
+  `catalogRiskLabels[prompt.risk_level] === activeRiskFilter`. En direkt
+  strängjämförelse hade tyst aldrig matchat något katalogkort.
 - **Roll:** **ignoreras medvetet.** Katalogprompts har inget rollfält.
   Kortet förblir synligt oavsett vilket rollfilter som är valt, istället för
   att gissa utifrån `tags` (fel semantik) eller döljas helt (skulle se ut
