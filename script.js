@@ -568,10 +568,12 @@ function applyCatalogPromptFilters() {
         const haystack = `${prompt.title || ''} ${prompt.summary || ''} ${areaLabel} ${prompt.audience_label || ''}`.toLowerCase();
         const matchesSearch = !query || haystack.includes(query);
         const matchesCategory = activeCategoryFilter === 'all'
+            || !prompt.area
             || catalogLabelToArea.get(activeCategoryFilter) === prompt.area;
         const matchesAudience = activeAudienceFilter === 'all'
             || (prompt.audience_label || '').toLowerCase().includes(activeAudienceFilter.toLowerCase());
         const matchesRisk = activeRiskFilter === 'all'
+            || !prompt.risk_level
             || catalogRiskLabels[prompt.risk_level] === activeRiskFilter;
         // Rollfilter medvetet ignorerat: katalogprompts har inget rollfält.
 
@@ -786,6 +788,8 @@ async function loadCatalogPrompts() {
                 catalogPromptsById.set(prompt.id, prompt);
                 grid.appendChild(createCatalogPromptCard(prompt));
             });
+        populateFilterOptions(allPrompts);
+        applyAllFilters();
     } catch (error) {
         console.error('Kunde inte ladda katalogprompts:', error);
         grid.innerHTML = '<div class="catalog-empty-state error-message">⚠️ Kunde inte ladda katalogprompts.</div>';
@@ -1105,6 +1109,7 @@ async function loadCatalogPackages() {
                 grid.appendChild(createCatalogPackageCard(pkg));
             });
         populateFilterOptions(allPrompts);
+        applyAllFilters();
     } catch (error) {
         console.error('Kunde inte ladda katalogpaket:', error);
         grid.innerHTML = '<div class="catalog-empty-state error-message">⚠️ Kunde inte ladda katalogpaket.</div>';
@@ -1449,7 +1454,11 @@ async function loadCatalogPackages() {
         function populateFilterOptions(prompts) {
             const metadata = prompts.map(getPromptMeta);
             const legacyCategories = metadata.map((meta) => meta.category);
-            const catalogCategories = Array.from(catalogAreaLabels.values());
+            const catalogAreas = new Set();
+            catalogPromptsById.forEach((prompt) => {
+                if (prompt.area) catalogAreas.add(prompt.area);
+            });
+            const catalogCategories = Array.from(catalogAreas).map((area) => catalogAreaLabels.get(area) || area);
             setFilterOptions('category-filter', [...legacyCategories, ...catalogCategories], 'Alla kategorier');
             setFilterOptions('audience-filter', metadata.flatMap((meta) => meta.audiences), 'Alla målgrupper');
             setFilterOptions('role-filter', metadata.flatMap((meta) => meta.roles), 'Alla roller');
@@ -1510,7 +1519,7 @@ async function loadCatalogPackages() {
         }
 
         function applyPromptFilters() {
-            if (!grid) return;
+            if (!grid) return 0;
 
             const query = getSearchQuery();
             const favorites = getFavorites();
@@ -1537,22 +1546,6 @@ async function loadCatalogPackages() {
                 if (isVisible) visibleCount += 1;
             });
 
-            const emptyState = document.getElementById('prompt-grid-empty');
-            if (emptyState) {
-                setElementHiddenState(emptyState, visibleCount !== 0);
-            }
-
-            clearTimeout(window.promptbankenSearchUsageTimer);
-            window.promptbankenSearchUsageTimer = setTimeout(() => {
-                if (!query) return;
-                trackLibraryUsageEvent({
-                    eventType: 'search',
-                    outcome: visibleCount > 0 ? 'success' : 'empty',
-                    resultCount: visibleCount,
-                    metadata: { query_length: Math.min(query.length, 200) }
-                });
-            }, 800);
-
             return visibleCount;
         }
 
@@ -1571,6 +1564,23 @@ async function loadCatalogPackages() {
             if (resultCount) {
                 resultCount.textContent = `Visar ${totalVisible} av ${totalAll} prompter`;
             }
+
+            const emptyState = document.getElementById('prompt-grid-empty');
+            if (emptyState) {
+                setElementHiddenState(emptyState, totalVisible !== 0);
+            }
+
+            const query = getSearchQuery();
+            clearTimeout(window.promptbankenSearchUsageTimer);
+            window.promptbankenSearchUsageTimer = setTimeout(() => {
+                if (!query) return;
+                trackLibraryUsageEvent({
+                    eventType: 'search',
+                    outcome: totalVisible > 0 ? 'success' : 'empty',
+                    resultCount: totalVisible,
+                    metadata: { query_length: Math.min(query.length, 200) }
+                });
+            }, 800);
         }
 
         function initCategoryFilters() {
