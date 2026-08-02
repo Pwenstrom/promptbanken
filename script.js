@@ -540,11 +540,13 @@ function getQuickInputValue() {
     return document.getElementById('quick-input-textarea')?.value || '';
 }
 
-// Snabb, punktvis lösning: filtrerar katalog-korten (Supabase catalog_prompts/
-// catalog_packages) på samma sökfält som den statiska legacy-grid redan
-// använder. Sök och kategorimeny är fortfarande två separata system — se
-// TODO i minnet (promptbanken_catalog_search_category_todo) för en riktig
-// enhetlig lösning.
+// Enhetlig katalogfiltrering: se docs/superpowers/specs/
+// 2026-08-02-catalog-search-filter-unification-design.md. Katalogprompts
+// matchas mot samma globala filtervariabler som legacy-griden
+// (activeCategoryFilter/activeAudienceFilter/activeRiskFilter), men rollfilter
+// ignoreras medvetet (katalogdata saknar rollfält) och kategori/risk matchas
+// via lookup-maps eftersom katalogens lagringsformat (slugs, engelska
+// risknycklar) skiljer sig från legacy-griden (svenska etiketter).
 document.querySelectorAll('[data-catalog-package-shortcut]').forEach((button) => {
     button.addEventListener('click', () => {
         const slug = button.getAttribute('data-catalog-package-shortcut');
@@ -553,9 +555,33 @@ document.querySelectorAll('[data-catalog-package-shortcut]').forEach((button) =>
     });
 });
 
-function applyCatalogSearchFilter() {
-    const query = (document.getElementById('prompt-search')?.value || '').trim().toLowerCase();
-    document.querySelectorAll('#catalog-prompt-grid .catalog-card, #catalog-package-grid .catalog-card').forEach((card) => {
+function applyCatalogPromptFilters() {
+    const query = getSearchQuery();
+    document.querySelectorAll('#catalog-prompt-grid .catalog-card').forEach((card) => {
+        const prompt = catalogPromptsById.get(card.dataset.catalogPromptId);
+        if (!prompt) {
+            card.hidden = true;
+            return;
+        }
+
+        const areaLabel = catalogAreaLabels.get(prompt.area) || '';
+        const haystack = `${prompt.title || ''} ${prompt.summary || ''} ${areaLabel} ${prompt.audience_label || ''}`.toLowerCase();
+        const matchesSearch = !query || haystack.includes(query);
+        const matchesCategory = activeCategoryFilter === 'all'
+            || catalogLabelToArea.get(activeCategoryFilter) === prompt.area;
+        const matchesAudience = activeAudienceFilter === 'all'
+            || (prompt.audience_label || '').toLowerCase().includes(activeAudienceFilter.toLowerCase());
+        const matchesRisk = activeRiskFilter === 'all'
+            || catalogRiskLabels[prompt.risk_level] === activeRiskFilter;
+        // Rollfilter medvetet ignorerat: katalogprompts har inget rollfält.
+
+        card.hidden = !(matchesSearch && matchesCategory && matchesAudience && matchesRisk);
+    });
+}
+
+function applyCatalogPackageFilters() {
+    const query = getSearchQuery();
+    document.querySelectorAll('#catalog-package-grid .catalog-card').forEach((card) => {
         const haystack = card.textContent.toLowerCase();
         card.hidden = Boolean(query) && !haystack.includes(query);
     });
