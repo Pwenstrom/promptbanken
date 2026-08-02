@@ -694,19 +694,27 @@
       }
 
       async function loadProTemplates() {
-        const { data: templates, error } = await supabase.rpc('list_pro_templates');
-        if (error || !Array.isArray(templates)) {
-          console.error('Kunde inte hämta promptbibliotekets fördjupningsmallar', error);
+        const [
+          { data: prompts, error: promptsError },
+          { data: packages, error: packagesError }
+        ] = await Promise.all([
+          supabase.rpc('list_published_prompts', { p_context_keys: ['generell'] }),
+          supabase.rpc('list_published_packages', { p_context_keys: ['generell'] })
+        ]);
+        if (promptsError || packagesError || !Array.isArray(prompts)) {
+          console.error('Kunde inte hämta promptbibliotekets fördjupningsmallar', promptsError || packagesError);
           return;
         }
 
-        const mappedItems = templates.map((template) => ({
-          id: template.id,
-          title: template.title,
-          description: template.syfte || '',
-          content: template.prompt_text || '',
-          category: template.area_label,
-          risk: riskLabels[template.risk_level] || riskLabels.low
+        const areaLabels = new Map((packages || []).map((pkg) => [pkg.slug, pkg.title]));
+
+        const mappedItems = prompts.map((prompt) => ({
+          id: prompt.id,
+          title: prompt.title,
+          description: prompt.summary || '',
+          content: prompt.prompt_text || '',
+          category: areaLabels.get(prompt.area) || prompt.area || '',
+          risk: riskLabels[prompt.risk_level] || riskLabels.low
         }));
 
         window.registerProTemplates?.(mappedItems);
