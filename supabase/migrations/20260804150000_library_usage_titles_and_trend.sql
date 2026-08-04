@@ -1,7 +1,7 @@
 -- supabase/migrations/20260804150000_library_usage_titles_and_trend.sql
 -- Adds human-readable titles to the prompt/package/error usage RPCs by
 -- joining catalog_prompts/catalog_packages + their variants. Titles are
--- null when the slug no longer resolves to a published catalog item
+-- null when the slug no longer resolves to a catalog item
 -- (renamed or deleted) — the frontend renders a "(borttagen — <slug>)"
 -- fallback rather than the RPC guessing.
 
@@ -132,9 +132,9 @@ begin
 
     return query
     select e.source, e.event_type, e.outcome, e.prompt_slug,
-           prompt_title.title as prompt_title,
+           pt.title as prompt_title,
            e.package_slug,
-           package_title.title as package_title,
+           pkt.title as package_title,
            count(*)::int, max(e.created_at)
       from public.library_usage_events e
       left join public.catalog_prompts cp on cp.slug = e.prompt_slug
@@ -144,7 +144,7 @@ begin
          where v.prompt_id = cp.id
          order by (v.context_key = 'generell') desc, v.created_at asc
          limit 1
-      ) prompt_title on true
+      ) pt on true
       left join public.catalog_packages cpk on cpk.slug = e.package_slug
       left join lateral (
         select v.title
@@ -152,10 +152,10 @@ begin
          where v.package_id = cpk.id
          order by (v.context_key = 'generell') desc, v.created_at asc
          limit 1
-      ) package_title on true
+      ) pkt on true
      where e.created_at >= now() - make_interval(days => v_days)
        and e.outcome in ('empty', 'not_found', 'invalid_input', 'rate_limited', 'error')
-     group by e.source, e.event_type, e.outcome, e.prompt_slug, prompt_title.title, e.package_slug, package_title.title
+     group by e.source, e.event_type, e.outcome, e.prompt_slug, pt.title, e.package_slug, pkt.title
      order by count(*) desc, max(e.created_at) desc
      limit v_limit;
 end;

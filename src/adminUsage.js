@@ -37,10 +37,12 @@ function formatDate(value) {
 }
 
 function promptLabel(row) {
+  if (!('prompt_title' in row)) return row.prompt_slug;
   return row.prompt_title || `(borttagen — ${row.prompt_slug})`;
 }
 
 function packageLabel(row) {
+  if (!('package_title' in row)) return row.package_slug;
   return row.package_title || `(borttagen — ${row.package_slug})`;
 }
 
