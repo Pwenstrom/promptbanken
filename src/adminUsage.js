@@ -36,6 +36,14 @@ function formatDate(value) {
   return new Date(value).toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' });
 }
 
+function promptLabel(row) {
+  return row.prompt_title || `(borttagen — ${row.prompt_slug})`;
+}
+
+function packageLabel(row) {
+  return row.package_title || `(borttagen — ${row.package_slug})`;
+}
+
 function metric(summary, key) {
   return Number(summary?.metrics?.[key] || 0);
 }
@@ -66,7 +74,7 @@ function renderPromptUsage() {
   el.innerHTML = state.prompts.length
     ? state.prompts.map((row) => `
       <tr>
-        <td>${escapeHtml(row.prompt_slug)}</td>
+        <td title="${escapeHtml(row.prompt_slug)}">${escapeHtml(promptLabel(row))}</td>
         <td>${row.web_views}</td>
         <td>${row.web_copies}</td>
         <td>${row.mcp_gets}</td>
@@ -83,7 +91,7 @@ function renderPackageUsage() {
   el.innerHTML = state.packages.length
     ? state.packages.map((row) => `
       <tr>
-        <td>${escapeHtml(row.package_slug)}</td>
+        <td title="${escapeHtml(row.package_slug)}">${escapeHtml(packageLabel(row))}</td>
         <td>${row.web_views}</td>
         <td>${row.mcp_gets}</td>
         <td>${row.package_prompt_lists}</td>
@@ -103,8 +111,8 @@ function renderErrors() {
         <td>${escapeHtml(row.source)}</td>
         <td>${escapeHtml(row.event_type)}</td>
         <td>${escapeHtml(row.outcome)}</td>
-        <td>${escapeHtml(row.prompt_slug || '-')}</td>
-        <td>${escapeHtml(row.package_slug || '-')}</td>
+        <td title="${escapeHtml(row.prompt_slug || '')}">${row.prompt_slug ? escapeHtml(promptLabel(row)) : '-'}</td>
+        <td title="${escapeHtml(row.package_slug || '')}">${row.package_slug ? escapeHtml(packageLabel(row)) : '-'}</td>
         <td>${row.count}</td>
         <td>${formatDate(row.last_event_at)}</td>
       </tr>
@@ -214,9 +222,9 @@ function exportJson() {
 
 function exportCsv() {
   const rows = [
-    ['type', 'slug', 'web_views', 'web_copies', 'mcp_gets', 'not_found', 'last_event_at'],
-    ...state.prompts.map((row) => ['prompt', row.prompt_slug, row.web_views, row.web_copies, row.mcp_gets, row.not_found, row.last_event_at]),
-    ...state.packages.map((row) => ['package', row.package_slug, row.web_views, '', row.mcp_gets, row.not_found, row.last_event_at])
+    ['type', 'slug', 'title', 'web_views', 'web_copies', 'mcp_gets', 'not_found', 'last_event_at'],
+    ...state.prompts.map((row) => ['prompt', row.prompt_slug, row.prompt_title || '', row.web_views, row.web_copies, row.mcp_gets, row.not_found, row.last_event_at]),
+    ...state.packages.map((row) => ['package', row.package_slug, row.package_title || '', row.web_views, '', row.mcp_gets, row.not_found, row.last_event_at])
   ];
   const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? '').replaceAll('"', '""')}"`).join(',')).join('\n');
   downloadBlob(`promptbanken-statistik-${state.periodDays}d.csv`, csv, 'text/csv;charset=utf-8');
