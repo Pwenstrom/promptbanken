@@ -4,6 +4,14 @@
 -- null when the slug no longer resolves to a catalog item
 -- (renamed or deleted) — the frontend renders a "(borttagen — <slug>)"
 -- fallback rather than the RPC guessing.
+--
+-- The three functions below change their RETURNS TABLE column list, which
+-- Postgres does not allow via CREATE OR REPLACE (42P13: cannot change
+-- return type of existing function) — each is dropped first.
+
+drop function if exists public.get_library_prompt_usage(integer, integer);
+drop function if exists public.get_library_package_usage(integer, integer);
+drop function if exists public.get_library_usage_errors(integer, integer);
 
 create or replace function public.get_library_prompt_usage(p_days integer default 30, p_limit integer default 50)
 returns table (
