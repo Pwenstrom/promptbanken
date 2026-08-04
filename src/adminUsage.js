@@ -133,6 +133,28 @@ function renderSearchFeedback() {
       <article><strong>${rate}%</strong><span>Tomma sökningar</span></article>
     </div>
   `;
+  renderSearchContext();
+}
+
+function renderSearchContext() {
+  const el = document.querySelector('[data-search-context]');
+  if (!el) return;
+  const rows = state.search?.by_context || [];
+  el.innerHTML = rows.length
+    ? rows.map((row) => {
+        const total = Number(row.total_count || 0);
+        const emptyCount = Number(row.empty_count || 0);
+        const missRate = total ? Math.round((emptyCount / total) * 100) : 0;
+        return `
+          <tr>
+            <td>${escapeHtml(row.context_key)}</td>
+            <td>${total}</td>
+            <td>${emptyCount}</td>
+            <td>${missRate}%</td>
+          </tr>
+        `;
+      }).join('')
+    : '<tr><td colspan="4">Ingen sökdata för vald period.</td></tr>';
 }
 
 function renderMcpStatus() {
