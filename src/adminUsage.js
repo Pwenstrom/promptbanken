@@ -169,8 +169,35 @@ function renderMcpStatus() {
   `;
 }
 
+function renderDailyTrend() {
+  const el = document.querySelector('[data-daily-trend]');
+  if (!el) return;
+  const rows = state.summary?.daily || [];
+  if (!rows.length) {
+    el.innerHTML = '<tr><td colspan="3">Ingen trenddata för vald period.</td></tr>';
+    return;
+  }
+  const byDay = new Map();
+  rows.forEach((row) => {
+    if (!byDay.has(row.day)) byDay.set(row.day, { web: 0, open_mcp: 0 });
+    byDay.get(row.day)[row.source] = Number(row.events || 0);
+  });
+  const days = Array.from(byDay.keys()).sort();
+  el.innerHTML = days.map((day) => {
+    const counts = byDay.get(day);
+    return `
+      <tr>
+        <td>${escapeHtml(day)}</td>
+        <td>${counts.web || 0}</td>
+        <td>${counts.open_mcp || 0}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
 function renderAll() {
   renderSummary();
+  renderDailyTrend();
   renderPromptUsage();
   renderPackageUsage();
   renderErrors();
