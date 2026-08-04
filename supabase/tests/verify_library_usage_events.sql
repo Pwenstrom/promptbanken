@@ -43,5 +43,23 @@ select public.get_library_usage_summary(30);
 select * from public.get_library_prompt_usage(30, 10)
  where prompt_slug = 'testprompt';
 
+-- 9. As platform_owner: the test slug from Step 1/7 has no matching catalog_prompts
+--    row, so prompt_title must be null (frontend renders the "(borttagen — slug)"
+--    fallback, SQL does not guess).
+select prompt_slug, prompt_title
+  from public.get_library_prompt_usage(30, 10)
+ where prompt_slug = 'testprompt';
+-- Expected: one row, prompt_title is null.
+
+-- 10. As platform_owner: pick any slug known to exist in catalog_prompts and confirm
+--     prompt_title resolves to a real title, not the slug itself. Replace
+--     '<real-published-slug>' with a slug from:
+--     select slug from public.catalog_prompts where status = 'published' limit 1;
+select prompt_slug, prompt_title
+  from public.get_library_prompt_usage(365, 200)
+ where prompt_slug = '<real-published-slug>';
+-- Expected: prompt_title is non-null and differs from prompt_slug when the
+-- catalog title differs from the slug (true for legacy-* seeded slugs).
+
 -- 8. Cleanup can be performed by service role only if the staging data should be removed:
 -- delete from public.library_usage_events where prompt_slug = 'testprompt';
