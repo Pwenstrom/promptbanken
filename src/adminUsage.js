@@ -36,6 +36,16 @@ function formatDate(value) {
   return new Date(value).toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' });
 }
 
+function promptLabel(row) {
+  if (!('prompt_title' in row)) return row.prompt_slug;
+  return row.prompt_title || `(borttagen — ${row.prompt_slug})`;
+}
+
+function packageLabel(row) {
+  if (!('package_title' in row)) return row.package_slug;
+  return row.package_title || `(borttagen — ${row.package_slug})`;
+}
+
 function metric(summary, key) {
   return Number(summary?.metrics?.[key] || 0);
 }
@@ -66,7 +76,7 @@ function renderPromptUsage() {
   el.innerHTML = state.prompts.length
     ? state.prompts.map((row) => `
       <tr>
-        <td>${escapeHtml(row.prompt_slug)}</td>
+        <td title="${escapeHtml(row.prompt_slug)}">${escapeHtml(promptLabel(row))}</td>
         <td>${row.web_views}</td>
         <td>${row.web_copies}</td>
         <td>${row.mcp_gets}</td>
@@ -83,7 +93,7 @@ function renderPackageUsage() {
   el.innerHTML = state.packages.length
     ? state.packages.map((row) => `
       <tr>
-        <td>${escapeHtml(row.package_slug)}</td>
+        <td title="${escapeHtml(row.package_slug)}">${escapeHtml(packageLabel(row))}</td>
         <td>${row.web_views}</td>
         <td>${row.mcp_gets}</td>
         <td>${row.package_prompt_lists}</td>
@@ -103,8 +113,8 @@ function renderErrors() {
         <td>${escapeHtml(row.source)}</td>
         <td>${escapeHtml(row.event_type)}</td>
         <td>${escapeHtml(row.outcome)}</td>
-        <td>${escapeHtml(row.prompt_slug || '-')}</td>
-        <td>${escapeHtml(row.package_slug || '-')}</td>
+        <td title="${escapeHtml(row.prompt_slug || '')}">${row.prompt_slug ? escapeHtml(promptLabel(row)) : '-'}</td>
+        <td title="${escapeHtml(row.package_slug || '')}">${row.package_slug ? escapeHtml(packageLabel(row)) : '-'}</td>
         <td>${row.count}</td>
         <td>${formatDate(row.last_event_at)}</td>
       </tr>
@@ -125,6 +135,28 @@ function renderSearchFeedback() {
       <article><strong>${rate}%</strong><span>Tomma sökningar</span></article>
     </div>
   `;
+  renderSearchContext();
+}
+
+function renderSearchContext() {
+  const el = document.querySelector('[data-search-context]');
+  if (!el) return;
+  const rows = state.search?.by_context || [];
+  el.innerHTML = rows.length
+    ? rows.map((row) => {
+        const total = Number(row.total_count || 0);
+        const emptyCount = Number(row.empty_count || 0);
+        const missRate = total ? Math.round((emptyCount / total) * 100) : 0;
+        return `
+          <tr>
+            <td>${escapeHtml(row.context_key)}</td>
+            <td>${total}</td>
+            <td>${emptyCount}</td>
+            <td>${missRate}%</td>
+          </tr>
+        `;
+      }).join('')
+    : '<tr><td colspan="4">Ingen sökdata för vald period.</td></tr>';
 }
 
 function renderMcpStatus() {
@@ -139,8 +171,35 @@ function renderMcpStatus() {
   `;
 }
 
+function renderDailyTrend() {
+  const el = document.querySelector('[data-daily-trend]');
+  if (!el) return;
+  const rows = state.summary?.daily || [];
+  if (!rows.length) {
+    el.innerHTML = '<tr><td colspan="3">Ingen trenddata för vald period.</td></tr>';
+    return;
+  }
+  const byDay = new Map();
+  rows.forEach((row) => {
+    if (!byDay.has(row.day)) byDay.set(row.day, { web: 0, open_mcp: 0 });
+    byDay.get(row.day)[row.source] = Number(row.events || 0);
+  });
+  const days = Array.from(byDay.keys()).sort();
+  el.innerHTML = days.map((day) => {
+    const counts = byDay.get(day);
+    return `
+      <tr>
+        <td>${escapeHtml(day)}</td>
+        <td>${counts.web || 0}</td>
+        <td>${counts.open_mcp || 0}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
 function renderAll() {
   renderSummary();
+  renderDailyTrend();
   renderPromptUsage();
   renderPackageUsage();
   renderErrors();
@@ -214,9 +273,9 @@ function exportJson() {
 
 function exportCsv() {
   const rows = [
-    ['type', 'slug', 'web_views', 'web_copies', 'mcp_gets', 'not_found', 'last_event_at'],
-    ...state.prompts.map((row) => ['prompt', row.prompt_slug, row.web_views, row.web_copies, row.mcp_gets, row.not_found, row.last_event_at]),
-    ...state.packages.map((row) => ['package', row.package_slug, row.web_views, '', row.mcp_gets, row.not_found, row.last_event_at])
+    ['type', 'slug', 'title', 'web_views', 'web_copies', 'mcp_gets', 'not_found', 'last_event_at'],
+    ...state.prompts.map((row) => ['prompt', row.prompt_slug, row.prompt_title || '', row.web_views, row.web_copies, row.mcp_gets, row.not_found, row.last_event_at]),
+    ...state.packages.map((row) => ['package', row.package_slug, row.package_title || '', row.web_views, '', row.mcp_gets, row.not_found, row.last_event_at])
   ];
   const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? '').replaceAll('"', '""')}"`).join(',')).join('\n');
   downloadBlob(`promptbanken-statistik-${state.periodDays}d.csv`, csv, 'text/csv;charset=utf-8');
