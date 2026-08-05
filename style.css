@@ -2987,6 +2987,14 @@ body {
     font-size: 1.4rem;
 }
 
+.brand-logo-mark {
+    display: block;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
 .sidebar-nav {
     display: flex;
     flex-direction: column;
