@@ -50,6 +50,17 @@ yrkesroll. Varje mall visar sitt syfte, målgrupp och en risknivå så du vet
 vad du behöver tänka på innan du använder den. Biblioteket är publikt och
 kräver ingen inloggning eller nyckel.
 
+### Logo
+
+Brand-assetpaket mottaget 2026-08-05, sparat i
+`docs/bilder/brand/` (repo). Använd `promptbanken-icon-512.png`
+(512×512, avrundad ljus bakgrund — designad för app-ikon-kontext) som
+submission-logo. `promptbanken-mark-transparent.png` finns som frilagd
+variant om portalen kräver transparent bakgrund istället.
+
+Samma paket har redan wirats in på sajten: favicon/apple-touch-icon i
+`public/`, länkade i `<head>` på samtliga 14 sidor (commit pending).
+
 ### Kategori (rekommendation, låses i portalen)
 
 Produktivitet / Skrivande — biblioteket löser en konkret skrivuppgift
