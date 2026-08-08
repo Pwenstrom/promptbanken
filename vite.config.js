@@ -26,6 +26,7 @@ export default defineConfig({
         admin: resolve(__dirname, 'admin.html'),
         promptbanken: resolve(__dirname, 'promptbanken.html'),
         help: resolve(__dirname, 'help.html'),
+        support: resolve(__dirname, 'support.html'),
         about: resolve(__dirname, 'about.html'),
         planer: resolve(__dirname, 'planer.html'),
         mcp: resolve(__dirname, 'mcp.html'),
