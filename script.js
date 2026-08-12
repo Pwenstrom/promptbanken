@@ -1006,10 +1006,14 @@ async function openCatalogPromptDetail(slug) {
     }
 }
 
+function getPackageSlugFromLocation() {
+    return new URLSearchParams(window.location.search).get('package') || null;
+}
+
 async function openCatalogPackageDetail(slug) {
     const panel = document.getElementById('catalog-prompt-detail');
     const tabsContainer = document.getElementById('catalog-detail-tabs');
-    if (!panel || !tabsContainer) return;
+    if (!panel || !tabsContainer) return false;
 
     try {
         catalogDetailVariants = (await callCatalogRpc('get_published_package', {
@@ -1018,10 +1022,10 @@ async function openCatalogPackageDetail(slug) {
         })).map(normalizeCatalogTemplateEntity);
     } catch (error) {
         console.error('Kunde inte ladda paketdetaljer:', error);
-        return;
+        return false;
     }
 
-    if (!catalogDetailVariants.length) return;
+    if (!catalogDetailVariants.length) return false;
 
     try {
         catalogDetailPackageItems = await callCatalogRpc('list_published_package_prompts', {
@@ -1037,6 +1041,17 @@ async function openCatalogPackageDetail(slug) {
     renderCatalogDetailVariant(catalogDetailVariants[0]);
     setCatalogDetailPanelOpen(true);
 
+    const desiredSearch = `?package=${encodeURIComponent(slug)}`;
+    if (window.location.search !== desiredSearch) {
+        window.history.pushState({ catalogPackageSlug: slug }, '', desiredSearch);
+    }
+
+    const shareButton = document.getElementById('catalog-detail-share');
+    if (shareButton) {
+        shareButton.hidden = false;
+        shareButton.dataset.catalogPackageSlug = slug;
+    }
+
     const packageViewKey = `package_view:${slug}:${getActiveCatalogContextKeys().join(',')}`;
     if (shouldTrackLibraryUsage(packageViewKey, 60 * 60 * 1000)) {
         const packageType = catalogDetailVariants[0]?.package_type;
@@ -1048,10 +1063,35 @@ async function openCatalogPackageDetail(slug) {
                 : {}
         });
     }
+
+    return true;
+}
+
+function closeCatalogDetailPanel() {
+    setCatalogDetailPanelOpen(false);
+    const shareButton = document.getElementById('catalog-detail-share');
+    if (shareButton) shareButton.hidden = true;
+    if (getPackageSlugFromLocation()) {
+        window.history.replaceState(null, '', window.location.pathname);
+    }
 }
 
 document.getElementById('catalog-detail-close')?.addEventListener('click', () => {
-    setCatalogDetailPanelOpen(false);
+    closeCatalogDetailPanel();
+});
+
+window.addEventListener('popstate', () => {
+    const slug = getPackageSlugFromLocation();
+    const panel = document.getElementById('catalog-prompt-detail');
+    if (!slug) {
+        if (panel && !panel.hidden) {
+            setCatalogDetailPanelOpen(false);
+            const shareButton = document.getElementById('catalog-detail-share');
+            if (shareButton) shareButton.hidden = true;
+        }
+        return;
+    }
+    openCatalogPackageDetail(slug);
 });
 
 function createCatalogPackageCard(pkg) {
