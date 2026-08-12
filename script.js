@@ -898,6 +898,12 @@ function renderCatalogDetailVariant(variant) {
     const normalizedVariant = normalizeCatalogTemplateEntity(variant);
     const isPrompt = 'prompt_text' in normalizedVariant;
 
+    const shareButton = document.getElementById('catalog-detail-share');
+    if (shareButton) {
+        shareButton.hidden = isPrompt;
+        if (!isPrompt) shareButton.dataset.catalogPackageSlug = normalizedVariant.slug || '';
+    }
+
     const introOrPromptHtml = isPrompt
         ? `<pre class="catalog-detail-prompt-text">${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'prompt_text'))}</pre>
            <div class="catalog-card-actions"><button type="button" class="catalog-copy-btn" id="catalog-detail-copy-btn">Kopiera prompt</button></div>`
@@ -1092,6 +1098,30 @@ window.addEventListener('popstate', () => {
         return;
     }
     openCatalogPackageDetail(slug);
+});
+
+document.getElementById('catalog-detail-share')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget;
+    const slug = button.dataset.catalogPackageSlug;
+    if (!slug) return;
+
+    const url = `${window.location.origin}${window.location.pathname}?package=${encodeURIComponent(slug)}`;
+    try {
+        await navigator.clipboard.writeText(url);
+        trackLibraryUsageEvent({ eventType: 'package_share', packageSlug: slug });
+        const originalContent = button.textContent;
+        button.textContent = '✓';
+        button.classList.add('copied');
+        button.setAttribute('aria-label', 'Länk kopierad');
+        setTimeout(() => {
+            button.textContent = originalContent;
+            button.classList.remove('copied');
+            button.setAttribute('aria-label', 'Kopiera länk till paketet');
+        }, 2000);
+    } catch (error) {
+        console.error('Kunde inte kopiera länken:', error);
+        alert('Kunde inte kopiera länken. Kopiera adressen från adressfältet istället.');
+    }
 });
 
 function createCatalogPackageCard(pkg) {
@@ -3526,7 +3556,7 @@ ${initialUserInput.trim()}`
         }
 
         // Load prompts on page load
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             initAdvancedToggle();
             initFavoritesToggle();
             initLocalChatToggle();
@@ -3538,9 +3568,19 @@ ${initialUserInput.trim()}`
             renderCatalogProfileFilters();
             renderGlobalContextStatus();
             loadCatalogPrompts();
-            loadCatalogPackages();
+            await loadCatalogPackages();
             loadExportSettings();
             registerExportSettingsListeners();
+
+            const initialPackageSlug = getPackageSlugFromLocation();
+            if (initialPackageSlug) {
+                const opened = await openCatalogPackageDetail(initialPackageSlug);
+                if (!opened) {
+                    window.history.replaceState(null, '', window.location.pathname);
+                    const errorBanner = document.getElementById('catalog-package-link-error');
+                    if (errorBanner) errorBanner.hidden = false;
+                }
+            }
         });
 
 // Visa/dölj anonymiseringsexempel i snabbinmatning
