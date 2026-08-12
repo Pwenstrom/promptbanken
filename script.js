@@ -1047,9 +1047,10 @@ async function openCatalogPackageDetail(slug) {
     renderCatalogDetailVariant(catalogDetailVariants[0]);
     setCatalogDetailPanelOpen(true);
 
-    const desiredSearch = `?package=${encodeURIComponent(slug)}`;
-    if (window.location.search !== desiredSearch) {
-        window.history.pushState({ catalogPackageSlug: slug }, '', desiredSearch);
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('package') !== slug) {
+        params.set('package', slug);
+        window.history.pushState({ catalogPackageSlug: slug }, '', `${window.location.pathname}?${params}`);
     }
 
     const shareButton = document.getElementById('catalog-detail-share');
@@ -1077,8 +1078,11 @@ function closeCatalogDetailPanel() {
     setCatalogDetailPanelOpen(false);
     const shareButton = document.getElementById('catalog-detail-share');
     if (shareButton) shareButton.hidden = true;
-    if (getPackageSlugFromLocation()) {
-        window.history.replaceState(null, '', window.location.pathname);
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('package')) {
+        params.delete('package');
+        const remaining = params.toString();
+        window.history.replaceState(null, '', remaining ? `${window.location.pathname}?${remaining}` : window.location.pathname);
     }
 }
 
@@ -1100,6 +1104,8 @@ window.addEventListener('popstate', () => {
     openCatalogPackageDetail(slug);
 });
 
+let catalogShareButtonResetTimer = null;
+
 document.getElementById('catalog-detail-share')?.addEventListener('click', async (event) => {
     const button = event.currentTarget;
     const slug = button.dataset.catalogPackageSlug;
@@ -1109,12 +1115,12 @@ document.getElementById('catalog-detail-share')?.addEventListener('click', async
     try {
         await navigator.clipboard.writeText(url);
         trackLibraryUsageEvent({ eventType: 'package_share', packageSlug: slug });
-        const originalContent = button.textContent;
+        clearTimeout(catalogShareButtonResetTimer);
         button.textContent = '✓';
         button.classList.add('copied');
         button.setAttribute('aria-label', 'Länk kopierad');
-        setTimeout(() => {
-            button.textContent = originalContent;
+        catalogShareButtonResetTimer = setTimeout(() => {
+            button.textContent = '🔗';
             button.classList.remove('copied');
             button.setAttribute('aria-label', 'Kopiera länk till paketet');
         }, 2000);
@@ -1145,6 +1151,7 @@ function createCatalogPackageCard(pkg) {
 }
 
 async function loadCatalogPackages() {
+    document.getElementById('catalog-package-link-error')?.setAttribute('hidden', '');
     if (!isCatalogConfigUsable()) {
         renderCatalogUnavailableState('Öppen katalog är tillfälligt otillgänglig just nu.');
         return;
