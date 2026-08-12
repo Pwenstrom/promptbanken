@@ -4,7 +4,7 @@
 -- öppna katalogen. Se docs/superpowers/specs/2026-08-11-package-share-link-design.md.
 
 alter table public.library_usage_events
-    drop constraint library_usage_event_type_check;
+    drop constraint if exists library_usage_event_type_check;
 
 alter table public.library_usage_events
     add constraint library_usage_event_type_check
@@ -132,7 +132,7 @@ begin
         v_metadata
     );
 
-    return jsonb_build_object('ok', true);
+    return jsonb_build_object('accepted', true);
 end;
 $$;
 
