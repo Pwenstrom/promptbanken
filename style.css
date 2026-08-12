@@ -5811,6 +5811,15 @@ body.detail-panel-closed .prompt-detail-panel {
     line-height: 1.5;
 }
 
+.catalog-package-link-error {
+    background: #fdecea;
+    color: #611a15;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+}
+
 .catalog-card {
     border: 1px solid var(--border-color, #e2e2e2);
     border-radius: 8px;
@@ -5978,6 +5987,34 @@ body.detail-panel-closed .prompt-detail-panel {
 .catalog-detail-close:hover {
     background-color: #f0f0f0;
     color: #1a1a1a;
+}
+
+.catalog-detail-share {
+    position: absolute;
+    top: 0.75rem;
+    right: 3.25rem;
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.catalog-detail-share:hover {
+    background-color: #f0f0f0;
+    color: #1a1a1a;
+}
+
+.catalog-detail-share.copied {
+    color: #1a7f37;
 }
 
 .catalog-detail-tabs {

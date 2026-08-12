@@ -898,6 +898,12 @@ function renderCatalogDetailVariant(variant) {
     const normalizedVariant = normalizeCatalogTemplateEntity(variant);
     const isPrompt = 'prompt_text' in normalizedVariant;
 
+    const shareButton = document.getElementById('catalog-detail-share');
+    if (shareButton) {
+        shareButton.hidden = isPrompt;
+        if (!isPrompt) shareButton.dataset.catalogPackageSlug = normalizedVariant.slug || '';
+    }
+
     const introOrPromptHtml = isPrompt
         ? `<pre class="catalog-detail-prompt-text">${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'prompt_text'))}</pre>
            <div class="catalog-card-actions"><button type="button" class="catalog-copy-btn" id="catalog-detail-copy-btn">Kopiera prompt</button></div>`
@@ -1006,10 +1012,14 @@ async function openCatalogPromptDetail(slug) {
     }
 }
 
+function getPackageSlugFromLocation() {
+    return new URLSearchParams(window.location.search).get('package') || null;
+}
+
 async function openCatalogPackageDetail(slug) {
     const panel = document.getElementById('catalog-prompt-detail');
     const tabsContainer = document.getElementById('catalog-detail-tabs');
-    if (!panel || !tabsContainer) return;
+    if (!panel || !tabsContainer) return false;
 
     try {
         catalogDetailVariants = (await callCatalogRpc('get_published_package', {
@@ -1018,10 +1028,10 @@ async function openCatalogPackageDetail(slug) {
         })).map(normalizeCatalogTemplateEntity);
     } catch (error) {
         console.error('Kunde inte ladda paketdetaljer:', error);
-        return;
+        return false;
     }
 
-    if (!catalogDetailVariants.length) return;
+    if (!catalogDetailVariants.length) return false;
 
     try {
         catalogDetailPackageItems = await callCatalogRpc('list_published_package_prompts', {
@@ -1037,6 +1047,18 @@ async function openCatalogPackageDetail(slug) {
     renderCatalogDetailVariant(catalogDetailVariants[0]);
     setCatalogDetailPanelOpen(true);
 
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('package') !== slug) {
+        params.set('package', slug);
+        window.history.pushState({ catalogPackageSlug: slug }, '', `${window.location.pathname}?${params}`);
+    }
+
+    const shareButton = document.getElementById('catalog-detail-share');
+    if (shareButton) {
+        shareButton.hidden = false;
+        shareButton.dataset.catalogPackageSlug = slug;
+    }
+
     const packageViewKey = `package_view:${slug}:${getActiveCatalogContextKeys().join(',')}`;
     if (shouldTrackLibraryUsage(packageViewKey, 60 * 60 * 1000)) {
         const packageType = catalogDetailVariants[0]?.package_type;
@@ -1048,10 +1070,64 @@ async function openCatalogPackageDetail(slug) {
                 : {}
         });
     }
+
+    return true;
+}
+
+function closeCatalogDetailPanel() {
+    setCatalogDetailPanelOpen(false);
+    const shareButton = document.getElementById('catalog-detail-share');
+    if (shareButton) shareButton.hidden = true;
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('package')) {
+        params.delete('package');
+        const remaining = params.toString();
+        window.history.replaceState(null, '', remaining ? `${window.location.pathname}?${remaining}` : window.location.pathname);
+    }
 }
 
 document.getElementById('catalog-detail-close')?.addEventListener('click', () => {
-    setCatalogDetailPanelOpen(false);
+    closeCatalogDetailPanel();
+});
+
+window.addEventListener('popstate', () => {
+    const slug = getPackageSlugFromLocation();
+    const panel = document.getElementById('catalog-prompt-detail');
+    if (!slug) {
+        if (panel && !panel.hidden) {
+            setCatalogDetailPanelOpen(false);
+            const shareButton = document.getElementById('catalog-detail-share');
+            if (shareButton) shareButton.hidden = true;
+        }
+        return;
+    }
+    openCatalogPackageDetail(slug);
+});
+
+let catalogShareButtonResetTimer = null;
+
+document.getElementById('catalog-detail-share')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget;
+    const slug = button.dataset.catalogPackageSlug;
+    if (!slug) return;
+
+    const url = `${window.location.origin}${window.location.pathname}?package=${encodeURIComponent(slug)}`;
+    try {
+        await navigator.clipboard.writeText(url);
+        trackLibraryUsageEvent({ eventType: 'package_share', packageSlug: slug });
+        clearTimeout(catalogShareButtonResetTimer);
+        button.textContent = '✓';
+        button.classList.add('copied');
+        button.setAttribute('aria-label', 'Länk kopierad');
+        catalogShareButtonResetTimer = setTimeout(() => {
+            button.textContent = '🔗';
+            button.classList.remove('copied');
+            button.setAttribute('aria-label', 'Kopiera länk till paketet');
+        }, 2000);
+    } catch (error) {
+        console.error('Kunde inte kopiera länken:', error);
+        alert('Kunde inte kopiera länken. Kopiera adressen från adressfältet istället.');
+    }
 });
 
 function createCatalogPackageCard(pkg) {
@@ -1075,6 +1151,7 @@ function createCatalogPackageCard(pkg) {
 }
 
 async function loadCatalogPackages() {
+    document.getElementById('catalog-package-link-error')?.setAttribute('hidden', '');
     if (!isCatalogConfigUsable()) {
         renderCatalogUnavailableState('Öppen katalog är tillfälligt otillgänglig just nu.');
         return;
@@ -3486,7 +3563,7 @@ ${initialUserInput.trim()}`
         }
 
         // Load prompts on page load
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             initAdvancedToggle();
             initFavoritesToggle();
             initLocalChatToggle();
@@ -3498,9 +3575,19 @@ ${initialUserInput.trim()}`
             renderCatalogProfileFilters();
             renderGlobalContextStatus();
             loadCatalogPrompts();
-            loadCatalogPackages();
+            await loadCatalogPackages();
             loadExportSettings();
             registerExportSettingsListeners();
+
+            const initialPackageSlug = getPackageSlugFromLocation();
+            if (initialPackageSlug) {
+                const opened = await openCatalogPackageDetail(initialPackageSlug);
+                if (!opened) {
+                    window.history.replaceState(null, '', window.location.pathname);
+                    const errorBanner = document.getElementById('catalog-package-link-error');
+                    if (errorBanner) errorBanner.hidden = false;
+                }
+            }
         });
 
 // Visa/dölj anonymiseringsexempel i snabbinmatning
