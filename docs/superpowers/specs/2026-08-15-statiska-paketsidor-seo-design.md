@@ -162,6 +162,41 @@ URL:er (behålls oförändrad), plus `/paket/` och varje indexerbar
 paketsida. `robots.txt` behöver ingen ändring — den pekar redan på
 `sitemap.xml`.
 
+## Fördröjningen mellan publicering och bygge
+
+Ett nypublicerat paket syns direkt i appen, eftersom `promptbanken.html`
+hämtar live från Supabase. Den statiska sidan `/paket/<slug>/` finns
+däremot inte förrän nästa bygge körts. Mellan dessa två tidpunkter ger
+SEO-URL:en 404, och någon som hinner sprida den länken skickar mottagaren
+till en felsida.
+
+Lösning: en egen `404.html` som fångar upp fallet. Repot saknar en sådan
+fil idag, så GitHub Pages serverar sin standardsida.
+
+`404.html` läggs i repo-roten och i `vite.config.js` ingångslista, så den
+byggs till `dist/404.html`. GitHub Pages serverar den med korrekt
+404-status, vilket undviker soft-404-problem.
+
+Beteende: ett litet inline-script läser `location.pathname`. Om den matchar
+mönstret `/paket/<slug>/` — där `<slug>` valideras mot samma strikta
+slug-mönster som generatorn använder — görs `location.replace()` till
+`promptbanken.html?package=<slug>`. Besökaren landar då i appens paketvy
+istället för på en felsida, oavsett om den statiska sidan hunnit byggas.
+Matchar sökvägen inte mönstret visas en vanlig svensk 404-sida med länkar
+till startsidan, katalogen och `/paket/`.
+
+Två säkerhetskrav på den logiken: slugen valideras mot det strikta mönstret
+innan den används (annars blir sidan en öppen redirect), och den skrivs
+aldrig till DOM:en som HTML — bara som värde i en relativ URL byggd med
+`encodeURIComponent`.
+
+`404.html` får `<meta name="robots" content="noindex">`.
+
+Effekten är att URL-formen `/paket/<slug>/` fungerar för människor från
+den sekund paketet publiceras, medan sökmotorer får den riktiga statiska
+sidan när bygget körts. Admin behöver därmed inte hålla isär två sorters
+länkar.
+
 ## Sidmallen `/paket/<slug>/`
 
 Ordning på sidan:
@@ -267,6 +302,10 @@ kvalitetskravet blir synligt vid redigering.
   fält och ett utan, bekräfta att det tunna paketet fått `noindex` och
   saknas i sitemap, kontrollera brödsmulor, canonical, OG-taggar och
   JSON-LD, samt mobil- och desktopvy.
+- **404-fallbacken** verifieras separat: öppna `/paket/<slug-som-inte-finns>/`
+  och bekräfta att den landar i appens paketvy, öppna en helt annan
+  okänd sökväg och bekräfta att den vanliga 404-sidan visas, samt att en
+  manipulerad sökväg (`/paket/..%2F..%2Fnagot/`) inte ger någon redirect.
 
 ## Avgränsning
 
