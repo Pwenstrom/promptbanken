@@ -31,7 +31,23 @@ const STATIC_URLS = [
     '/terms.html',
     '/prompts.html',
     '/prompts.json',
-    '/llms.txt'
+    '/llms.txt',
+    '/prompts/tydlighetskoll.txt',
+    '/prompts/klarsprak.txt',
+    '/prompts/mejl.txt',
+    '/prompts/faq.txt',
+    '/prompts/checklista.txt',
+    '/prompts/kallelse.txt',
+    '/prompts/beslutsunderlag.txt',
+    '/prompts/rutin.txt',
+    '/prompts/tvaversioner.txt',
+    '/prompts/reflektion.txt',
+    '/prompts/samtalskompas.txt',
+    '/prompts/sammanfattning.txt',
+    '/prompts/anteckningar.txt',
+    '/prompts/diskussionsfragor.txt',
+    '/prompts/nyckelord.txt',
+    '/prompts/informationsutskick.txt'
 ];
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
