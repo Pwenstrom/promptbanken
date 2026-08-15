@@ -10,7 +10,8 @@
     "dev": "node mcp-server/scripts/run-mcp.js",
     "seed:test-users": "node scripts/seed-test-users.mjs",
     "setup:python": "node mcp-server/scripts/setup-python.js",
-    "check:python": "node mcp-server/scripts/check-python.js"
+    "check:python": "node mcp-server/scripts/check-python.js",
+    "test": "node --test scripts/**/*.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.84.0"
