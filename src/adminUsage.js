@@ -94,14 +94,16 @@ function renderPackageUsage() {
     ? state.packages.map((row) => `
       <tr>
         <td title="${escapeHtml(row.package_slug)}">${escapeHtml(packageLabel(row))}</td>
+        <td>${row.page_views ?? 0}</td>
         <td>${row.web_views}</td>
+        <td>${row.shares ?? 0}</td>
         <td>${row.mcp_gets}</td>
         <td>${row.package_prompt_lists}</td>
         <td>${row.not_found}</td>
         <td>${formatDate(row.last_event_at)}</td>
       </tr>
     `).join('')
-    : '<tr><td colspan="6">Ingen paketstatistik för vald period.</td></tr>';
+    : '<tr><td colspan="8">Ingen paketstatistik för vald period.</td></tr>';
 }
 
 function renderErrors() {
@@ -273,9 +275,9 @@ function exportJson() {
 
 function exportCsv() {
   const rows = [
-    ['type', 'slug', 'title', 'web_views', 'web_copies', 'mcp_gets', 'not_found', 'last_event_at'],
-    ...state.prompts.map((row) => ['prompt', row.prompt_slug, row.prompt_title || '', row.web_views, row.web_copies, row.mcp_gets, row.not_found, row.last_event_at]),
-    ...state.packages.map((row) => ['package', row.package_slug, row.package_title || '', row.web_views, '', row.mcp_gets, row.not_found, row.last_event_at])
+    ['type', 'slug', 'title', 'page_views', 'web_views', 'web_copies', 'shares', 'mcp_gets', 'not_found', 'last_event_at'],
+    ...state.prompts.map((row) => ['prompt', row.prompt_slug, row.prompt_title || '', '', row.web_views, row.web_copies, '', row.mcp_gets, row.not_found, row.last_event_at]),
+    ...state.packages.map((row) => ['package', row.package_slug, row.package_title || '', row.page_views ?? 0, row.web_views, '', row.shares ?? 0, row.mcp_gets, row.not_found, row.last_event_at])
   ];
   const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? '').replaceAll('"', '""')}"`).join(',')).join('\n');
   downloadBlob(`promptbanken-statistik-${state.periodDays}d.csv`, csv, 'text/csv;charset=utf-8');
