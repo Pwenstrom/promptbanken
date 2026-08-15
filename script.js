@@ -1145,8 +1145,12 @@ function createCatalogPackageCard(pkg) {
         <p>${summary}</p>
         <span class="catalog-package-type">${typeLabel}</span>
         ${fallbackBadge}
+        <p class="catalog-package-permalink"><a href="/paket/${encodeURIComponent(pkg.slug)}/">Läs mer om paketet</a></p>
     `;
     card.addEventListener('click', () => openCatalogPackageDetail(pkg.slug));
+    card.querySelector('.catalog-package-permalink a')?.addEventListener('click', (event) => {
+        event.stopPropagation();
+    });
     return card;
 }
 

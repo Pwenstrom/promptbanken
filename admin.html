@@ -25,6 +25,7 @@
                 <a class="admin-nav-link" href="#sokningar"><span class="app-icon" data-icon="search"></span>Sökningar</a>
                 <a class="admin-nav-link" href="#mcp"><span class="app-icon" data-icon="shield"></span>MCP-status</a>
                 <a class="admin-nav-link" href="#export"><span class="app-icon" data-icon="clipboard"></span>Export</a>
+                <a class="admin-nav-link" href="#paket-seo"><span class="app-icon" data-icon="files"></span>Paket-SEO</a>
             </nav>
             <button class="admin-logout" type="button" data-logout>Logga ut</button>
         </aside>
@@ -76,7 +77,8 @@
 
                     <section class="workspace-section" id="paket">
                         <div class="workspace-section-heading"><h2>Paket</h2></div>
-                        <div class="workspace-table-wrap"><table class="workspace-table"><thead><tr><th>Paket</th><th>Visningar webb</th><th>MCP-hämtningar</th><th>Promptlistor</th><th>Not found</th><th>Senast</th></tr></thead><tbody data-package-usage></tbody></table></div>
+                        <p class="workspace-status">Sidvisningar är trafik på den statiska paketsidan (ofta från sökmotor). Öppnade i appen är paketvyn i katalogen.</p>
+                        <div class="workspace-table-wrap"><table class="workspace-table"><thead><tr><th>Paket</th><th>Sidvisningar</th><th>Öppnade i appen</th><th>Delningar</th><th>MCP-hämtningar</th><th>Promptlistor</th><th>Not found</th><th>Senast</th></tr></thead><tbody data-package-usage></tbody></table></div>
                     </section>
 
                     <section class="workspace-section" id="sokningar">
@@ -99,9 +101,59 @@
                         </div>
                     </section>
                 </section>
+
+                <section class="workspace-section" id="paket-seo" aria-labelledby="paket-seo-title">
+                    <div class="workspace-section-heading">
+                        <h2 id="paket-seo-title">Redaktionella fält och SEO för paket</h2>
+                        <button type="button" data-seo-refresh>Uppdatera</button>
+                    </div>
+                    <p class="workspace-status" role="status" data-seo-status>Laddar paket...</p>
+                    <section class="workspace-empty" data-seo-denied hidden>
+                        <h1>Ingen åtkomst</h1>
+                        <p>Den här redigeringsytan är bara tillgänglig för plattformsägare.</p>
+                    </section>
+
+                    <div data-seo-editor hidden>
+                        <div class="workspace-form compact">
+                            <label>Paket
+                                <select data-seo-package-select></select>
+                            </label>
+                            <p role="status" data-seo-indexable-status></p>
+                        </div>
+
+                        <form class="workspace-form" data-seo-form>
+                            <label class="workspace-form-wide">Problem (problem_text)
+                                <textarea name="problem_text" rows="3" placeholder="Vilket problem löser paketet?"></textarea>
+                            </label>
+                            <label class="workspace-form-wide">När används det (when_to_use)
+                                <textarea name="when_to_use" rows="3" placeholder="När passar paketet att använda?"></textarea>
+                            </label>
+                            <label class="workspace-form-wide">Resultat (outcome_text)
+                                <textarea name="outcome_text" rows="3" placeholder="Vad blir resultatet?"></textarea>
+                            </label>
+                            <label>Område (area)
+                                <input type="text" name="area" placeholder="t.ex. myndighetsutövning">
+                            </label>
+                            <label>Taggar (kommaseparerat)
+                                <input type="text" name="tags" placeholder="t.ex. handläggning, beslut">
+                            </label>
+                            <label>Indexerbar
+                                <select name="is_indexable_mode">
+                                    <option value="auto">Auto (använd innehållströskeln)</option>
+                                    <option value="always">Alltid</option>
+                                    <option value="never">Aldrig</option>
+                                </select>
+                            </label>
+                            <div class="workspace-form-actions">
+                                <button type="submit">Spara</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
             </main>
         </div>
     </div>
     <script type="module" src="/src/adminUsage.js"></script>
+    <script type="module" src="/src/adminPackageSeo.js"></script>
 </body>
 </html>

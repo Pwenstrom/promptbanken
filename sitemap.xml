@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Detta är den enda källan för de statiska URL:erna i sitemapen.
+     scripts/generate-catalog-pages.mjs läser <loc>-värdena härifrån vid
+     build och lägger sedan till /paket/ och de indexerbara paketsidorna
+     automatiskt. Lägg INTE till paketsidor här för hand -- de skrivs över
+     av generatorn i dist/sitemap.xml. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://app.promptbanken.se/</loc></url>
   <url><loc>https://app.promptbanken.se/index.html</loc></url>

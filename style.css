@@ -6097,3 +6097,132 @@ body.detail-panel-closed .prompt-detail-panel {
     color: #4b5563;
     font-size: 0.92rem;
 }
+
+/* Statiska paketsidor */
+.breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0;
+    margin: 1.25rem 0;
+    list-style: none;
+    font-size: 0.85rem;
+    color: #667085;
+}
+
+.breadcrumbs li:not(:last-child)::after {
+    content: "/";
+    margin-left: 0.4rem;
+    color: #98a2b3;
+}
+
+.breadcrumbs a {
+    color: #0b63ce;
+    text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumbs li[aria-current="page"] {
+    color: #344054;
+    font-weight: 650;
+}
+
+.paket-lead {
+    max-width: 62ch;
+    color: #667085;
+    font-size: 1.05rem;
+    line-height: 1.55;
+}
+
+.paket-intro {
+    max-width: 68ch;
+    line-height: 1.6;
+}
+
+.paket-source {
+    margin: 0.25rem 0 1rem;
+    color: #98a2b3;
+    font-size: 0.85rem;
+}
+
+.paket-section {
+    margin: 2rem 0;
+}
+
+.paket-section h2 {
+    margin-bottom: 0.5rem;
+    color: #101828;
+}
+
+.paket-steps {
+    display: grid;
+    gap: 1rem;
+    padding-left: 1.4rem;
+}
+
+.paket-step h3 {
+    margin: 0 0 0.25rem;
+}
+
+.paket-step-summary {
+    color: #667085;
+}
+
+.paket-tags {
+    margin-top: 1.5rem;
+}
+
+.paket-tags a {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    background: #edf4ff;
+    color: #0b63ce;
+    font-size: 0.8rem;
+    text-decoration: none;
+}
+
+.paket-group {
+    margin: 2.5rem 0;
+    scroll-margin-top: 96px;
+}
+
+.paket-group-list {
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+    margin: 1rem 0 0;
+    list-style: none;
+}
+
+.paket-group-list li {
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+}
+
+.paket-group-list a {
+    color: #0b63ce;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.paket-group-list a:hover {
+    text-decoration: underline;
+}
+
+.landing-footer {
+    padding: 1.5rem 2rem;
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color, #e2e8f0);
+    color: #667085;
+    font-size: 0.85rem;
+}
+
+.landing-footer a {
+    color: #0b63ce;
+}
