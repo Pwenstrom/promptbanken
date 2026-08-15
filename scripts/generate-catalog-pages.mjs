@@ -106,7 +106,13 @@ async function main() {
 
         await writePage(
             `paket/${pkg.slug}`,
-            renderPackagePage({ pkg, prompts, related, indexable })
+            renderPackagePage({
+                pkg,
+                prompts,
+                related,
+                indexable,
+                supabase: { url: supabaseUrl, anonKey: supabaseKey }
+            })
         );
     }
 

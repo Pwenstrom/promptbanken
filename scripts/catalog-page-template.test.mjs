@@ -3,6 +3,45 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderPackagePage, renderPackageIndexPage } from './catalog-page-template.mjs';
 
+const testSupabase = { url: 'https://db.example.co', anonKey: 'anon-key-123' };
+
+test('spårningsanropet utelämnas helt när Supabase-uppgifter saknas', () => {
+    const html = renderPackagePage({
+        pkg: { slug: 'x', title: 'X', summary: 'S' },
+        prompts: [],
+        related: [],
+        indexable: true
+    });
+    assert.doesNotMatch(html, /track_library_usage_event/);
+});
+
+test('spårningsanropet skickar package_page_view med rätt slug', () => {
+    const html = renderPackagePage({
+        pkg: { slug: 'ai-for-hr', title: 'X', summary: 'S' },
+        prompts: [],
+        related: [],
+        indexable: true,
+        supabase: testSupabase
+    });
+    assert.match(html, /https:\/\/db\.example\.co\/rest\/v1\/rpc\/track_library_usage_event/);
+    assert.match(html, /p_event_type: 'package_page_view'/);
+    assert.match(html, /p_package_slug: "ai-for-hr"/);
+    assert.match(html, /keepalive: true/);
+});
+
+test('spårningsanropet samlar ingen identifierare utöver paketets slug', () => {
+    const html = renderPackagePage({
+        pkg: { slug: 'ai-for-hr', title: 'X', summary: 'S' },
+        prompts: [],
+        related: [],
+        indexable: true,
+        supabase: testSupabase
+    });
+    assert.doesNotMatch(html, /document\.cookie/);
+    assert.doesNotMatch(html, /localStorage/);
+    assert.doesNotMatch(html, /navigator\.userAgent/);
+});
+
 const basePkg = {
     slug: 'ai-for-hr',
     title: 'AI för HR',

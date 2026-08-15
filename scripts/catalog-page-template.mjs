@@ -114,7 +114,37 @@ function section(heading, body) {
         </section>`;
 }
 
-export function renderPackagePage({ pkg, prompts, related, indexable }) {
+// Statiska paketsidor saknar appens JavaScript, så en besökare som kommer
+// från sökmotor och läser sidan utan att klicka vidare syns annars inte alls
+// i statistiken. Skickar en anonym package_page_view: ingen personuppgift,
+// ingen cookie, ingen identifierare -- bara paketets slug. Anropet är
+// medvetet tyst: statistik får aldrig påverka sidans funktion.
+function usageBeacon(slug, supabase) {
+    if (!supabase?.url || !supabase?.anonKey) return '';
+
+    return `<script>
+        (function () {
+            try {
+                fetch(${JSON.stringify(`${supabase.url}/rest/v1/rpc/track_library_usage_event`)}, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        apikey: ${JSON.stringify(supabase.anonKey)},
+                        Authorization: 'Bearer ' + ${JSON.stringify(supabase.anonKey)}
+                    },
+                    body: JSON.stringify({
+                        p_source: 'web',
+                        p_event_type: 'package_page_view',
+                        p_package_slug: ${JSON.stringify(slug)}
+                    }),
+                    keepalive: true
+                }).catch(function () {});
+            } catch (error) {}
+        })();
+    </script>`;
+}
+
+export function renderPackagePage({ pkg, prompts, related, indexable, supabase }) {
     const trail = [
         { name: 'Hem', path: '/' },
         { name: 'Paket', path: '/paket/' },
@@ -183,6 +213,7 @@ ${head({
     ${siteFooter()}
     <script type="application/ld+json">${breadcrumbJsonLd(trail)}</script>
     <script type="application/ld+json">${itemListJsonLd(prompts)}</script>
+    ${usageBeacon(pkg.slug, supabase)}
 </body>
 </html>
 `;
