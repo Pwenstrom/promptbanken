@@ -93,3 +93,17 @@ test('areaAnchor ger stabila ankare', () => {
     assert.equal(areaAnchor('ledarskap'), 'omrade-ledarskap');
     assert.equal(areaAnchor(null), 'omrade-ovriga');
 });
+
+test('areaAnchor slugifierar fritext med mellanslag och svenska tecken', () => {
+    assert.equal(areaAnchor('Vård och omsorg'), 'omrade-vard-och-omsorg');
+});
+
+test('areaAnchor normaliserar skiftläge så samma område delar ankare', () => {
+    assert.equal(areaAnchor('Ledarskap'), areaAnchor('ledarskap'));
+    assert.equal(areaAnchor('LEDARSKAP'), 'omrade-ledarskap');
+});
+
+test('areaAnchor trimmar kvarvarande skiljetecken', () => {
+    assert.equal(areaAnchor('Ekonomi!'), 'omrade-ekonomi');
+    assert.equal(areaAnchor('  HR & Rekrytering  '), 'omrade-hr-rekrytering');
+});

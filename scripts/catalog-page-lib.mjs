@@ -21,7 +21,7 @@ export function escapeHtml(value) {
 }
 
 // Tröskeln finns för att undvika tunna landningssidor: ett paket måste ha
-// redaktionell inledning och tillräckligt innehål för att förtjäna
+// redaktionell inledning och tillräckligt innehåll för att förtjäna
 // indexering. is_indexable låter admin åsidosätta i båda riktningarna.
 export function isIndexable(pkg, promptCount) {
     if (pkg?.is_indexable === true) return true;
@@ -48,8 +48,18 @@ ${entries}
 `;
 }
 
+// Samma å/ä/ö-normalisering som SkillRouter i mcp-server/server/skill_router.py
+// använder för svensk textmatchning.
 export function areaAnchor(area) {
-    return area ? `omrade-${area}` : 'omrade-ovriga';
+    if (!area) return 'omrade-ovriga';
+    const slug = String(area)
+        .toLowerCase()
+        .replace(/å/g, 'a')
+        .replace(/ä/g, 'a')
+        .replace(/ö/g, 'o')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    return slug ? `omrade-${slug}` : 'omrade-ovriga';
 }
 
 export function groupPackagesByArea(packages) {

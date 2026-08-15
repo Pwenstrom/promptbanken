@@ -4,7 +4,7 @@
 // en deployad sajt utan paketsidor och med amputerad sitemap.
 // Lokalt utan env hoppar det över med varning.
 
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import {
@@ -19,41 +19,34 @@ import { renderPackagePage, renderPackageIndexPage } from './catalog-page-templa
 
 const DIST = 'dist';
 
-// Behålls oförändrad från den tidigare handskrivna sitemap.xml.
-const STATIC_URLS = [
-    '/',
-    '/index.html',
-    '/promptbanken.html',
-    '/about.html',
-    '/help.html',
-    '/mcp.html',
-    '/privacy.html',
-    '/terms.html',
-    '/prompts.html',
-    '/prompts.json',
-    '/llms.txt',
-    '/prompts/tydlighetskoll.txt',
-    '/prompts/klarsprak.txt',
-    '/prompts/mejl.txt',
-    '/prompts/faq.txt',
-    '/prompts/checklista.txt',
-    '/prompts/kallelse.txt',
-    '/prompts/beslutsunderlag.txt',
-    '/prompts/rutin.txt',
-    '/prompts/tvaversioner.txt',
-    '/prompts/reflektion.txt',
-    '/prompts/samtalskompas.txt',
-    '/prompts/sammanfattning.txt',
-    '/prompts/anteckningar.txt',
-    '/prompts/diskussionsfragor.txt',
-    '/prompts/nyckelord.txt',
-    '/prompts/informationsutskick.txt'
-];
+// sitemap.xml i repo-roten är den enda mänskligt redigerbara källan för de
+// statiska URL:erna. Vi läser <loc>-värdena därifrån istället för att
+// duplicera dem här, så att en URL som läggs till i sitemap.xml faktiskt
+// hamnar i produktion (se whole-branch review-anmärkning 3).
+async function readStaticUrlsFromSitemap() {
+    let xml;
+    try {
+        xml = await readFile('sitemap.xml', 'utf8');
+    } catch (error) {
+        throw new Error(`kunde inte läsa sitemap.xml: ${error.message}`);
+    }
+    const urls = [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1].trim());
+    if (urls.length === 0) {
+        throw new Error('sitemap.xml innehåller inga <loc>-poster.');
+    }
+    return urls;
+}
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
+    if (process.env.CI) {
+        console.error(
+            '[generate-catalog-pages] VITE_SUPABASE_URL/VITE_SUPABASE_PUBLISHABLE_KEY saknas i CI — avbryter bygget istället för att deploya utan paketsidor.'
+        );
+        process.exit(1);
+    }
     console.warn(
         '[generate-catalog-pages] VITE_SUPABASE_URL/VITE_SUPABASE_PUBLISHABLE_KEY saknas — hoppar över generering av paketsidor.'
     );
@@ -76,6 +69,8 @@ async function writePage(path, html) {
 }
 
 async function main() {
+    const staticUrls = await readStaticUrlsFromSitemap();
+
     const packages = await rpc('list_published_packages', {
         p_context_keys: ['generell'],
         p_package_type: null
@@ -87,41 +82,47 @@ async function main() {
         return false;
     });
 
-    const indexableUrls = [];
-    const indexablePackages = [];
-
+    // Indexability måste vara känd för ALLA paket innan vi renderar någon
+    // sida, annars kan en "related"-länk på en tidigt renderad sida peka på
+    // ett senare paket som visar sig vara noindex (review-anmärkning 5).
+    const usableWithPrompts = [];
     for (const pkg of usable) {
         const prompts = await rpc('list_published_package_prompts', {
             p_package_slug: pkg.slug,
             p_context_keys: ['generell']
         });
+        usableWithPrompts.push({ pkg, prompts, indexable: isIndexable(pkg, prompts.length) });
+    }
 
-        const indexable = isIndexable(pkg, prompts.length);
+    const indexableSet = usableWithPrompts.filter((entry) => entry.indexable);
+    const indexableUrls = indexableSet.map((entry) => absoluteUrl(packageUrl(entry.pkg.slug)));
+    const indexablePackages = indexableSet.map((entry) => entry.pkg);
 
-        const related = usable
-            .filter((other) => other.slug !== pkg.slug && other.area && other.area === pkg.area)
+    for (const { pkg, prompts, indexable } of usableWithPrompts) {
+        const related = indexableSet
+            .filter((entry) => entry.pkg.slug !== pkg.slug && entry.pkg.area && entry.pkg.area === pkg.area)
             .slice(0, 4)
-            .map(({ slug, title, summary }) => ({ slug, title, summary }));
+            .map(({ pkg: { slug, title, summary } }) => ({ slug, title, summary }));
 
         await writePage(
             `paket/${pkg.slug}`,
             renderPackagePage({ pkg, prompts, related, indexable })
         );
-
-        if (indexable) {
-            indexableUrls.push(absoluteUrl(packageUrl(pkg.slug)));
-            indexablePackages.push(pkg);
-        }
     }
+
+    // /paket/ har inget att erbjuda utan minst ett indexerbart paket -- då
+    // ska översiktssidan varken indexeras eller listas i sitemapen
+    // (review-anmärkning 6).
+    const indexOverviewIsIndexable = indexablePackages.length > 0;
 
     await writePage(
         'paket',
-        renderPackageIndexPage({ groups: groupPackagesByArea(indexablePackages) })
+        renderPackageIndexPage({ groups: groupPackagesByArea(indexablePackages), indexable: indexOverviewIsIndexable })
     );
 
     const sitemap = buildSitemap([
-        ...STATIC_URLS.map((path) => absoluteUrl(path)),
-        absoluteUrl('/paket/'),
+        ...staticUrls,
+        ...(indexOverviewIsIndexable ? [absoluteUrl('/paket/')] : []),
         ...indexableUrls
     ]);
     await writeFile(join(DIST, 'sitemap.xml'), sitemap, 'utf8');

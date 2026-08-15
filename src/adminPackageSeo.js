@@ -129,15 +129,17 @@ async function saveForm(event) {
   const pkg = selectedPackage();
   if (!pkg) return;
 
+  // Tomma fält skickas som '' / [] (inte null) -- RPC:erna använder
+  // coalesce(p_x, existing) för att skilja "utelämnad" (null, behåll
+  // befintligt värde) från "rensad" (tom sträng/array, skriv över med
+  // tomt). Skickar vi null här kan admin aldrig rensa ett fält via UI:t.
   const formData = new FormData(formElement);
-  const problemText = String(formData.get('problem_text') || '').trim() || null;
-  const whenToUse = String(formData.get('when_to_use') || '').trim() || null;
-  const outcomeText = String(formData.get('outcome_text') || '').trim() || null;
-  const area = String(formData.get('area') || '').trim() || null;
+  const problemText = String(formData.get('problem_text') || '').trim();
+  const whenToUse = String(formData.get('when_to_use') || '').trim();
+  const outcomeText = String(formData.get('outcome_text') || '').trim();
+  const area = String(formData.get('area') || '').trim();
   const tagsRaw = String(formData.get('tags') || '').trim();
-  const tags = tagsRaw
-    ? tagsRaw.split(',').map((tag) => tag.trim()).filter(Boolean)
-    : null;
+  const tags = tagsRaw ? tagsRaw.split(',').map((tag) => tag.trim()).filter(Boolean) : [];
   const mode = String(formData.get('is_indexable_mode') || 'auto');
   const isIndexableValue = mode === 'always' ? true : mode === 'never' ? false : null;
 

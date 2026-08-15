@@ -9,7 +9,9 @@ function hasText(value) {
 }
 
 function head({ title, description, canonicalPath, indexable }) {
-    const fullTitle = `${title} | Promptbanken`;
+    const safeTitle = hasText(title) ? title : null;
+    const safeDescription = hasText(description) ? description : '';
+    const fullTitle = safeTitle ? `${safeTitle} | Promptbanken` : 'Promptbanken';
     return `<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,12 +20,12 @@ function head({ title, description, canonicalPath, indexable }) {
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <meta name="description" content="${escapeHtml(description)}">
+    <meta name="description" content="${escapeHtml(safeDescription)}">
     ${indexable ? '<meta name="robots" content="index,follow">' : '<meta name="robots" content="noindex">'}
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Promptbanken">
     <meta property="og:title" content="${escapeHtml(fullTitle)}">
-    <meta property="og:description" content="${escapeHtml(description)}">
+    <meta property="og:description" content="${escapeHtml(safeDescription)}">
     <meta property="og:url" content="${escapeHtml(absoluteUrl(canonicalPath))}">
     <meta property="og:image" content="${escapeHtml(absoluteUrl('/brand-mark.png'))}">
     <meta name="twitter:card" content="summary">
@@ -150,8 +152,8 @@ export function renderPackagePage({ pkg, prompts, related, indexable }) {
     return `<!DOCTYPE html>
 <html lang="sv">
 ${head({
-        title: pkg.title,
-        description: pkg.summary || '',
+        title: hasText(pkg.title) ? pkg.title : pkg.slug,
+        description: pkg.summary || pkg.intro_text || '',
         canonicalPath: packageUrl(pkg.slug),
         indexable
     })}
@@ -186,7 +188,7 @@ ${head({
 `;
 }
 
-export function renderPackageIndexPage({ groups }) {
+export function renderPackageIndexPage({ groups, indexable }) {
     const trail = [
         { name: 'Hem', path: '/' },
         { name: 'Paket', path: '/paket/' }
@@ -210,7 +212,7 @@ ${head({
         title: 'Promptpaket och AI-arbetssätt',
         description: 'Färdiga promptpaket och AI-arbetssätt för riktiga arbetsuppgifter, sorterade efter område.',
         canonicalPath: '/paket/',
-        indexable: true
+        indexable
     })}
 <body class="paket-index-page">
     ${siteHeader()}
