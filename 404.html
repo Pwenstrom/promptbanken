@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidan hittades inte | Promptbanken</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="/style.css">
+    <script>
+        // Ett nypublicerat paket syns direkt i appen men får sin statiska sida
+        // först vid nästa bygge. Fram till dess skickas /paket/<slug>/ vidare
+        // till appens paketvy, så delade länkar aldrig landar på en felsida.
+        (function () {
+            var match = window.location.pathname.match(/^\/paket\/([^/]+)\/?$/);
+            if (!match) return;
+            var slug = match[1];
+            // Strikt validering: utan den blir sidan en öppen redirect.
+            if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return;
+            window.location.replace('/promptbanken.html?package=' + encodeURIComponent(slug));
+        })();
+    </script>
+</head>
+<body class="landing-page">
+    <header class="landing-topbar">
+        <a class="landing-brand" href="/index.html" aria-label="Promptbanken startsida">Promptbanken</a>
+    </header>
+    <main>
+        <h1>Sidan hittades inte</h1>
+        <p>Adressen finns inte, eller så har sidan flyttat.</p>
+        <ul>
+            <li><a href="/">Till startsidan</a></li>
+            <li><a href="/paket/">Alla promptpaket</a></li>
+            <li><a href="/promptbanken.html">Öppna katalogen</a></li>
+        </ul>
+    </main>
+</body>
+</html>

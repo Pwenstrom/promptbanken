@@ -22,6 +22,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: resolve(__dirname, 'index.html'),
+        '404': resolve(__dirname, '404.html'),
         login: resolve(__dirname, 'login.html'),
         admin: resolve(__dirname, 'admin.html'),
         promptbanken: resolve(__dirname, 'promptbanken.html'),
