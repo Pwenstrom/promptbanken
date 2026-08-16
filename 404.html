@@ -19,6 +19,27 @@
             if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return;
             window.location.replace('/promptbanken.html?package=' + encodeURIComponent(slug));
         })();
+
+        // En nypublicerad creator-profil syns direkt i appen men får sin
+        // statiska sida först vid nästa bygge. Till skillnad från paket
+        // finns ingen appvy att skicka /creator/<slug>/ vidare till, så
+        // ingen redirect sker här -- bara ett fast, statiskt meddelande.
+        // Slugen valideras men skrivs ALDRIG till DOM:en (varken som text
+        // eller HTML), inte ens efter validering -- ett meddelande med fast
+        // text visas i stället, se #creator-fallback nedan.
+        (function () {
+            var match = window.location.pathname.match(/^\/creator\/([^/]+)\/?$/);
+            if (!match) return;
+            var slug = match[1];
+            // Strikt validering: samma mönster som paketgrenen. Slugen
+            // används bara för att avgöra om meddelandet ska visas -- den
+            // interpoleras aldrig i DOM:en, giltig eller inte.
+            if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return;
+            document.addEventListener('DOMContentLoaded', function () {
+                var el = document.getElementById('creator-fallback');
+                if (el) el.hidden = false;
+            });
+        })();
     </script>
 </head>
 <body class="landing-page">
@@ -28,6 +49,8 @@
     <main>
         <h1>Sidan hittades inte</h1>
         <p>Adressen finns inte, eller så har sidan flyttat.</p>
+        <!-- Fast text, aldrig fylld med innehåll från URL:en. -->
+        <p id="creator-fallback" hidden>Profilen publiceras inom ett dygn.</p>
         <ul>
             <li><a href="/">Till startsidan</a></li>
             <li><a href="/paket/">Alla promptpaket</a></li>
