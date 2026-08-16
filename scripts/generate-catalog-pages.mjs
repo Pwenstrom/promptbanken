@@ -16,6 +16,8 @@ import {
     groupPackagesByArea
 } from './catalog-page-lib.mjs';
 import { renderPackagePage, renderPackageIndexPage } from './catalog-page-template.mjs';
+import { creatorUrl, isProfileIndexable } from './creator-page-lib.mjs';
+import { renderCreatorPage, renderCreatorIndexPage } from './creator-page-template.mjs';
 
 const DIST = 'dist';
 
@@ -126,15 +128,43 @@ async function main() {
         renderPackageIndexPage({ groups: groupPackagesByArea(indexablePackages), indexable: indexOverviewIsIndexable })
     );
 
+    const profiles = await rpc('list_published_creator_profiles', {});
+
+    const usableProfiles = profiles.filter((profile) => {
+        if (isSafeSlug(profile.slug)) return true;
+        console.warn(`[generate-catalog-pages] hoppar över profil med osäker slug: ${JSON.stringify(profile.slug)}`);
+        return false;
+    });
+
+    const indexableProfiles = usableProfiles.filter(isProfileIndexable);
+    const creatorUrls = indexableProfiles.map((profile) => absoluteUrl(creatorUrl(profile.slug)));
+
+    for (const profile of usableProfiles) {
+        await writePage(
+            `creator/${profile.slug}`,
+            renderCreatorPage({ profile, indexable: isProfileIndexable(profile) })
+        );
+    }
+
+    // Utan minst en kvalificerad profil är översikten en tom sida -- den ska
+    // varken indexeras eller ligga i sitemap.
+    const creatorIndexIsIndexable = indexableProfiles.length > 0;
+    await writePage(
+        'creator',
+        renderCreatorIndexPage({ profiles: indexableProfiles, indexable: creatorIndexIsIndexable })
+    );
+
     const sitemap = buildSitemap([
         ...staticUrls,
         ...(indexOverviewIsIndexable ? [absoluteUrl('/paket/')] : []),
-        ...indexableUrls
+        ...indexableUrls,
+        ...(creatorIndexIsIndexable ? [absoluteUrl('/creator/')] : []),
+        ...creatorUrls
     ]);
     await writeFile(join(DIST, 'sitemap.xml'), sitemap, 'utf8');
 
     console.log(
-        `[generate-catalog-pages] ${usable.length} paketsidor skrivna, varav ${indexableUrls.length} indexerbara.`
+        `[generate-catalog-pages] ${usable.length} paketsidor skrivna, varav ${indexableUrls.length} indexerbara. ${usableProfiles.length} creatorprofiler skrivna, varav ${creatorUrls.length} indexerbara.`
     );
 }
 
