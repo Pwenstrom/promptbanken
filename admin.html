@@ -26,6 +26,7 @@
                 <a class="admin-nav-link" href="#mcp"><span class="app-icon" data-icon="shield"></span>MCP-status</a>
                 <a class="admin-nav-link" href="#export"><span class="app-icon" data-icon="clipboard"></span>Export</a>
                 <a class="admin-nav-link" href="#paket-seo"><span class="app-icon" data-icon="files"></span>Paket-SEO</a>
+                <a class="admin-nav-link" href="#creator-profiler"><span class="app-icon" data-icon="library"></span>Creator-profiler</a>
             </nav>
             <button class="admin-logout" type="button" data-logout>Logga ut</button>
         </aside>
@@ -150,10 +151,39 @@
                         </form>
                     </div>
                 </section>
+
+                <section class="workspace-section" id="creator-profiler" aria-labelledby="creator-profiler-title">
+                    <div class="workspace-section-heading">
+                        <h2 id="creator-profiler-title">Creator-profiler</h2>
+                        <button type="button" data-creator-admin-refresh>Uppdatera</button>
+                    </div>
+                    <p class="workspace-status" role="status" data-creator-admin-status>Laddar creator-profiler...</p>
+                    <section class="workspace-empty" data-creator-admin-denied hidden>
+                        <h1>Ingen åtkomst</h1>
+                        <p>Den här moderationsytan är bara tillgänglig för plattformsägare.</p>
+                    </section>
+
+                    <div data-creator-admin-list hidden>
+                        <div class="workspace-table-wrap">
+                            <table class="workspace-table">
+                                <thead>
+                                    <tr>
+                                        <th>Namn</th>
+                                        <th>Adress</th>
+                                        <th>Publicerad</th>
+                                        <th>Åtgärder</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-creator-admin-table-body></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
             </main>
         </div>
     </div>
     <script type="module" src="/src/adminUsage.js"></script>
     <script type="module" src="/src/adminPackageSeo.js"></script>
+    <script type="module" src="/src/adminCreatorProfiles.js"></script>
 </body>
 </html>
