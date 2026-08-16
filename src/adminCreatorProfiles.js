@@ -70,13 +70,17 @@ function renderList() {
   if (!tableBodyElement) return;
   tableBodyElement.innerHTML = state.profiles.length
     ? state.profiles.map(renderRow).join('')
-    : '<tr><td colspan="4">Inga publicerade profiler.</td></tr>';
+    : '<tr><td colspan="4">Inga creator-profiler.</td></tr>';
 }
 
 async function loadProfiles() {
   const requestId = ++latestRequestId;
   setStatus('Laddar creator-profiler...');
-  const { data, error } = await supabase.rpc('list_published_creator_profiles');
+  // admin_list_creator_profiles() är en moderationsvy: den visar alla
+  // profiler (draft + published) och inkluderar user_id direkt, till
+  // skillnad från den publika list_published_creator_profiles() -- se
+  // supabase/migrations/20260816090000_creator_profiles.sql.
+  const { data, error } = await supabase.rpc('admin_list_creator_profiles');
   if (requestId !== latestRequestId) return;
 
   if (error) {
@@ -92,42 +96,10 @@ async function loadProfiles() {
   if (deniedElement) deniedElement.hidden = true;
   if (listElement) listElement.hidden = false;
 
-  const profiles = data || [];
-
-  // list_published_creator_profiles() utelämnar user_id med avsikt (samma
-  // publika, avsiktligt smala kolumnuppsättning som avatar_url -- se
-  // supabase/migrations/20260816090000_creator_profiles.sql). Men
-  // admin_unpublish_creator_profile och admin_update_creator_profile_slug
-  // tar just p_user_id, inte slug. Vi hämtar därför id-kopplingen separat
-  // via en direkt tabellfråga, begränsad till samma publicerade rader som
-  // RPC:n redan visar -- ingen ny data blir läsbar jämfört med vad som
-  // redan är publikt tillgängligt via RLS-policyn creator_profiles_select_published.
-  const { data: idRows, error: idError } = await supabase
-    .from('creator_profiles')
-    .select('user_id, slug')
-    .eq('status', 'published');
-  if (requestId !== latestRequestId) return;
-
-  const idBySlug = new Map();
-  if (!idError) {
-    for (const row of idRows || []) {
-      idBySlug.set(row.slug, row.user_id);
-    }
-  }
-
-  state.profiles = profiles.map((profile) => ({
-    ...profile,
-    user_id: idBySlug.get(profile.slug) || null
-  }));
-
+  state.profiles = data || [];
   renderList();
 
-  if (idError) {
-    setStatus('Listan laddades, men åtgärder kunde inte kopplas till profiler.', true);
-    return;
-  }
-
-  setStatus(state.profiles.length ? `Visar ${state.profiles.length} publicerade profiler.` : 'Inga publicerade profiler.');
+  setStatus(state.profiles.length ? `Visar ${state.profiles.length} creator-profiler.` : 'Inga creator-profiler.');
 }
 
 async function unpublish(userId) {

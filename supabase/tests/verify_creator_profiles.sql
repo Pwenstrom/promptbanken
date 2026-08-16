@@ -51,7 +51,8 @@ select 'saknar public-RPC' as fel, r.expected
         ('list_published_creator_profiles'),
         ('get_published_creator_profile'),
         ('admin_update_creator_profile_slug'),
-        ('admin_unpublish_creator_profile')
+        ('admin_unpublish_creator_profile'),
+        ('admin_list_creator_profiles')
        ) as r(expected)
  where not exists (
      select 1 from pg_proc p
@@ -68,6 +69,7 @@ select 'saknar app_private-funktion' as fel, r.expected
         ('unpublish_my_creator_profile'),
         ('admin_update_creator_profile_slug'),
         ('admin_unpublish_creator_profile'),
+        ('admin_list_creator_profiles'),
         ('creator_slug_is_reserved'),
         ('creator_slugify'),
         ('creator_url_is_valid')
@@ -97,18 +99,20 @@ select 'creator_url_is_valid(javascript:) fel' as fel
 select 'creator_url_is_valid(https://example.com) fel' as fel
  where app_private.creator_url_is_valid('https://example.com') is distinct from true;
 
--- 9. public.creator_profiles har en explicit table-grant (select) till
---    anon och authenticated, utöver RLS-policyerna (samma mönster som
---    20260612121000_rls_policies.sql).
-select 'saknar table-grant' as fel, g.expected_grantee
+-- 9. public.creator_profiles har en kolumnbegränsad select-grant till
+--    anon och authenticated (inte en tabellbred grant -- user_id och
+--    avatar_url ska inte vara läsbara direkt via PostgREST/supabase-js).
+--    display_name representerar de tillåtna kolumnerna.
+select 'saknar kolumn-grant' as fel, g.expected_grantee
   from (values ('anon'), ('authenticated')) as g(expected_grantee)
- where not exists (
-     select 1 from information_schema.role_table_grants
-      where table_schema = 'public'
-        and table_name = 'creator_profiles'
-        and privilege_type = 'SELECT'
-        and grantee = g.expected_grantee
- );
+ where not has_column_privilege(g.expected_grantee, 'public.creator_profiles', 'display_name', 'SELECT');
+
+-- 9b. user_id och avatar_url är explicit exkluderade från grant:en, för
+--     både anon och authenticated.
+select 'user_id/avatar_url felaktigt läsbara' as fel, g.role, c.col
+  from (values ('anon'), ('authenticated')) as g(role)
+ cross join (values ('user_id'), ('avatar_url')) as c(col)
+ where has_column_privilege(g.role, 'public.creator_profiles', c.col, 'SELECT');
 
 -- Obs: att invalid-format p_slug och dubbel-slug faktiskt ger svenska
 -- felmeddelanden i app_private.upsert_my_creator_profile och

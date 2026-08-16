@@ -49,7 +49,15 @@ create policy "creator_profiles_select_published"
 -- Ingen insert/update/delete-policy: all skrivning går via
 -- SECURITY DEFINER-RPC:erna nedan.
 
-grant select on public.creator_profiles to anon, authenticated;
+-- Kolumnbegränsad grant: user_id och avatar_url exkluderas medvetet (se
+-- kommentar vid list_published_creator_profiles/get_published_creator_profile
+-- nedan). En tabellbred grant skulle låta vilken klient som helst fråga
+-- direkt via PostgREST/supabase-js och kringgå den kurerade kolumnuppsättningen.
+grant select (
+    id, slug, display_name, bio_short, bio_long, competence_areas,
+    organisation, website_url, linkedin_url, status, published_at,
+    slug_locked, created_at, updated_at
+) on public.creator_profiles to anon, authenticated;
 
 create index if not exists creator_profiles_status_idx
     on public.creator_profiles (status)
@@ -518,3 +526,63 @@ $$;
 
 revoke all on function public.admin_unpublish_creator_profile(uuid) from public;
 grant execute on function public.admin_unpublish_creator_profile(uuid) to authenticated;
+
+-- admin_list_creator_profiles: moderationsvy för plattformsägare. Till
+-- skillnad från list_published_creator_profiles() visar den ALLA profiler
+-- (draft och published), och inkluderar user_id -- de administrativa
+-- RPC:erna ovan (admin_unpublish_creator_profile,
+-- admin_update_creator_profile_slug) tar just user_id, inte slug.
+create or replace function app_private.admin_list_creator_profiles()
+returns table (
+    user_id uuid,
+    slug text,
+    display_name text,
+    bio_short text,
+    organisation text,
+    status text,
+    published_at timestamptz,
+    slug_locked boolean,
+    created_at timestamptz,
+    updated_at timestamptz
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+    if not app_private.current_user_is_platform_owner() then
+        raise exception 'Endast plattformsägare kan hantera creator-profiler.';
+    end if;
+
+    return query
+        select cp.user_id, cp.slug, cp.display_name, cp.bio_short, cp.organisation,
+               cp.status, cp.published_at, cp.slug_locked, cp.created_at, cp.updated_at
+          from public.creator_profiles cp
+         order by cp.created_at desc;
+end;
+$$;
+
+create or replace function public.admin_list_creator_profiles()
+returns table (
+    user_id uuid,
+    slug text,
+    display_name text,
+    bio_short text,
+    organisation text,
+    status text,
+    published_at timestamptz,
+    slug_locked boolean,
+    created_at timestamptz,
+    updated_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = public, app_private, pg_temp
+as $$
+    select * from app_private.admin_list_creator_profiles();
+$$;
+
+revoke all on function public.admin_list_creator_profiles() from public;
+grant execute on function public.admin_list_creator_profiles() to authenticated;
