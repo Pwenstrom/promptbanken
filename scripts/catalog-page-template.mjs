@@ -40,6 +40,7 @@ function siteHeader() {
         <nav class="landing-nav" aria-label="Huvudlänkar">
             <a href="/paket/">Paket</a>
             <a href="/promptbanken.html">Katalog</a>
+            <a href="/creator/">Creators</a>
             <a href="/about.html">Om</a>
         </nav>
     </header>`;

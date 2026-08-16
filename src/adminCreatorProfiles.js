@@ -47,6 +47,14 @@ function handleActionError(error) {
   setStatus(message, true);
 }
 
+// published_at ändras INTE av admin_unpublish_creator_profile/
+// unpublish_my_creator_profile -- den behåller senaste publiceringsdatum
+// som historik. Visa därför status.text separat, annars ser en avpublicerad
+// (draft) profil ut som fortfarande publicerad i listan.
+function statusLabel(status) {
+  return status === 'published' ? 'Publicerad' : 'Utkast';
+}
+
 function renderRow(profile) {
   const hasUserId = Boolean(profile.user_id);
   const disabledAttr = hasUserId ? '' : 'disabled';
@@ -54,6 +62,7 @@ function renderRow(profile) {
     <tr data-user-id="${escapeHtml(profile.user_id || '')}">
       <td>${escapeHtml(profile.display_name)}</td>
       <td>${escapeHtml(profile.slug)}</td>
+      <td>${escapeHtml(statusLabel(profile.status))}</td>
       <td>${escapeHtml(formatDate(profile.published_at))}</td>
       <td>
         <div class="workspace-form-actions">
@@ -70,7 +79,7 @@ function renderList() {
   if (!tableBodyElement) return;
   tableBodyElement.innerHTML = state.profiles.length
     ? state.profiles.map(renderRow).join('')
-    : '<tr><td colspan="4">Inga creator-profiler.</td></tr>';
+    : '<tr><td colspan="5">Inga creator-profiler.</td></tr>';
 }
 
 async function loadProfiles() {
