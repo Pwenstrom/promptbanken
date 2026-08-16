@@ -49,6 +49,8 @@ create policy "creator_profiles_select_published"
 -- Ingen insert/update/delete-policy: all skrivning går via
 -- SECURITY DEFINER-RPC:erna nedan.
 
+grant select on public.creator_profiles to anon, authenticated;
+
 create index if not exists creator_profiles_status_idx
     on public.creator_profiles (status)
     where status = 'published';
@@ -178,6 +180,11 @@ begin
         v_slug := nullif(trim(coalesce(p_slug, '')), '');
         if v_slug is null then
             v_slug := app_private.creator_slugify(v_display_name);
+        elsif v_slug !~ '^[a-z0-9]+(?:-[a-z0-9]+)*$' then
+            -- p_slug angiven direkt (inte härledd från namnet): formatet
+            -- måste valideras här, annars läcker en rå CHECK-krasch från
+            -- creator_profiles_slug_format istället för ett svenskt fel.
+            raise exception 'Ogiltig adress. Använd bara små bokstäver, siffror och bindestreck.';
         end if;
         if v_slug is null then
             raise exception 'Kunde inte skapa en giltig adress från namnet.';
@@ -187,36 +194,41 @@ begin
         end if;
     end if;
 
-    insert into public.creator_profiles (
-        user_id, slug, display_name, bio_short, bio_long, competence_areas,
-        organisation, website_url, linkedin_url, updated_at
-    ) values (
-        v_uid, v_slug, v_display_name, v_bio_short, v_bio_long, p_competence_areas,
-        v_organisation, v_website_url, v_linkedin_url, now()
-    )
-    on conflict (user_id) do update
-    set slug = v_slug,
-        display_name = v_display_name,
-        -- p_x null = utelämnad -> orört. p_x angiven (inkl. tom sträng,
-        -- normaliserad till null) -> skriv, kan alltså rensa fältet.
-        bio_short = case when p_bio_short is null
-                         then public.creator_profiles.bio_short
-                         else v_bio_short end,
-        bio_long = case when p_bio_long is null
-                        then public.creator_profiles.bio_long
-                        else v_bio_long end,
-        competence_areas = coalesce(p_competence_areas, public.creator_profiles.competence_areas),
-        organisation = case when p_organisation is null
-                            then public.creator_profiles.organisation
-                            else v_organisation end,
-        website_url = case when p_website_url is null
-                           then public.creator_profiles.website_url
-                           else v_website_url end,
-        linkedin_url = case when p_linkedin_url is null
-                            then public.creator_profiles.linkedin_url
-                            else v_linkedin_url end,
-        updated_at = now()
-    returning * into v_profile;
+    begin
+        insert into public.creator_profiles (
+            user_id, slug, display_name, bio_short, bio_long, competence_areas,
+            organisation, website_url, linkedin_url, updated_at
+        ) values (
+            v_uid, v_slug, v_display_name, v_bio_short, v_bio_long, p_competence_areas,
+            v_organisation, v_website_url, v_linkedin_url, now()
+        )
+        on conflict (user_id) do update
+        set slug = v_slug,
+            display_name = v_display_name,
+            -- p_x null = utelämnad -> orört. p_x angiven (inkl. tom sträng,
+            -- normaliserad till null) -> skriv, kan alltså rensa fältet.
+            bio_short = case when p_bio_short is null
+                             then public.creator_profiles.bio_short
+                             else v_bio_short end,
+            bio_long = case when p_bio_long is null
+                            then public.creator_profiles.bio_long
+                            else v_bio_long end,
+            competence_areas = coalesce(p_competence_areas, public.creator_profiles.competence_areas),
+            organisation = case when p_organisation is null
+                                then public.creator_profiles.organisation
+                                else v_organisation end,
+            website_url = case when p_website_url is null
+                               then public.creator_profiles.website_url
+                               else v_website_url end,
+            linkedin_url = case when p_linkedin_url is null
+                                then public.creator_profiles.linkedin_url
+                                else v_linkedin_url end,
+            updated_at = now()
+        returning * into v_profile;
+    exception
+        when unique_violation then
+            raise exception 'Den adressen används redan.';
+    end;
 
     return v_profile;
 end;
@@ -435,11 +447,16 @@ begin
         raise exception 'Den adressen är reserverad.';
     end if;
 
-    update public.creator_profiles
-       set slug = v_slug,
-           updated_at = now()
-     where user_id = p_user_id
-     returning * into v_profile;
+    begin
+        update public.creator_profiles
+           set slug = v_slug,
+               updated_at = now()
+         where user_id = p_user_id
+         returning * into v_profile;
+    exception
+        when unique_violation then
+            raise exception 'Den adressen används redan.';
+    end;
 
     if not found then
         raise exception 'Ingen profil hittades för den användaren.';

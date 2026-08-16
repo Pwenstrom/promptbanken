@@ -96,3 +96,24 @@ select 'creator_url_is_valid(javascript:) fel' as fel
 
 select 'creator_url_is_valid(https://example.com) fel' as fel
  where app_private.creator_url_is_valid('https://example.com') is distinct from true;
+
+-- 9. public.creator_profiles har en explicit table-grant (select) till
+--    anon och authenticated, utöver RLS-policyerna (samma mönster som
+--    20260612121000_rls_policies.sql).
+select 'saknar table-grant' as fel, g.expected_grantee
+  from (values ('anon'), ('authenticated')) as g(expected_grantee)
+ where not exists (
+     select 1 from information_schema.role_table_grants
+      where table_schema = 'public'
+        and table_name = 'creator_profiles'
+        and privilege_type = 'SELECT'
+        and grantee = g.expected_grantee
+ );
+
+-- Obs: att invalid-format p_slug och dubbel-slug faktiskt ger svenska
+-- felmeddelanden i app_private.upsert_my_creator_profile och
+-- admin_update_creator_profile_slug kräver en inloggad auth.uid()-session
+-- (självbetjäningsfunktionen) respektive platform_owner-kontext
+-- (adminfunktionen) och går inte att uttrycka som en fristående
+-- "noll rader vid godkänt"-select i den här filen. Verifieras manuellt
+-- eller i ett framtida RPC-integrationstest.
