@@ -257,7 +257,8 @@ declare
 begin
     select owner_user_id into v_draft_owner
       from public.creator_package_drafts
-     where id = p_draft_id and status in ('draft', 'review');
+     where id = p_draft_id and status in ('draft', 'review')
+     for update;
 
     if v_draft_owner is null or v_draft_owner <> (select auth.uid()) then
         raise exception 'Paketet hittades inte, tillhör inte dig, eller kan inte redigeras i sitt nuvarande läge.';
@@ -289,7 +290,11 @@ begin
     values (p_draft_id, p_content_item_id, coalesce(p_position, v_item_count))
     on conflict (draft_id, content_item_id) do nothing;
 
-    return jsonb_build_object('draft_id', p_draft_id, 'item_count', v_item_count + 1);
+    select count(*) into v_item_count
+      from public.creator_package_items
+     where draft_id = p_draft_id;
+
+    return jsonb_build_object('draft_id', p_draft_id, 'item_count', v_item_count);
 end;
 $$;
 
@@ -415,7 +420,8 @@ declare
 begin
     select owner_user_id into v_draft_owner
       from public.creator_package_drafts
-     where id = p_draft_id and status = 'draft';
+     where id = p_draft_id and status = 'draft'
+     for update;
 
     if v_draft_owner is null or v_draft_owner <> (select auth.uid()) then
         raise exception 'Paketet hittades inte, tillhör inte dig, eller är redan inskickat.';
@@ -428,7 +434,8 @@ begin
 
     select count(*) into v_review_count
       from public.creator_package_drafts
-     where owner_user_id = (select auth.uid()) and status = 'review';
+     where owner_user_id = (select auth.uid()) and status = 'review'
+     for update;
     if v_review_count >= 3 then
         raise exception 'Du har redan 3 paket under granskning. Dra tillbaka eller vänta på granskning av ett annat paket innan du skickar in fler.';
     end if;
