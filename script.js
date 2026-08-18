@@ -900,8 +900,9 @@ function renderCatalogDetailVariant(variant) {
 
     const shareButton = document.getElementById('catalog-detail-share');
     if (shareButton) {
-        shareButton.hidden = isPrompt;
-        if (!isPrompt) shareButton.dataset.catalogPackageSlug = normalizedVariant.slug || '';
+        shareButton.hidden = false;
+        shareButton.dataset.catalogEntityType = isPrompt ? 'prompt' : 'package';
+        shareButton.dataset.catalogEntitySlug = normalizedVariant.slug || '';
     }
 
     const introOrPromptHtml = isPrompt
@@ -984,7 +985,7 @@ function renderCatalogDetailTabs(variants) {
 async function openCatalogPromptDetail(slug) {
     const panel = document.getElementById('catalog-prompt-detail');
     const tabsContainer = document.getElementById('catalog-detail-tabs');
-    if (!panel || !tabsContainer) return;
+    if (!panel || !tabsContainer) return false;
 
     catalogDetailPackageItems = [];
     try {
@@ -994,14 +995,21 @@ async function openCatalogPromptDetail(slug) {
         })).map(normalizeCatalogTemplateEntity);
     } catch (error) {
         console.error('Kunde inte ladda promptdetaljer:', error);
-        return;
+        return false;
     }
 
-    if (!catalogDetailVariants.length) return;
+    if (!catalogDetailVariants.length) return false;
 
     renderCatalogDetailTabs(catalogDetailVariants);
     renderCatalogDetailVariant(catalogDetailVariants[0]);
     setCatalogDetailPanelOpen(true);
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('prompt') !== slug) {
+        params.delete('package');
+        params.set('prompt', slug);
+        window.history.pushState({ catalogPromptSlug: slug }, '', `${window.location.pathname}?${params}`);
+    }
 
     const promptViewKey = `prompt_view:${slug}:${getActiveCatalogContextKeys().join(',')}`;
     if (shouldTrackLibraryUsage(promptViewKey, 60 * 60 * 1000)) {
@@ -1010,10 +1018,16 @@ async function openCatalogPromptDetail(slug) {
             promptSlug: slug
         });
     }
+
+    return true;
 }
 
 function getPackageSlugFromLocation() {
     return new URLSearchParams(window.location.search).get('package') || null;
+}
+
+function getPromptSlugFromLocation() {
+    return new URLSearchParams(window.location.search).get('prompt') || null;
 }
 
 async function openCatalogPackageDetail(slug) {
@@ -1049,14 +1063,9 @@ async function openCatalogPackageDetail(slug) {
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('package') !== slug) {
+        params.delete('prompt');
         params.set('package', slug);
         window.history.pushState({ catalogPackageSlug: slug }, '', `${window.location.pathname}?${params}`);
-    }
-
-    const shareButton = document.getElementById('catalog-detail-share');
-    if (shareButton) {
-        shareButton.hidden = false;
-        shareButton.dataset.catalogPackageSlug = slug;
     }
 
     const packageViewKey = `package_view:${slug}:${getActiveCatalogContextKeys().join(',')}`;
@@ -1079,8 +1088,9 @@ function closeCatalogDetailPanel() {
     const shareButton = document.getElementById('catalog-detail-share');
     if (shareButton) shareButton.hidden = true;
     const params = new URLSearchParams(window.location.search);
-    if (params.has('package')) {
+    if (params.has('package') || params.has('prompt')) {
         params.delete('package');
+        params.delete('prompt');
         const remaining = params.toString();
         window.history.replaceState(null, '', remaining ? `${window.location.pathname}?${remaining}` : window.location.pathname);
     }
@@ -1091,9 +1101,10 @@ document.getElementById('catalog-detail-close')?.addEventListener('click', () =>
 });
 
 window.addEventListener('popstate', () => {
-    const slug = getPackageSlugFromLocation();
+    const packageSlug = getPackageSlugFromLocation();
+    const promptSlug = getPromptSlugFromLocation();
     const panel = document.getElementById('catalog-prompt-detail');
-    if (!slug) {
+    if (!packageSlug && !promptSlug) {
         if (panel && !panel.hidden) {
             setCatalogDetailPanelOpen(false);
             const shareButton = document.getElementById('catalog-detail-share');
@@ -1101,20 +1112,30 @@ window.addEventListener('popstate', () => {
         }
         return;
     }
-    openCatalogPackageDetail(slug);
+    if (packageSlug) {
+        openCatalogPackageDetail(packageSlug);
+    } else {
+        openCatalogPromptDetail(promptSlug);
+    }
 });
 
 let catalogShareButtonResetTimer = null;
 
 document.getElementById('catalog-detail-share')?.addEventListener('click', async (event) => {
     const button = event.currentTarget;
-    const slug = button.dataset.catalogPackageSlug;
-    if (!slug) return;
+    const slug = button.dataset.catalogEntitySlug;
+    const entityType = button.dataset.catalogEntityType;
+    if (!slug || !entityType) return;
 
-    const url = `${window.location.origin}${window.location.pathname}?package=${encodeURIComponent(slug)}`;
+    const paramName = entityType === 'prompt' ? 'prompt' : 'package';
+    const url = `${window.location.origin}${window.location.pathname}?${paramName}=${encodeURIComponent(slug)}`;
     try {
         await navigator.clipboard.writeText(url);
-        trackLibraryUsageEvent({ eventType: 'package_share', packageSlug: slug });
+        if (entityType === 'prompt') {
+            trackLibraryUsageEvent({ eventType: 'prompt_share', promptSlug: slug });
+        } else {
+            trackLibraryUsageEvent({ eventType: 'package_share', packageSlug: slug });
+        }
         clearTimeout(catalogShareButtonResetTimer);
         button.textContent = '✓';
         button.classList.add('copied');
@@ -1122,7 +1143,7 @@ document.getElementById('catalog-detail-share')?.addEventListener('click', async
         catalogShareButtonResetTimer = setTimeout(() => {
             button.textContent = '🔗';
             button.classList.remove('copied');
-            button.setAttribute('aria-label', 'Kopiera länk till paketet');
+            button.setAttribute('aria-label', 'Kopiera länk');
         }, 2000);
     } catch (error) {
         console.error('Kunde inte kopiera länken:', error);
@@ -3584,11 +3605,19 @@ ${initialUserInput.trim()}`
             registerExportSettingsListeners();
 
             const initialPackageSlug = getPackageSlugFromLocation();
+            const initialPromptSlug = getPromptSlugFromLocation();
             if (initialPackageSlug) {
                 const opened = await openCatalogPackageDetail(initialPackageSlug);
                 if (!opened) {
                     window.history.replaceState(null, '', window.location.pathname);
                     const errorBanner = document.getElementById('catalog-package-link-error');
+                    if (errorBanner) errorBanner.hidden = false;
+                }
+            } else if (initialPromptSlug) {
+                const opened = await openCatalogPromptDetail(initialPromptSlug);
+                if (!opened) {
+                    window.history.replaceState(null, '', window.location.pathname);
+                    const errorBanner = document.getElementById('catalog-prompt-link-error');
                     if (errorBanner) errorBanner.hidden = false;
                 }
             }
