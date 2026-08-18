@@ -112,7 +112,7 @@ function personJsonLd(profile) {
 function externalLink(label, url) {
     const safe = safeExternalUrl(url);
     if (!safe) return '';
-    return `<p><a href="${escapeHtml(safe)}" rel="nofollow noopener" target="_blank">${escapeHtml(label)}</a></p>`;
+    return `<a href="${escapeHtml(safe)}" rel="nofollow noopener" target="_blank">${escapeHtml(label)}</a>`;
 }
 
 function emptyStateSection(heading) {
@@ -133,10 +133,13 @@ export function renderCreatorPage({ profile, indexable }) {
 
     const competenceAreas = Array.isArray(profile.competence_areas) ? profile.competence_areas : [];
 
-    const links = [
+    const linkItems = [
         externalLink('Webbplats', profile.website_url),
         externalLink('LinkedIn', profile.linkedin_url)
-    ].filter(Boolean).join('\n            ');
+    ].filter(Boolean);
+    const links = linkItems.length
+        ? `<div class="creator-links">\n            ${linkItems.join('\n            ')}\n        </div>`
+        : '';
 
     return `<!DOCTYPE html>
 <html lang="sv">
