@@ -18,6 +18,12 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
     const { data: items, error: itemsError } = await supabase.rpc('list_creator_package_draft_items', { p_draft_id: draft.id });
     const itemList = itemsError ? [] : items;
 
+    if (itemsError) {
+        const errorEl = el('[data-draft-error]', node);
+        errorEl.textContent = `Kunde inte ladda prompts i paketet: ${itemsError.message}`;
+        errorEl.hidden = false;
+    }
+
     const countHint = el('[data-draft-count-hint]', node);
     countHint.textContent = `${itemList.length}/${MAX_ITEMS} prompts` + (itemList.length >= 3 && itemList.length <= 6 ? ' — lagom paket' : itemList.length < 3 ? ' — 3–6 prompts brukar vara ett lagom paket' : '');
 

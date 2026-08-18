@@ -83,13 +83,13 @@ begin
 
     update public.content_items
        set status = 'review',
-           visibility = 'public',
            creator_consent_shared = true,
            creator_consent_reusable = coalesce(p_consent_reusable, false),
            updated_at = now()
      where id = p_content_item_id
        and owner_user_id = (select auth.uid())
        and type = 'prompt'
+       and module = 'kommun'
        and status <> 'published'
     returning id into v_updated_id;
 
@@ -128,7 +128,6 @@ declare
 begin
     update public.content_items
        set status = 'draft',
-           visibility = 'private',
            creator_consent_shared = false,
            creator_consent_reusable = false,
            updated_at = now()
@@ -178,6 +177,7 @@ as $$
       from public.content_items ci
      where ci.owner_user_id = (select auth.uid())
        and ci.type = 'prompt'
+       and ci.module = 'kommun'
      order by ci.updated_at desc;
 $$;
 
@@ -212,7 +212,7 @@ begin
                updated_at = now()
          where id = p_draft_id
            and owner_user_id = (select auth.uid())
-           and status in ('draft', 'review')
+           and status = 'draft'
         returning id into v_id;
 
         if v_id is null then
@@ -257,7 +257,7 @@ declare
 begin
     select owner_user_id into v_draft_owner
       from public.creator_package_drafts
-     where id = p_draft_id and status in ('draft', 'review')
+     where id = p_draft_id and status = 'draft'
      for update;
 
     if v_draft_owner is null or v_draft_owner <> (select auth.uid()) then
@@ -332,10 +332,11 @@ begin
        and cpi.draft_id = p_draft_id
        and cpi.content_item_id = p_content_item_id
        and d.owner_user_id = (select auth.uid())
+       and d.status = 'draft'
     returning cpi.id into v_deleted_id;
 
     if v_deleted_id is null then
-        raise exception 'Raden hittades inte eller paketet tillhör inte dig.';
+        raise exception 'Raden hittades inte, paketet tillhör inte dig, eller kan inte redigeras i sitt nuvarande läge.';
     end if;
 
     return jsonb_build_object('removed', true);
@@ -432,10 +433,11 @@ begin
         raise exception 'Paketet behöver minst en prompt innan det kan skickas in.';
     end if;
 
+    perform pg_advisory_xact_lock(hashtext((select auth.uid())::text));
+
     select count(*) into v_review_count
       from public.creator_package_drafts
-     where owner_user_id = (select auth.uid()) and status = 'review'
-     for update;
+     where owner_user_id = (select auth.uid()) and status = 'review';
     if v_review_count >= 3 then
         raise exception 'Du har redan 3 paket under granskning. Dra tillbaka eller vänta på granskning av ett annat paket innan du skickar in fler.';
     end if;
