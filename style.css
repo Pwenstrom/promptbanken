@@ -6226,3 +6226,149 @@ body.detail-panel-closed .prompt-detail-panel {
 .landing-footer a {
     color: #0b63ce;
 }
+
+/* Statiska creator-sidor */
+.creator-identity {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.creator-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #edf4ff;
+    color: #0b3a82;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.creator-identity h1 {
+    margin: 0 0 0.3rem;
+}
+
+.creator-badge {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+    background: #edf4ff;
+    color: #0b63ce;
+    font-size: 0.78rem;
+    font-weight: 650;
+}
+
+.creator-lead {
+    max-width: 62ch;
+    color: #667085;
+    font-size: 1.05rem;
+    line-height: 1.55;
+    margin: 0.25rem 0 1.25rem;
+}
+
+.creator-bio {
+    max-width: 68ch;
+    color: #344054;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.creator-organisation,
+.creator-competence {
+    max-width: 68ch;
+    color: #344054;
+    font-size: 0.95rem;
+    margin: 0.35rem 0;
+}
+
+.creator-organisation strong,
+.creator-competence strong {
+    color: #101828;
+    font-weight: 650;
+}
+
+.creator-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1.25rem 0 0.5rem;
+}
+
+.creator-links a {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 1rem;
+    border: 1px solid #bfd7ff;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #0b63ce;
+    font-weight: 650;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.creator-links a:hover {
+    background: #f4f8ff;
+}
+
+.creator-section {
+    margin: 2rem 0;
+}
+
+.creator-section h2 {
+    margin-bottom: 0.4rem;
+    color: #101828;
+}
+
+.creator-section p {
+    color: #98a2b3;
+    font-size: 0.92rem;
+}
+
+.creator-index-list {
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+    margin: 1rem 0 0;
+    list-style: none;
+}
+
+.creator-index-list li {
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+}
+
+.creator-index-list li a {
+    display: inline-block;
+    margin-bottom: 0.3rem;
+    color: #0b63ce;
+    font-weight: 650;
+    font-size: 1.05rem;
+    text-decoration: none;
+}
+
+.creator-index-list li a:hover {
+    text-decoration: underline;
+}
+
+.creator-index-list li p {
+    margin: 0;
+    color: #667085;
+    font-size: 0.92rem;
+}
+
+@media (max-width: 480px) {
+    .creator-initials {
+        width: 52px;
+        height: 52px;
+        font-size: 1.15rem;
+    }
+}
