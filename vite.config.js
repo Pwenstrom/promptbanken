@@ -38,7 +38,8 @@ export default defineConfig({
         providers: resolve(__dirname, 'providers.html'),
         invite: resolve(__dirname, 'invite.html'),
         'team-invite': resolve(__dirname, 'team-invite.html'),
-        creator: resolve(__dirname, 'creator.html')
+        creator: resolve(__dirname, 'creator.html'),
+        'creator-content': resolve(__dirname, 'creator-content.html')
       }
     }
   }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mina prompts | Promptbanken</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="workspace-page">
+    <header class="workspace-topbar">
+        <a class="workspace-brand" href="index.html">Promptbanken</a>
+        <nav>
+            <a href="creator.html">Min creator-profil</a>
+            <strong data-creator-content-user-email>-</strong>
+            <button type="button" data-creator-content-logout>Logga ut</button>
+        </nav>
+    </header>
+
+    <main class="workspace-shell" aria-labelledby="creator-content-title">
+        <div class="workspace-heading">
+            <div>
+                <p class="workspace-kicker">Skicka in för granskning</p>
+                <h1 id="creator-content-title">Mina prompts</h1>
+            </div>
+        </div>
+
+        <p class="workspace-status" role="status" data-creator-content-status>Laddar...</p>
+
+        <section class="workspace-empty" data-creator-content-login-needed hidden>
+            <h1>Du är inte inloggad</h1>
+            <p>Logga in för att se och skicka in dina prompts.</p>
+            <p><a href="login.html">Till inloggningen</a></p>
+        </section>
+
+        <div data-creator-content-list hidden></div>
+
+        <template data-creator-content-row-template>
+            <article class="workspace-section" data-row-content-item-id>
+                <div class="workspace-section-heading">
+                    <h2 data-row-title>-</h2>
+                    <strong data-row-status-badge>-</strong>
+                </div>
+                <p data-row-summary></p>
+                <div data-row-submit-form hidden>
+                    <label><input type="checkbox" data-row-consent-shared> Jag godkänner att prompten delas i öppna Promptbanken</label>
+                    <label><input type="checkbox" data-row-consent-reusable> Andra creators får återanvända den i sina paket</label>
+                    <p data-row-error role="alert" hidden></p>
+                    <button type="button" data-row-submit-btn>Skicka in för granskning</button>
+                </div>
+                <button type="button" data-row-withdraw-btn hidden>Dra tillbaka</button>
+            </article>
+        </template>
+    </main>
+
+    <script type="module" src="src/creatorContent.js"></script>
+</body>
+</html>
