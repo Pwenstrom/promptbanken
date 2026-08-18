@@ -68,7 +68,7 @@ async function loadPrompts() {
         return;
     }
 
-    statusEl.textContent = data.length ? '' : 'Du har inga prompts i din personlig arbetsyta ännu.';
+    statusEl.textContent = data.length ? '' : 'Du har inga prompts i din personliga arbetsyta ännu.';
     listEl.innerHTML = '';
     data.forEach((prompt) => listEl.appendChild(renderRow(template, prompt)));
     listEl.hidden = false;
