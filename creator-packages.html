@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mina paket | Promptbanken</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="workspace-page">
+    <header class="workspace-topbar">
+        <a class="workspace-brand" href="index.html">Promptbanken</a>
+        <nav>
+            <a href="creator.html">Min creator-profil</a>
+            <a href="creator-content.html">Mina prompts</a>
+            <strong data-creator-packages-user-email>-</strong>
+            <button type="button" data-creator-packages-logout>Logga ut</button>
+        </nav>
+    </header>
+
+    <main class="workspace-shell" aria-labelledby="creator-packages-title">
+        <div class="workspace-heading">
+            <div>
+                <p class="workspace-kicker">Bygg av egna prompts</p>
+                <h1 id="creator-packages-title">Mina paket</h1>
+            </div>
+        </div>
+
+        <p class="workspace-status" role="status" data-creator-packages-status>Laddar...</p>
+
+        <section class="workspace-empty" data-creator-packages-login-needed hidden>
+            <h1>Du är inte inloggad</h1>
+            <p>Logga in för att bygga och skicka in paket.</p>
+            <p><a href="login.html">Till inloggningen</a></p>
+        </section>
+
+        <div data-creator-packages-content hidden>
+            <section class="workspace-section">
+                <h2>Nytt paket</h2>
+                <label>Titel <input type="text" data-new-draft-title></label>
+                <label>Beskrivning <textarea data-new-draft-summary rows="2"></textarea></label>
+                <p data-new-draft-error role="alert" hidden></p>
+                <button type="button" data-new-draft-btn>Skapa paket-utkast</button>
+            </section>
+
+            <div data-draft-list></div>
+        </div>
+
+        <template data-draft-row-template>
+            <article class="workspace-section" data-draft-id>
+                <div class="workspace-section-heading">
+                    <h2 data-draft-title>-</h2>
+                    <strong data-draft-status-badge>-</strong>
+                </div>
+                <p data-draft-summary></p>
+                <p data-draft-count-hint></p>
+                <div data-draft-items></div>
+                <div data-draft-add-row hidden>
+                    <select data-draft-add-select></select>
+                    <button type="button" data-draft-add-btn>Lägg till</button>
+                </div>
+                <p data-draft-error role="alert" hidden></p>
+                <button type="button" data-draft-submit-btn hidden>Skicka in för granskning</button>
+                <button type="button" data-draft-withdraw-btn hidden>Dra tillbaka</button>
+            </article>
+        </template>
+
+        <template data-draft-item-template>
+            <div data-item-content-item-id>
+                <span data-item-title></span>
+                <button type="button" data-item-remove-btn hidden>Ta bort</button>
+            </div>
+        </template>
+    </main>
+
+    <script type="module" src="src/creatorPackages.js"></script>
+</body>
+</html>
