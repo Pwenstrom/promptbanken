@@ -1,3 +1,4 @@
+import { requireSupabaseConfig } from './auth.js';
 import { supabase } from './supabaseClient.js';
 
 const STATUS_LABELS = { draft: 'Utkast', review: 'Under granskning', published: 'Publicerad', archived: 'Arkiverad' };
@@ -75,10 +76,13 @@ async function loadPrompts() {
 }
 
 async function init() {
+    const statusEl = el('[data-creator-content-status]');
+    if (!requireSupabaseConfig(statusEl)) return;
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
         el('[data-creator-content-login-needed]').hidden = false;
-        el('[data-creator-content-status]').hidden = true;
+        statusEl.hidden = true;
         return;
     }
 
