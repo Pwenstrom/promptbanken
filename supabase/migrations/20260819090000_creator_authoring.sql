@@ -528,7 +528,7 @@ returns table (
     title text,
     summary text,
     status text,
-    position integer
+    "position" integer
 )
 language plpgsql
 security definer
@@ -557,7 +557,7 @@ returns table (
     title text,
     summary text,
     status text,
-    position integer
+    "position" integer
 )
 language sql
 security invoker
