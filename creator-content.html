@@ -37,6 +37,16 @@
             <p><a href="login.html">Till inloggningen</a></p>
         </section>
 
+        <section class="workspace-section" data-creator-content-new-prompt hidden>
+            <h2>Skapa ny prompt</h2>
+            <p>Skriv en egen prompt i din personliga arbetsyta. Den sparas som utkast — du väljer sedan om och hur den ska skickas in för granskning.</p>
+            <label>Titel <input type="text" data-new-prompt-title maxlength="200"></label>
+            <label>Prompttext <textarea data-new-prompt-content rows="6" maxlength="20000"></textarea></label>
+            <label>Kategori (valfritt) <input type="text" data-new-prompt-category></label>
+            <p data-new-prompt-error role="alert" hidden></p>
+            <button type="button" data-new-prompt-btn>Skapa prompt</button>
+        </section>
+
         <div data-creator-content-list hidden></div>
 
         <template data-creator-content-row-template>

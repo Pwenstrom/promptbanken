@@ -75,6 +75,34 @@ async function loadPrompts() {
     listEl.hidden = false;
 }
 
+function registerNewPromptForm() {
+    const titleInput = el('[data-new-prompt-title]');
+    const contentInput = el('[data-new-prompt-content]');
+    const categoryInput = el('[data-new-prompt-category]');
+    const errorEl = el('[data-new-prompt-error]');
+    const btn = el('[data-new-prompt-btn]');
+
+    btn.addEventListener('click', async () => {
+        errorEl.hidden = true;
+        btn.disabled = true;
+        const { error } = await supabase.rpc('create_my_creator_prompt', {
+            p_title: titleInput.value,
+            p_content: contentInput.value,
+            p_category: categoryInput.value
+        });
+        btn.disabled = false;
+        if (error) {
+            errorEl.textContent = error.message;
+            errorEl.hidden = false;
+            return;
+        }
+        titleInput.value = '';
+        contentInput.value = '';
+        categoryInput.value = '';
+        await loadPrompts();
+    });
+}
+
 async function init() {
     const statusEl = el('[data-creator-content-status]');
     if (!requireSupabaseConfig(statusEl)) return;
@@ -92,6 +120,8 @@ async function init() {
         window.location.href = 'login.html';
     });
 
+    el('[data-creator-content-new-prompt]').hidden = false;
+    registerNewPromptForm();
     await loadPrompts();
 }
 
