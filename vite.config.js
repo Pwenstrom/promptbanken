@@ -33,6 +33,7 @@ export default defineConfig({
         mcp: resolve(__dirname, 'mcp.html'),
         prompts: resolve(__dirname, 'prompts.html'),
         privacy: resolve(__dirname, 'privacy.html'),
+        'privacy-en': resolve(__dirname, 'privacy-en.html'),
         terms: resolve(__dirname, 'terms.html'),
         'local-chat': resolve(__dirname, 'local-chat.html'),
         providers: resolve(__dirname, 'providers.html'),

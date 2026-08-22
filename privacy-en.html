@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | Promptbanken</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="description" content="Promptbanken privacy policy – what data is collected, why, who receives it, how long it is kept, and the controls you have.">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="https://app.promptbanken.se/privacy-en.html">
+    <link rel="alternate" hreflang="sv" href="https://app.promptbanken.se/privacy.html">
+    <link rel="alternate" hreflang="en" href="https://app.promptbanken.se/privacy-en.html">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="info-page">
+    <div class="app-shell">
+        <aside class="app-sidebar" aria-label="Main navigation">
+            <a class="brand" href="index.html">
+                <img class="brand-logo-mark" src="/brand-mark.png" alt="" width="28" height="28">
+                <span>Promptbanken</span>
+            </a>
+
+            <nav class="sidebar-nav">
+                <a class="sidebar-link" href="index.html"><span aria-hidden="true">▦</span>All prompts</a>
+                <a class="sidebar-link mcp-feature-link" href="mcp.html"><span aria-hidden="true">◇</span>MCP and usage</a>
+                <a class="sidebar-link" href="help.html"><span aria-hidden="true">?</span>Help</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="privacy-en.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <header class="topbar">
+                <a class="help-btn" href="index.html">Back to prompts</a>
+            </header>
+
+            <article class="help-content">
+                <p class="workspace-kicker">Last updated: 2026-08-22 · Version 2.0 · <a href="privacy.html">Läs policyn på svenska</a></p>
+                <h1>Privacy Policy</h1>
+                <p>Promptbanken is an open library of ready-to-use AI prompt templates for professionals and organizations. <strong>No account is required</strong> to browse, open, or copy prompts. This policy states <strong>what data we process, for what purposes, on what legal basis, who receives it, how long it is retained, and what controls you have</strong> — both in the web service and in the open MCP connector used from AI clients such as ChatGPT and Claude.</p>
+
+                <h2>1. Data controller</h2>
+                <p>Gustav Peter Wenström, sole trader, Sweden. Contact: <a href="mailto:info@promptbanken.se">info@promptbanken.se</a>.</p>
+                <p>This policy covers <code>app.promptbanken.se</code>, <code>promptbanken.se</code>, and the MCP connector at <code>mcp.promptbanken.se</code>. The separate product <a href="https://valvet.promptbanken.se">Valvet</a> (personal accounts for saving your own prompts) has its own policy on its own domain.</p>
+
+                <h2>2. What we process, why, and for how long</h2>
+
+                <h3>2.1 Open catalog in the browser</h3>
+                <p>Browsing requires no account. We set <strong>no cookies</strong>, serve no advertising, and use no third-party trackers. Text you type or paste into the quick-input field stays in your browser and is <strong>never transmitted to us</strong>.</p>
+
+                <h3>2.2 Anonymous usage statistics (web and open MCP)</h3>
+                <p>We record aggregated events when a prompt is viewed, opened, copied, or shared, and when MCP tools list, search, fetch, or open prompts and packages.</p>
+                <p><strong>Fields stored per event:</strong> timestamp, source (<code>web</code> or <code>open_mcp</code>), event type, outcome (e.g. success/empty/not found), the prompt or package slug, selected context keys (e.g. <em>kommun</em>, <em>skola</em>), area, risk level, result count, catalog version, tool name, and the <strong>length</strong> of a search query (a number, never the text).</p>
+                <p><strong>Never stored in these statistics:</strong> prompt text or any content you wrote, raw search terms, IP addresses, email addresses, user agents, API keys, or any other data that could identify you. The database enforces this with a fixed allow-list of permitted fields and values.</p>
+                <p><strong>Purpose:</strong> understand which parts of the library are used, detect broken or missing prompts, and prioritize content. <strong>Legal basis:</strong> legitimate interest (GDPR Art. 6(1)(f)) — the data is deliberately non-identifying. <strong>Retention:</strong> a maximum of <strong>180 days</strong>, after which records are deleted automatically by a scheduled daily job.</p>
+
+                <h3>2.3 The MCP connector (ChatGPT, Claude, and other AI clients)</h3>
+                <p>The published connector at <code>https://mcp.promptbanken.se/mcp</code> is <strong>open, read-only, and requires no authentication</strong>. It exposes nine tools: <code>health_check</code>, <code>get_client_routing_instructions</code>, <code>list_templates</code>, <code>search_templates</code>, <code>get_template</code>, <code>list_packages</code>, <code>get_package</code>, <code>list_package_prompts</code>, and <code>recommend_packages</code>.</p>
+                <p><strong>Tool inputs sent to us:</strong> only the parameters the tools define — a search string (<code>query</code>), a short role term (<code>role</code>), area, risk level, result limit, context keys, and the id or slug of a template or package. Nothing else from your conversation reaches the server.</p>
+                <p><strong>Tool outputs returned to you:</strong> public catalog material — template title, purpose, tags, prompt text, parameter schema, and default bindings. The server never assembles a finished prompt; your client fills in and renders the text locally.</p>
+                <p><strong>What the server does with the inputs:</strong> they are used to look up and return catalog entries in real time. The search string and role term are <strong>not stored</strong> — only the query's length is recorded in the statistics described in 2.2.</p>
+                <p><strong>Important:</strong> the connector is intended for public catalog content. Do not paste personal data, student records, patient data, or other confidential material into a query. The connector has no write tools and cannot store anything on your behalf.</p>
+                <p><strong>Legal basis:</strong> legitimate interest (Art. 6(1)(f)) in operating an open catalog service.</p>
+
+                <h3>2.4 Technical operational logs</h3>
+                <p>The MCP server writes application logs containing the tool name and response status — <strong>never tool inputs or your content</strong>. The web server's access log is configured so that the <strong>client IP address, port, cookies, the <code>Authorization</code> header, and the API key header are stripped before the line is written</strong>. What remains is timestamp, path, method, and HTTP status.</p>
+                <p><strong>Purpose:</strong> operations, troubleshooting, and abuse prevention. <strong>Legal basis:</strong> legitimate interest (Art. 6(1)(f)). <strong>Retention:</strong> logs rotate and are deleted automatically after at most <strong>30 days</strong>.</p>
+
+                <h3>2.5 Organization accounts (Workspace, Administration, Municipality)</h3>
+                <p>Accounts are created by an administrator, not by self-registration. We then process:</p>
+                <ul>
+                    <li><strong>Email address</strong> — sign-in and necessary service communication</li>
+                    <li><strong>Name</strong> — as registered by the organization</li>
+                    <li><strong>Prompts you create</strong> — stored in your organization's workspace</li>
+                    <li><strong>Sign-in time and session data</strong> — security and session handling</li>
+                </ul>
+                <p><strong>Legal basis:</strong> contract with your organization (Art. 6(1)(b)), plus legitimate interest for security logging. <strong>Retention:</strong> as long as the account is active. On contract termination or a deletion request, the account and its content are removed within <strong>90 days</strong>. Security-related sign-in events are kept for at most <strong>12 months</strong>.</p>
+                <p>No data in the service is used to train AI models.</p>
+
+                <h2>3. Recipients</h2>
+                <p>We never sell data and never share it for marketing. The following providers process data on our behalf:</p>
+                <ul>
+                    <li><strong>Supabase</strong> — database and authentication. Data stored in an EU region. Data processor.</li>
+                    <li><strong>VPS provider with servers in Sweden (EU/EEA)</strong> — hosting environment for the MCP server at <code>mcp.promptbanken.se</code>. Data processor.</li>
+                    <li><strong>GitHub Pages (GitHub, Inc. / Microsoft)</strong> — static hosting for <code>app.promptbanken.se</code>. GitHub may process connection data such as IP addresses in its own infrastructure, outside our control, which can involve transfer to the United States. Such transfers rely on the EU Standard Contractual Clauses and the EU–US Data Privacy Framework.</li>
+                </ul>
+                <p><strong>Your AI client is a separate recipient.</strong> If you use Promptbanken through ChatGPT, Claude, or another client, that provider processes your conversation under its own privacy policy. We control neither what you write to the client nor how it stores it — we receive only the tool parameters described in 2.3.</p>
+                <p>Otherwise we disclose data only where required by law.</p>
+
+                <h2>4. Storage and security</h2>
+                <p>Data is encrypted at rest and in transit (TLS). Passwords are never stored in plain text. Access to statistics and catalog content is protected by Row Level Security in the database and restricted to the platform owner. The open MCP connector exposes no write tools.</p>
+
+                <h2>5. Your rights and controls</h2>
+                <ul>
+                    <li><strong>Opt out entirely</strong> — disconnect the connector in your AI client's settings, or stop using the web service. No data is needed to leave.</li>
+                    <li><strong>No tracking to opt out of</strong> — we use no cookies and no individual tracking in the open catalog. The statistics in 2.2 are non-identifying and therefore cannot be linked back to you.</li>
+                    <li><strong>Right of access</strong> — request a copy of the data we hold about you.</li>
+                    <li><strong>Right to rectification</strong> — have inaccurate data corrected.</li>
+                    <li><strong>Right to erasure</strong> — request deletion of your account and content.</li>
+                    <li><strong>Right to data portability</strong> — receive your prompts in a machine-readable format.</li>
+                    <li><strong>Right to object</strong> — object to processing based on legitimate interest.</li>
+                </ul>
+                <p>Contact <a href="mailto:info@promptbanken.se">info@promptbanken.se</a>. We respond within 30 days. You may also lodge a complaint with the <a href="https://www.imy.se/en/">Swedish Authority for Privacy Protection (IMY)</a>.</p>
+
+                <h2>6. Cookies and local storage</h2>
+                <p>No cookies. For organization accounts the sign-in session is kept in the browser's <code>localStorage</code> so you stay signed in, and quick-input text may be kept in <code>sessionStorage</code> on your own device. Both remain local to your browser and are not sent to us. No tracking or advertising cookies are used.</p>
+
+                <h2>7. Children</h2>
+                <p>The service is aimed at professionals and organizations and is not marketed to children under 13.</p>
+
+                <h2>8. Changes</h2>
+                <p>Changes update the date and version at the top. Material changes are communicated to organization accounts by email before they take effect.</p>
+
+                <h2>9. Contact</h2>
+                <p>Privacy questions: <a href="mailto:info@promptbanken.se">info@promptbanken.se</a></p>
+            </article>
+        </div>
+    </div>
+</body>
+</html>

@@ -8,9 +8,11 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <meta name="description" content="Promptbankens integritetspolicy – hur vi hanterar personuppgifter och din data.">
+    <meta name="description" content="Promptbankens integritetspolicy – vilka uppgifter som samlas in, varför, vilka som tar emot dem, hur länge de sparas och vilka rättigheter du har.">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="https://app.promptbanken.se/privacy.html">
+    <link rel="alternate" hreflang="sv" href="https://app.promptbanken.se/privacy.html">
+    <link rel="alternate" hreflang="en" href="https://app.promptbanken.se/privacy-en.html">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="info-page">
@@ -39,56 +41,84 @@
             </header>
 
             <article class="help-content">
-                <p class="workspace-kicker">Senast uppdaterad: 2026-08-08</p>
+                <p class="workspace-kicker">Senast uppdaterad: 2026-08-22 · Version 2.0 · <a href="privacy-en.html">Read this policy in English</a></p>
                 <h1>Integritetspolicy</h1>
-                <p>Promptbanken är en öppen tjänst för yrkespersoner och organisationer som använder svenska AI-promptmallar. Du behöver <strong>inget konto</strong> för att bläddra bland, öppna eller kopiera prompts — det är tjänstens huvudsakliga användning. Den här policyn beskriver hur vi hanterar personuppgifter när du använder tjänsten.</p>
+                <p>Promptbanken är en öppen tjänst med färdiga AI-promptmallar för yrkespersoner och organisationer. Du behöver <strong>inget konto</strong> för att bläddra bland, öppna eller kopiera prompts. Den här policyn beskriver <strong>vilka uppgifter som behandlas, för vilka ändamål, med vilken rättslig grund, vilka som tar emot dem, hur länge de sparas och vilka kontroller du har</strong> — både i webbtjänsten och i den öppna MCP-anslutningen (connectorn) som kan användas från AI-klienter som ChatGPT och Claude.</p>
 
-                <h2>1. Vad vi samlar in</h2>
+                <h2>1. Personuppgiftsansvarig</h2>
+                <p>Gustav Peter Wenström, enskild näringsidkare, Sverige. Kontakt: <a href="mailto:info@promptbanken.se">info@promptbanken.se</a>.</p>
+                <p>Denna policy gäller <code>app.promptbanken.se</code>, <code>promptbanken.se</code> och MCP-anslutningen på <code>mcp.promptbanken.se</code>. Den separata produkten <a href="https://valvet.promptbanken.se">Valvet</a> (personliga konton för egna prompts) har en egen policy på sin egen domän.</p>
 
-                <h3>Besökare (huvudanvändningen)</h3>
-                <p>Vi samlar <strong>inga personuppgifter</strong> från besökare som använder den öppna promptkatalogen. Vi använder inga cookies och ingen text du klistrar in skickas till oss.</p>
+                <h2>2. Vad vi behandlar, varför och hur länge</h2>
 
-                <h3>Anonym användningsstatistik</h3>
-                <p>Promptbanken samlar anonym, aggregerad användningsstatistik för det öppna biblioteket, till exempel när en prompt visas, öppnas eller kopieras i webbgränssnittet och när öppna MCP-anrop listar, söker, öppnar eller hämtar prompts. Statistiken används för återkoppling och produktutveckling av biblioteket, inte för individuell spårning. Händelserna har avsiktligt små och anonyma payloads: vi sparar inte promptinnehåll från användare, råa söktermer, IP-adresser, e-postadresser, user-agent, nyckelmaterial eller annan personidentifierande klientdata i denna statistik.</p>
+                <h3>2.1 Öppen katalog i webbläsaren</h3>
+                <p>Att bläddra i katalogen kräver inget konto. Vi sätter <strong>inga cookies</strong>, kör ingen reklam och använder inga tredjepartsspårare. Text du skriver eller klistrar in i snabbinmatningsfältet stannar i din webbläsare och <strong>skickas aldrig till oss</strong>.</p>
 
-                <h3>Personliga konton (spara egna prompts)</h3>
-                <p>Vill du spara egna prompts i ett personligt konto hänvisar vi till <a href="https://valvet.promptbanken.se">Valvet</a>, en separat produkt/domän. Den kontohanteringen och integritetspolicyn regleras där, inte här.</p>
+                <h3>2.2 Anonym användningsstatistik (webb och öppen MCP)</h3>
+                <p>Vi registrerar aggregerade händelser när en prompt visas, öppnas, kopieras eller delas, och när MCP-verktyg listar, söker, hämtar eller öppnar prompts och paket.</p>
+                <p><strong>Uppgifter som sparas per händelse:</strong> tidpunkt, källa (<code>web</code> eller <code>open_mcp</code>), händelsetyp, utfall (t.ex. lyckad/tom/hittades ej), promptens eller paketets slug, valda kontextnycklar (t.ex. <em>kommun</em>, <em>skola</em>), område, risknivå, antal träffar, katalogversion, verktygsnamn samt <strong>längden</strong> på en sökfråga (ett tal, aldrig texten).</p>
+                <p><strong>Uppgifter som aldrig sparas i statistiken:</strong> prompttext eller annat innehåll du skrivit, råa söktermer, IP-adresser, e-postadresser, user-agent, kontonycklar eller andra uppgifter som kan knytas till dig. Fältet är tekniskt begränsat i databasen till en fast lista tillåtna värden.</p>
+                <p><strong>Ändamål:</strong> se vilka delar av biblioteket som används, hitta trasiga eller saknade prompts och prioritera innehåll. <strong>Rättslig grund:</strong> berättigat intresse (art. 6.1 f GDPR) — uppgifterna är avsiktligt icke-identifierande. <strong>Lagringstid:</strong> högst <strong>180 dagar</strong>, därefter automatisk radering genom ett schemalagt jobb som körs dagligen.</p>
 
-                <h3>Organisationskonton (Arbetsyta, Förvaltning, Kommun)</h3>
-                <p>Åtkomst till organisationskonton sker via administratör, inte självregistrering. Om ditt konto skapas samlar vi in:</p>
+                <h3>2.3 MCP-anslutningen (ChatGPT, Claude och andra AI-klienter)</h3>
+                <p>Den publicerade anslutningen på <code>https://mcp.promptbanken.se/mcp</code> är <strong>öppen, skrivskyddad och kräver ingen inloggning</strong>. Den exponerar nio verktyg: <code>health_check</code>, <code>get_client_routing_instructions</code>, <code>list_templates</code>, <code>search_templates</code>, <code>get_template</code>, <code>list_packages</code>, <code>get_package</code>, <code>list_package_prompts</code> och <code>recommend_packages</code>.</p>
+                <p><strong>Vad som skickas in till oss:</strong> endast de parametrar verktygen definierar — en söksträng (<code>query</code>), ett rollord (<code>role</code>), område, risknivå, träffgräns, kontextnycklar, samt id/slug för mall eller paket. Inget annat från din konversation når servern.</p>
+                <p><strong>Vad som kommer tillbaka:</strong> publikt katalogmaterial — mallens titel, syfte, taggar, prompttext, parameterschema och standardvärden. Servern sätter aldrig ihop en färdig prompt åt dig; din klient fyller i och renderar texten lokalt.</p>
+                <p><strong>Vad servern gör med inskickade parametrar:</strong> de används för att söka fram och returnera katalogposter i realtid. Söksträngen och rollordet <strong>sparas inte</strong> — bara sökfrågans längd hamnar i statistiken enligt 2.2.</p>
+                <p><strong>Viktigt att veta:</strong> anslutningen är avsedd för publikt kataloginnehåll. Klistra inte in personuppgifter, elevuppgifter, patientuppgifter eller annat känsligt material i en sökfråga. Anslutningen har inga skrivverktyg och kan inte spara något åt dig.</p>
+                <p><strong>Rättslig grund:</strong> berättigat intresse (art. 6.1 f) för att tillhandahålla en öppen katalogtjänst.</p>
+
+                <h3>2.4 Tekniska driftloggar</h3>
+                <p>MCP-servern skriver applikationsloggar med verktygets namn och svarsstatus — <strong>aldrig verktygens indata eller ditt innehåll</strong>. Webbserverns åtkomstlogg konfigureras så att <strong>klientens IP-adress, portnummer, cookies, <code>Authorization</code>-huvud och API-nyckelhuvud tas bort innan raden skrivs</strong>. Kvar blir tidpunkt, sökväg, metod och HTTP-status.</p>
+                <p><strong>Ändamål:</strong> drift, felsökning och skydd mot missbruk. <strong>Rättslig grund:</strong> berättigat intresse (art. 6.1 f). <strong>Lagringstid:</strong> loggarna roteras och raderas automatiskt efter <strong>högst 30 dagar</strong>.</p>
+
+                <h3>2.5 Organisationskonton (Arbetsyta, Förvaltning, Kommun)</h3>
+                <p>Konton skapas av administratör, inte genom självregistrering. Då behandlas:</p>
                 <ul>
-                    <li><strong>E-postadress</strong> — för inloggning och kontaktändamål</li>
-                    <li><strong>Namn</strong> — enligt vad som registrerats för kontot</li>
-                    <li><strong>Prompts du skapar</strong> — sparas i din organisations workspace</li>
-                    <li><strong>Inloggningstidpunkt</strong> — för säkerhet och sessionshantering</li>
+                    <li><strong>E-postadress</strong> — inloggning och nödvändig kontakt om tjänsten</li>
+                    <li><strong>Namn</strong> — enligt vad organisationen registrerat</li>
+                    <li><strong>Prompts du skapar</strong> — sparas i organisationens arbetsyta</li>
+                    <li><strong>Inloggningstidpunkt och sessionsdata</strong> — säkerhet och sessionshantering</li>
                 </ul>
+                <p><strong>Rättslig grund:</strong> avtal med din organisation (art. 6.1 b), och berättigat intresse för säkerhetsloggning. <strong>Lagringstid:</strong> så länge kontot är aktivt. Vid uppsagt avtal eller begäran om radering tas konto och tillhörande innehåll bort inom <strong>90 dagar</strong>. Säkerhetsrelaterade inloggningshändelser sparas i högst <strong>12 månader</strong>.</p>
+                <p>Inga uppgifter i tjänsten används för att träna AI-modeller.</p>
 
-                <h2>2. Hur vi använder datan</h2>
+                <h2>3. Vilka som tar emot uppgifter</h2>
+                <p>Vi säljer aldrig uppgifter och delar dem inte för marknadsföring. Följande leverantörer behandlar uppgifter för vår räkning:</p>
                 <ul>
-                    <li>Tillhandahålla och förbättra tjänsten</li>
-                    <li>Autentisera din inloggning</li>
-                    <li>Möjliggöra att dina prompts sparas i din organisations workspace</li>
-                    <li>Kontakta dig vid viktiga ändringar av tjänsten</li>
+                    <li><strong>Supabase</strong> — databas och autentisering. Data lagras i EU-region. Personuppgiftsbiträde.</li>
+                    <li><strong>VPS-leverantör med servrar i Sverige (EU/EES)</strong> — driftsmiljö för MCP-servern på <code>mcp.promptbanken.se</code>. Personuppgiftsbiträde.</li>
+                    <li><strong>GitHub Pages (GitHub, Inc. / Microsoft)</strong> — statisk webbhotell för <code>app.promptbanken.se</code>. GitHub kan behandla anslutningsdata som IP-adress i sin egen infrastruktur, utanför vår kontroll, och kan innebära överföring till USA. Överföringen sker med EU-kommissionens standardavtalsklausuler och EU–US Data Privacy Framework som grund.</li>
                 </ul>
-                <p>Vi säljer inte och delar inte din data med tredje part i marknadsföringssyfte.</p>
+                <p><strong>Din AI-klient är en separat mottagare.</strong> Om du använder Promptbanken via ChatGPT, Claude eller en annan klient behandlas din konversation av den leverantören enligt deras egen integritetspolicy. Vi kontrollerar varken vad du skriver till klienten eller hur den lagrar det — vi tar bara emot de verktygsparametrar som beskrivs i 2.3.</p>
+                <p>Vi lämnar i övrigt ut uppgifter endast om lag kräver det.</p>
 
-                <h2>3. Lagring</h2>
-                <p>Data lagras i Supabase (EU-region) och skyddas med kryptering i vila och under transport. Lösenord lagras aldrig i klartext.</p>
+                <h2>4. Lagring och säkerhet</h2>
+                <p>Data lagras krypterat i vila och överförs krypterat (TLS). Lösenord lagras aldrig i klartext. Åtkomst till statistik och kataloginnehåll skyddas med Row Level Security i databasen och är begränsad till plattformsägare. Den öppna MCP-anslutningen har inga skrivverktyg.</p>
 
-                <h2>4. Dina rättigheter (GDPR)</h2>
+                <h2>5. Dina rättigheter och kontroller</h2>
                 <ul>
-                    <li><strong>Rätt till tillgång</strong> — du kan begära en kopia av dina uppgifter</li>
-                    <li><strong>Rätt till rättelse</strong> — du kan korrigera felaktiga uppgifter</li>
-                    <li><strong>Rätt till radering</strong> — du kan begära att ditt konto och data raderas</li>
-                    <li><strong>Rätt till dataportabilitet</strong> — du kan begära dina prompts i maskinläsbart format</li>
+                    <li><strong>Avstå helt</strong> — koppla bort anslutningen i din AI-klients inställningar, eller sluta använda webbtjänsten. Inga uppgifter behövs för att lämna tjänsten.</li>
+                    <li><strong>Ingen spårning att välja bort</strong> — vi använder inga cookies och ingen individuell spårning i den öppna katalogen. Statistiken i 2.2 är icke-identifierande och kan därför inte kopplas till dig i efterhand.</li>
+                    <li><strong>Rätt till tillgång</strong> — begär en kopia av de uppgifter vi har om dig.</li>
+                    <li><strong>Rätt till rättelse</strong> — få felaktiga uppgifter korrigerade.</li>
+                    <li><strong>Rätt till radering</strong> — begär att konto och innehåll raderas.</li>
+                    <li><strong>Rätt till dataportabilitet</strong> — få dina prompts i maskinläsbart format.</li>
+                    <li><strong>Rätt att invända</strong> — invända mot behandling som grundas på berättigat intresse.</li>
                 </ul>
-                <p>Kontakta oss på <a href="mailto:info@promptbanken.se">info@promptbanken.se</a> för att utöva dina rättigheter.</p>
+                <p>Kontakta <a href="mailto:info@promptbanken.se">info@promptbanken.se</a>. Vi svarar inom 30 dagar. Du har också rätt att klaga hos <a href="https://www.imy.se">Integritetsskyddsmyndigheten (IMY)</a>.</p>
 
-                <h2>5. Cookies</h2>
-                <p>Vi använder inga cookies. Inloggningssessionen (för organisationskonton) sparas i din webbläsares lokala lagring (localStorage) för att hålla dig inloggad, inte som en cookie. Inga spårningscookies eller reklamcookies används.</p>
+                <h2>6. Cookies och lokal lagring</h2>
+                <p>Inga cookies. För organisationskonton sparas inloggningssessionen i webbläsarens <code>localStorage</code> så att du håller dig inloggad, och snabbinmatningstext kan sparas i <code>sessionStorage</code> på din egen enhet. Båda ligger kvar lokalt i din webbläsare och skickas inte till oss. Inga spårnings- eller reklamcookies förekommer.</p>
 
-                <h2>6. Kontakt</h2>
-                <p>Frågor om integritet: <a href="mailto:info@promptbanken.se">info@promptbanken.se</a></p>
+                <h2>7. Barn</h2>
+                <p>Tjänsten riktar sig till yrkespersoner och organisationer och marknadsförs inte till barn under 13 år.</p>
+
+                <h2>8. Ändringar</h2>
+                <p>Vid ändringar uppdateras datum och version överst. Väsentliga ändringar meddelas organisationskonton via e-post innan de träder i kraft.</p>
+
+                <h2>9. Kontakt</h2>
+                <p>Integritetsfrågor: <a href="mailto:info@promptbanken.se">info@promptbanken.se</a></p>
             </article>
         </div>
     </div>
