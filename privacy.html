@@ -39,7 +39,7 @@
             </header>
 
             <article class="help-content">
-                <p class="workspace-kicker">Senast uppdaterad: 2026-08-08</p>
+                <p class="workspace-kicker">Senast uppdaterad: 2026-08-22</p>
                 <h1>Integritetspolicy</h1>
                 <p>Promptbanken är en öppen tjänst för yrkespersoner och organisationer som använder svenska AI-promptmallar. Du behöver <strong>inget konto</strong> för att bläddra bland, öppna eller kopiera prompts — det är tjänstens huvudsakliga användning. Den här policyn beskriver hur vi hanterar personuppgifter när du använder tjänsten.</p>
 
@@ -63,7 +63,16 @@
                     <li><strong>Inloggningstidpunkt</strong> — för säkerhet och sessionshantering</li>
                 </ul>
 
-                <h2>2. Hur vi använder datan</h2>
+                <h2>2. Den öppna MCP-anslutningen (ChatGPT och andra MCP-klienter)</h2>
+                <p>Promptbanken driver en publik MCP-server (<code>mcp.promptbanken.se</code>) som gör samma öppna promptkatalog tillgänglig för AI-klienter som ChatGPT, via nio skrivskyddade verktyg: <code>health_check</code>, <code>get_client_routing_instructions</code>, <code>list_templates</code>, <code>search_templates</code>, <code>get_template</code>, <code>list_packages</code>, <code>get_package</code>, <code>list_package_prompts</code> och <code>recommend_packages</code>.</p>
+                <p><strong>Vad som skickas till servern:</strong> när du använder anslutningen i ChatGPT skickar klienten din sökfråga eller ett filter (t.ex. yrkesroll eller kategori) som ett verktygsargument till <code>mcp.promptbanken.se</code> för att hitta matchande mallar. Denna text vidarebefordras aldrig till tredje part och sparas inte i någon databas.</p>
+                <p><strong>Vad som returneras:</strong> enbart öppet katalogsinnehåll — malltitlar, brödtext, taggar, riskklassning, paket- och områdesbeskrivningar. Inget svar innehåller personuppgifter, användar-ID eller något som kan identifiera dig. Se avsnittet ovan om "Anonym användningsstatistik" för de enda mätvärden som sparas om ett anrop (att en mall listades, söktes eller öppnades — aldrig söktextens innehåll).</p>
+                <p><strong>Serverloggar:</strong> reverse-proxyn framför servern skriver driftloggar med IP-adress, anropad sökväg, tidsstämpel och statuskod, för felsökning och missbruksskydd. <code>Authorization</code>- och <code>X-MCP-Key</code>-headrar rensas alltid bort innan loggning. Själva textinnehållet i din fråga loggas inte — applikationsloggen skriver bara vilket verktyg som anropades (t.ex. <code>search_templates</code>), aldrig vad du sökte efter. Driftloggar roteras och gallras automatiskt (normalt inom cirka 90 dagar).</p>
+                <p><strong>Nyckel/konto:</strong> den öppna ChatGPT-anslutningen kräver ingen nyckel och inget konto och använder aldrig skriv-verktyg. Nyckelskyddade verktyg för att spara egna prompts hör till Valvet eller organisationens workspace (se ovan) och ingår inte i den öppna anslutningen.</p>
+                <p><strong>Mottagare:</strong> katalogdatan lagras i Supabase (EU-region, se punkt 4 nedan). Ingen data delas med andra tredjepartstjänster. OpenAI/ChatGPT är klientprogramvaran du själv valt att använda — vad de i sin tur sparar av din konversation styrs av deras egen integritetspolicy, inte av oss.</p>
+                <p><strong>Dina val:</strong> vill du inte att en sökfråga skickas till servern, använd inte anslutningen för den frågan. Eftersom ingen identifierbar data sparas hos oss finns normalt ingen registrerad uppgift att begära ut eller radera för den öppna anslutningen.</p>
+
+                <h2>3. Hur vi använder datan</h2>
                 <ul>
                     <li>Tillhandahålla och förbättra tjänsten</li>
                     <li>Autentisera din inloggning</li>
@@ -72,10 +81,10 @@
                 </ul>
                 <p>Vi säljer inte och delar inte din data med tredje part i marknadsföringssyfte.</p>
 
-                <h2>3. Lagring</h2>
+                <h2>4. Lagring</h2>
                 <p>Data lagras i Supabase (EU-region) och skyddas med kryptering i vila och under transport. Lösenord lagras aldrig i klartext.</p>
 
-                <h2>4. Dina rättigheter (GDPR)</h2>
+                <h2>5. Dina rättigheter (GDPR)</h2>
                 <ul>
                     <li><strong>Rätt till tillgång</strong> — du kan begära en kopia av dina uppgifter</li>
                     <li><strong>Rätt till rättelse</strong> — du kan korrigera felaktiga uppgifter</li>
@@ -84,10 +93,10 @@
                 </ul>
                 <p>Kontakta oss på <a href="mailto:info@promptbanken.se">info@promptbanken.se</a> för att utöva dina rättigheter.</p>
 
-                <h2>5. Cookies</h2>
+                <h2>6. Cookies</h2>
                 <p>Vi använder inga cookies. Inloggningssessionen (för organisationskonton) sparas i din webbläsares lokala lagring (localStorage) för att hålla dig inloggad, inte som en cookie. Inga spårningscookies eller reklamcookies används.</p>
 
-                <h2>6. Kontakt</h2>
+                <h2>7. Kontakt</h2>
                 <p>Frågor om integritet: <a href="mailto:info@promptbanken.se">info@promptbanken.se</a></p>
             </article>
         </div>
