@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integritetspolicy — öppna MCP-anslutningen | Promptbanken</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="description" content="Integritetspolicy för Promptbankens öppna MCP-anslutning – vad anslutningen tar emot, vad den returnerar, vad som sparas, hur länge, vilka som tar emot det och vilka kontroller du har.">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="https://app.promptbanken.se/privacy-mcp.html">
+    <link rel="alternate" hreflang="sv" href="https://app.promptbanken.se/privacy-mcp.html">
+    <link rel="alternate" hreflang="en" href="https://app.promptbanken.se/privacy-mcp-en.html">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="info-page">
+    <div class="app-shell">
+        <aside class="app-sidebar" aria-label="Huvudnavigation">
+            <a class="brand" href="index.html">
+                <img class="brand-logo-mark" src="/brand-mark.png" alt="" width="28" height="28">
+                <span>Promptbanken</span>
+            </a>
+
+            <nav class="sidebar-nav">
+                <a class="sidebar-link" href="index.html"><span aria-hidden="true">▦</span>Alla prompter</a>
+                <a class="sidebar-link mcp-feature-link" href="mcp.html"><span aria-hidden="true">◇</span>MCP och användning</a>
+                <a class="sidebar-link" href="help.html"><span aria-hidden="true">?</span>Hjälp</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="privacy-mcp.html">Integritetspolicy — MCP</a>
+                <a href="privacy.html">Integritetspolicy — webb</a>
+                <a href="terms.html">Användarvillkor</a>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <header class="topbar">
+                <a class="help-btn" href="index.html">Tillbaka till prompter</a>
+            </header>
+
+            <article class="help-content">
+                <p class="workspace-kicker">Senast uppdaterad: 2026-08-23 · Version 1.0 · <a href="privacy-mcp-en.html">Read this policy in English</a></p>
+                <h1>Integritetspolicy — öppna MCP-anslutningen</h1>
+                <p>Den här policyn handlar om <strong>en sak</strong>: den öppna MCP-anslutningen på <code>https://mcp.promptbanken.se/mcp</code>, som används från AI-klienter som ChatGPT och Claude. Den beskriver vad anslutningen tar emot, vad den returnerar, vad som sparas, hur länge, vilka som tar emot det och vilka kontroller du har.</p>
+                <p><strong>Webbtjänsten</strong> på <code>app.promptbanken.se</code> — där organisationer loggar in och hanterar egna prompts — täcks av en <a href="privacy.html">separat policy</a>. Inget i den om konton, inloggning eller sparat innehåll gäller här.</p>
+
+                <h2>1. Personuppgiftsansvarig</h2>
+                <p>Gustav Peter Wenström, enskild näringsidkare, Sverige. Kontakt: <a href="mailto:info@promptbanken.se">info@promptbanken.se</a>.</p>
+
+                <h2>2. Inget konto, ingen inloggning, inga cookies</h2>
+                <p>Anslutningen är <strong>öppen, skrivskyddad och oautentiserad</strong>. Det finns ingen inloggning och ingen registrering. Vi vet inte vem du är, skapar inget konto åt dig, sätter inga cookies och kan inte koppla ett anrop till en person. Att sluta använda tjänsten kräver ingenting av oss — ta bort anslutningen i din AI-klient, så når inga fler uppgifter oss.</p>
+                <p>Samma värdnamn har också separata, autentiserade ytor (<code>/mcp/key</code> för den som har en egen MCP-nyckel, och <code>/admin</code> för administration). De <strong>ingår inte i den här anslutningen</strong> och avvisar alla anrop utan giltig nyckel.</p>
+
+                <h2>3. Vad anslutningen tar emot</h2>
+                <p>Anslutningen exponerar <strong>nio skrivskyddade verktyg</strong>: <code>health_check</code>, <code>get_client_routing_instructions</code>, <code>list_templates</code>, <code>search_templates</code>, <code>get_template</code>, <code>list_packages</code>, <code>get_package</code>, <code>list_package_prompts</code> och <code>recommend_packages</code>.</p>
+                <p><strong>Bara de parametrar verktygen definierar når oss:</strong></p>
+                <ul>
+                    <li><code>query</code> — en söksträng</li>
+                    <li><code>role</code> — ett kort rollord, till exempel <em>chef</em> eller <em>kommunikatör</em></li>
+                    <li><code>area</code> och <code>risk_level</code> — filter valda ur fasta listor</li>
+                    <li><code>limit</code> och <code>offset</code> — hur många träffar, och var i listan som ska fortsätta</li>
+                    <li><code>context_keys</code> — vilken profilvariant som ska returneras, till exempel <em>kommun</em> eller <em>skola</em></li>
+                    <li><code>include_prompt_text</code> — om full prompttext ska följa med</li>
+                    <li><code>template_id</code> och <code>package_slug</code> — vilken katalogpost du valt</li>
+                </ul>
+                <p><strong>Inget annat från din konversation når servern.</strong> Anslutningen har ingen parameter som bär din dokumenttext, ditt ärendematerial eller din chatthistorik, och den har inga skrivverktyg — den kan inte spara något åt dig.</p>
+                <p><strong>Håll det så:</strong> <code>query</code> är det enda fält som skulle kunna bära text du själv skrivit. Skicka bara generella, anonymiserade sökord som beskriver vilken sorts uppgift det gäller. Klistra inte in personuppgifter, elevuppgifter, patientuppgifter eller sekretessbelagt material i en sökning. Verktygsbeskrivningen säger samma sak till AI-klienten.</p>
+
+                <h2>4. Vad anslutningen returnerar</h2>
+                <p>Enbart publikt katalogmaterial. Listning och sökning ger sammanfattningar — titel, syfte, taggar, område och risknivå. <code>get_template</code> ger den valda mallen i sin helhet, med prompttext, de fält som ska fyllas i och deras standardvärden. <code>get_package</code> och <code>list_package_prompts</code> ger ett pakets introduktion och dess steg.</p>
+                <p>Servern sätter aldrig ihop en färdig prompt åt dig. Den returnerar rå katalogtext; din AI-klient fyller i fälten och renderar resultatet lokalt.</p>
+
+                <h2>5. Vad som sparas, och hur länge</h2>
+
+                <h3>5.1 Anonym användningsstatistik</h3>
+                <p>När ett verktyg listar, söker, hämtar eller öppnar en prompt eller ett paket registrerar vi en aggregerad händelse.</p>
+                <p><strong>Sparas per händelse:</strong> tidpunkt, källa (<code>open_mcp</code>), händelsetyp, utfall (lyckad, tom, hittades ej, fel), promptens eller paketets slug, valda kontextnycklar, område, risknivå, antal träffar, katalogversion, verktygsnamn, pakettyp samt <strong>längden</strong> på en sökfråga — ett tal, aldrig texten.</p>
+                <p><strong>Sparas aldrig:</strong> dina söktermer, prompttext eller annat innehåll; IP-adresser; e-postadresser; user-agent; API-nycklar; eller något annat som kan knytas till dig. Statistiktabellen saknar helt kolumner för sådana uppgifter, och händelsetyp, utfall och källa är i databasen begränsade till fasta listor av tillåtna värden.</p>
+                <p><strong>Ändamål:</strong> se vilka delar av biblioteket som används, hitta trasiga eller saknade prompts och prioritera innehåll. <strong>Rättslig grund:</strong> berättigat intresse (art. 6.1 f GDPR) — uppgifterna är avsiktligt icke-identifierande. <strong>Lagringstid:</strong> högst <strong>180 dagar</strong>, därefter automatisk radering genom ett schemalagt jobb som körs dagligen.</p>
+
+                <h3>5.2 Tekniska driftloggar</h3>
+                <p>MCP-servern skriver applikationsloggar med verktygets namn och svarsstatus — <strong>aldrig verktygens indata eller ditt innehåll</strong>.</p>
+                <p>Webbserverns åtkomstlogg konfigureras så att <strong>klientens IP-adress, portnummer, cookies, <code>Authorization</code>-huvud och API-nyckelhuvud tas bort innan raden skrivs</strong>. Kvar blir tidpunkt, sökväg, metod, HTTP-status, svarets storlek och svarstid, samt <code>User-Agent</code> — alltså vilken klienttyp anropet kom från, till exempel <code>openai-mcp</code>. Vi behåller den för att kunna se vilka klienter som använder tjänsten. Loggen innehåller också de spårningshuvuden din klient själv väljer att skicka och ett sessions-id som klienten genererar per anslutning. Ingen av dessa uppgifter kopplas till en person, och de kombineras inte med annat för att identifiera dig.</p>
+                <p><strong>Ändamål:</strong> drift, felsökning och skydd mot missbruk. <strong>Rättslig grund:</strong> berättigat intresse (art. 6.1 f). <strong>Lagringstid:</strong> loggarna roteras och raderas automatiskt efter högst <strong>30 dagar</strong>.</p>
+
+                <h2>6. Vilka som tar emot uppgifter</h2>
+                <p>Vi säljer aldrig uppgifter och delar dem inte för marknadsföring. För anslutningen är mottagarna:</p>
+                <ul>
+                    <li><strong>Supabase</strong> — databasen med den publika katalogen och användningsstatistiken. Data lagras i EU-region. Personuppgiftsbiträde.</li>
+                    <li><strong>VPS-leverantör med servrar i Sverige (EU/EES)</strong> — driftsmiljön för MCP-servern på <code>mcp.promptbanken.se</code>. Personuppgiftsbiträde.</li>
+                </ul>
+                <p><strong>Din AI-klient är en egen personuppgiftsansvarig.</strong> Om du når Promptbanken genom ChatGPT, Claude eller en annan klient behandlas din konversation av den leverantören enligt deras egen integritetspolicy, och det är deras villkor som gäller för den — inte våra. Vi varken styr eller ser vad du skriver till klienten. Vi tar bara emot de verktygsparametrar som listas i avsnitt 3.</p>
+                <p>I övrigt lämnar vi ut uppgifter endast om lag kräver det.</p>
+                <p>Inget som skickas till anslutningen används för att träna AI-modeller.</p>
+
+                <h2>7. Säkerhet</h2>
+                <p>Trafiken är krypterad under överföring (TLS) och data lagras krypterat i vila. Anslutningen är strikt skrivskyddad: den publicerar inga skrivverktyg, och anrop till verktyg som inte är publika avvisas. Åtkomst till kataloginnehåll och statistik skyddas med Row Level Security i databasen och är begränsad till plattformsägaren.</p>
+
+                <h2>8. Dina rättigheter och kontroller</h2>
+                <ul>
+                    <li><strong>Sluta helt</strong> — ta bort anslutningen i din AI-klients inställningar. Inga uppgifter behövs för att lämna tjänsten, och inget blir kvar som är knutet till dig.</li>
+                    <li><strong>Inget att välja bort</strong> — det finns inga cookies och ingen individuell spårning. Statistiken i 5.1 är icke-identifierande och kan därför inte kopplas till dig i efterhand.</li>
+                    <li><strong>Tillgång, rättelse, radering, dataportabilitet och invändning</strong> — rättigheterna i art. 15–21 GDPR gäller för personuppgifter. Eftersom anslutningen inte sparar några som identifierar dig finns det normalt ingenting att lämna ut eller radera. Tror du att vi har uppgifter om dig, hör av dig så utreder vi.</li>
+                </ul>
+                <p>Kontakta <a href="mailto:info@promptbanken.se">info@promptbanken.se</a>. Vi svarar inom 30 dagar. Du har också rätt att klaga hos <a href="https://www.imy.se">Integritetsskyddsmyndigheten (IMY)</a>.</p>
+
+                <h2>9. Barn</h2>
+                <p>Tjänsten riktar sig till yrkespersoner och organisationer och marknadsförs inte till barn under 13 år.</p>
+
+                <h2>10. Ändringar</h2>
+                <p>Datum och version överst uppdateras vid ändringar. Ändras anslutningens verktyg, indata eller utdata uppdateras den här policyn i samma release.</p>
+
+                <h2>11. Kontakt</h2>
+                <p>Integritetsfrågor: <a href="mailto:info@promptbanken.se">info@promptbanken.se</a></p>
+            </article>
+        </div>
+    </div>
+</body>
+</html>

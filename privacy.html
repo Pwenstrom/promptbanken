@@ -30,7 +30,8 @@
             </nav>
 
             <div class="sidebar-footer">
-                <a href="privacy.html">Integritetspolicy</a>
+                <a href="privacy.html">Integritetspolicy — webb</a>
+                <a href="privacy-mcp.html">Integritetspolicy — MCP</a>
                 <a href="terms.html">Användarvillkor</a>
             </div>
         </aside>
@@ -41,46 +42,41 @@
             </header>
 
             <article class="help-content">
-                <p class="workspace-kicker">Senast uppdaterad: 2026-08-23 · Version 2.1 · <a href="privacy-en.html">Read this policy in English</a></p>
+                <p class="workspace-kicker">Senast uppdaterad: 2026-08-23 · Version 3.0 · <a href="privacy-en.html">Read this policy in English</a></p>
                 <h1>Integritetspolicy</h1>
-                <p>Promptbanken är en öppen tjänst med färdiga AI-promptmallar för yrkespersoner och organisationer. Du behöver <strong>inget konto</strong> för att bläddra bland, öppna eller kopiera prompts. Den här policyn beskriver <strong>vilka uppgifter som behandlas, för vilka ändamål, med vilken rättslig grund, vilka som tar emot dem, hur länge de sparas och vilka kontroller du har</strong> — både i webbtjänsten och i den öppna MCP-anslutningen (connectorn) som kan användas från AI-klienter som ChatGPT och Claude.</p>
+                <p>Promptbanken är en öppen tjänst med färdiga AI-promptmallar för yrkespersoner och organisationer. Du behöver <strong>inget konto</strong> för att bläddra bland, öppna eller kopiera prompts. Den här policyn beskriver <strong>vilka uppgifter som behandlas, för vilka ändamål, med vilken rättslig grund, vilka som tar emot dem, hur länge de sparas och vilka kontroller du har</strong> i webbtjänsten.</p>
+                <p><strong>Använder du Promptbanken från ChatGPT, Claude eller en annan AI-klient?</strong> Den öppna MCP-anslutningen har en <a href="privacy-mcp.html">egen policy</a>. Den anslutningen har varken konto eller inloggning, så inget i avsnitt 2.3 nedan gäller för den.</p>
 
                 <h2>1. Personuppgiftsansvarig</h2>
                 <p>Gustav Peter Wenström, enskild näringsidkare, Sverige. Kontakt: <a href="mailto:info@promptbanken.se">info@promptbanken.se</a>.</p>
-                <p>Denna policy gäller <code>app.promptbanken.se</code>, <code>promptbanken.se</code> och MCP-anslutningen på <code>mcp.promptbanken.se</code>. Den separata produkten <a href="https://valvet.promptbanken.se">Valvet</a> (personliga konton för egna prompts) har en egen policy på sin egen domän.</p>
+                <p>Denna policy gäller webbtjänsten på <code>app.promptbanken.se</code> och <code>promptbanken.se</code>. MCP-anslutningen på <code>mcp.promptbanken.se</code> täcks av den <a href="privacy-mcp.html">separata policyn för den öppna anslutningen</a>.</p>
 
                 <h2>2. Vad vi behandlar, varför och hur länge</h2>
 
                 <h3>2.1 Öppen katalog i webbläsaren</h3>
                 <p>Att bläddra i katalogen kräver inget konto. Vi sätter <strong>inga cookies</strong>, kör ingen reklam och använder inga tredjepartsspårare. Text du skriver eller klistrar in i snabbinmatningsfältet stannar i din webbläsare och <strong>skickas aldrig till oss</strong>.</p>
 
-                <h3>2.2 Anonym användningsstatistik (webb och öppen MCP)</h3>
-                <p>Vi registrerar aggregerade händelser när en prompt visas, öppnas, kopieras eller delas, och när MCP-verktyg listar, söker, hämtar eller öppnar prompts och paket.</p>
-                <p><strong>Uppgifter som sparas per händelse:</strong> tidpunkt, källa (<code>web</code> eller <code>open_mcp</code>), händelsetyp, utfall (t.ex. lyckad/tom/hittades ej), promptens eller paketets slug, valda kontextnycklar (t.ex. <em>kommun</em>, <em>skola</em>), område, risknivå, antal träffar, katalogversion, verktygsnamn, pakettyp, vilket filterval som gjorts (till exempel område eller risknivå), var i gränssnittet en kopiering skedde, samt <strong>längden</strong> på en sökfråga (ett tal, aldrig texten).</p>
-                <p><strong>Uppgifter som aldrig sparas i statistiken:</strong> prompttext eller annat innehåll du skrivit, råa söktermer, IP-adresser, e-postadresser, user-agent, kontonycklar eller andra uppgifter som kan knytas till dig. Statistiktabellen saknar helt kolumner för sådana uppgifter, och händelsetyp, utfall och källa är i databasen begränsade till fasta listor av tillåtna värden. (User-agent förekommer däremot i den tekniska driftloggen — se 2.4.)</p>
+                <h3>2.2 Anonym användningsstatistik (webbtjänsten)</h3>
+                <p>Vi registrerar aggregerade händelser när en prompt visas, öppnas, kopieras eller delas i webbtjänsten. Motsvarande statistik för den öppna MCP-anslutningen beskrivs i <a href="privacy-mcp.html">dess egen policy</a>.</p>
+                <p><strong>Uppgifter som sparas per händelse:</strong> tidpunkt, källa (<code>web</code>), händelsetyp, utfall (t.ex. lyckad/tom/hittades ej), promptens eller paketets slug, valda kontextnycklar (t.ex. <em>kommun</em>, <em>skola</em>), område, risknivå, antal träffar, katalogversion, verktygsnamn, pakettyp, vilket filterval som gjorts (till exempel område eller risknivå), var i gränssnittet en kopiering skedde, samt <strong>längden</strong> på en sökfråga (ett tal, aldrig texten).</p>
+                <p><strong>Uppgifter som aldrig sparas i statistiken:</strong> prompttext eller annat innehåll du skrivit, råa söktermer, IP-adresser, e-postadresser, user-agent, kontonycklar eller andra uppgifter som kan knytas till dig. Statistiktabellen saknar helt kolumner för sådana uppgifter, och händelsetyp, utfall och källa är i databasen begränsade till fasta listor av tillåtna värden. </p>
                 <p><strong>Ändamål:</strong> se vilka delar av biblioteket som används, hitta trasiga eller saknade prompts och prioritera innehåll. <strong>Rättslig grund:</strong> berättigat intresse (art. 6.1 f GDPR) — uppgifterna är avsiktligt icke-identifierande. <strong>Lagringstid:</strong> högst <strong>180 dagar</strong>, därefter automatisk radering genom ett schemalagt jobb som körs dagligen.</p>
 
                 <h3>2.3 MCP-anslutningen (ChatGPT, Claude och andra AI-klienter)</h3>
-                <p>Den publicerade anslutningen på <code>https://mcp.promptbanken.se/mcp</code> är <strong>öppen, skrivskyddad och kräver ingen inloggning</strong>. Den exponerar nio verktyg: <code>health_check</code>, <code>get_client_routing_instructions</code>, <code>list_templates</code>, <code>search_templates</code>, <code>get_template</code>, <code>list_packages</code>, <code>get_package</code>, <code>list_package_prompts</code> och <code>recommend_packages</code>.</p>
-                <p><strong>Vad som skickas in till oss:</strong> endast de parametrar verktygen definierar — en söksträng (<code>query</code>), ett rollord (<code>role</code>), område, risknivå, träffgräns och sidposition för bläddring (<code>limit</code>, <code>offset</code>), kontextnycklar, val av om full prompttext ska följa med (<code>include_prompt_text</code>), samt id/slug för mall eller paket. Inget annat från din konversation når servern.</p>
-                <p><strong>Vad som kommer tillbaka:</strong> publikt katalogmaterial. Listande verktyg ger sammanfattningar — titel, syfte, taggar, område och risknivå — medan <code>get_template</code> ger den valda mallen i sin helhet med prompttext, parameterschema och standardvärden. Servern sätter aldrig ihop en färdig prompt åt dig; din klient fyller i och renderar texten lokalt.</p>
-                <p><strong>Vad servern gör med inskickade parametrar:</strong> de används för att söka fram och returnera katalogposter i realtid. Söksträngen och rollordet <strong>sparas inte</strong> — bara sökfrågans längd hamnar i statistiken enligt 2.2.</p>
-                <p><strong>Viktigt att veta:</strong> anslutningen är avsedd för publikt kataloginnehåll. Klistra inte in personuppgifter, elevuppgifter, patientuppgifter eller annat känsligt material i en sökfråga. Anslutningen har inga skrivverktyg och kan inte spara något åt dig.</p>
-                <p><strong>Ingen inloggning, inget konto, inga cookies.</strong> Anslutningen har ingen inloggningsfunktion. Vi vet inte vem du är, skapar inget konto åt dig och kan inte koppla ett anrop till en person. Avsnitt 2.5 om organisationskonton — e-post, namn och inloggningshändelser — gäller därför <strong>inte</strong> den här anslutningen, utan bara webbtjänsten. Samma värdnamn har separata, autentiserade ytor (<code>/mcp/key</code> för egen MCP-nyckel och <code>/admin</code> för administration) som inte ingår i den publicerade connectorn och som avvisar anrop utan giltig nyckel.</p>
-                <p><strong>Rättslig grund:</strong> berättigat intresse (art. 6.1 f) för att tillhandahålla en öppen katalogtjänst.</p>
+                <p>Den öppna MCP-anslutningen på <code>https://mcp.promptbanken.se/mcp</code> har <strong>ingen inloggning och inget konto</strong>, och beskrivs i sin helhet i en <a href="privacy-mcp.html">egen policy</a> — vad den tar emot, vad den returnerar, vad som sparas och hur länge.</p>
 
-                <h3>2.4 Tekniska driftloggar</h3>
-                <p>MCP-servern skriver applikationsloggar med verktygets namn och svarsstatus — <strong>aldrig verktygens indata eller ditt innehåll</strong>. Webbserverns åtkomstlogg konfigureras så att <strong>klientens IP-adress, portnummer, cookies, <code>Authorization</code>-huvud och API-nyckelhuvud tas bort innan raden skrivs</strong>.</p>
-                <p>Kvar i åtkomstloggen blir tidpunkt, sökväg, metod, HTTP-status, svarets storlek och svarstid, samt <strong><code>User-Agent</code></strong> — alltså vilken klienttyp anropet kom från, till exempel <code>openai-mcp</code>. Vi behåller den för att kunna se vilka klienter som använder tjänsten. Loggen innehåller också de spårningshuvuden din klient själv väljer att skicka (till exempel <code>Traceparent</code>) och ett sessions-id som klienten genererar per anslutning. Ingen av dessa uppgifter kopplas till en person, och de kombineras inte med annan information för att identifiera dig.</p>
-                <p><strong>Ändamål:</strong> drift, felsökning och skydd mot missbruk. <strong>Rättslig grund:</strong> berättigat intresse (art. 6.1 f). <strong>Lagringstid:</strong> loggarna roteras och raderas automatiskt efter <strong>högst 30 dagar</strong>.</p>
+                <h3>2.4 Tekniska driftloggar (webbtjänsten)</h3>
+                <p>Webbtjänsten är en statisk sajt som ligger hos GitHub Pages. Vi driver ingen egen webbserver för den och för inga egna åtkomstloggar över ditt besök. GitHub behandlar anslutningsdata som IP-adress i sin egen infrastruktur för att leverera sidorna — det ligger utanför vår kontroll och beskrivs i avsnitt 3.</p>
+                <p>Driftloggarna för MCP-anslutningen, som vi själva driver, beskrivs i <a href="privacy-mcp.html">policyn för den öppna anslutningen</a>.</p>
 
                 <h3>2.5 Organisationskonton (Arbetsyta, Förvaltning, Kommun)</h3>
-                <p>Konton skapas av administratör, inte genom självregistrering. Då behandlas:</p>
+                <p>Konton hör till en organisation och skapas i samverkan med oss — det finns inget formulär för att registrera sig själv med e-post och lösenord. Loggar du in med Google skapas dock ett konto automatiskt första gången, om det inte redan finns ett. Följande behandlas:</p>
                 <ul>
                     <li><strong>E-postadress</strong> — inloggning och nödvändig kontakt om tjänsten</li>
                     <li><strong>Namn</strong> — enligt vad organisationen registrerat</li>
                     <li><strong>Prompts du skapar</strong> — sparas i organisationens arbetsyta</li>
                     <li><strong>Inloggningstidpunkt och sessionsdata</strong> — säkerhet och sessionshantering</li>
+                    <li><strong>Inloggningsmetod</strong> — e-post med lösenord eller Google-inloggning</li>
                 </ul>
                 <p><strong>Rättslig grund:</strong> avtal med din organisation (art. 6.1 b), och berättigat intresse för säkerhetsloggning. <strong>Lagringstid:</strong> så länge kontot är aktivt. Vid uppsagt avtal eller begäran om radering tas konto och tillhörande innehåll bort inom <strong>90 dagar</strong>. Säkerhetsrelaterade inloggningshändelser sparas i högst <strong>12 månader</strong>.</p>
                 <p>Inga uppgifter i tjänsten används för att träna AI-modeller.</p>
