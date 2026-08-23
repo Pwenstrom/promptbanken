@@ -1,0 +1,895 @@
+{
+  "id": "asdk_app_v_6a7623df473c8191a2633bd5c8407021",
+  "status": "REJECTED",
+  "assert_compliance": true,
+  "brand_color": null,
+  "brand_color_dark": null,
+  "branding": {
+    "contact_email": null,
+    "customer_support": "https://app.promptbanken.se/support.html",
+    "physical_address": null,
+    "privacy_policy": "https://app.promptbanken.se/privacy.html",
+    "terms_of_service": "https://app.promptbanken.se/terms.html",
+    "website": "https://app.promptbanken.se"
+  },
+  "callback_id": "[redacted]",
+  "categories": null,
+  "commerce_agreement": null,
+  "commerce_agreement_explanation": null,
+  "commerce_enabled": false,
+  "complies_with_all_laws_and_regulations": true,
+  "composer_icon": {
+    "file_id": "file_0000000092288246b254bff70df5cdf0",
+    "url": "[redacted signed URL for file_0000000092288246b254bff70df5cdf0]"
+  },
+  "composer_icon_dark": {
+    "file_id": "file_0000000092288246b254bff70df5cdf0",
+    "url": "[redacted signed URL for file_0000000092288246b254bff70df5cdf0]"
+  },
+  "country_filtering": null,
+  "demo_recording_url": "https://app.promptbanken.se/openaimcpssubmission.mp4",
+  "description": "Promptbanken is an open, curated library of ready-to-use prompt templates, with a strong focus on Swedish municipalities, schools, public-sector organizations, and professionals. Browse templates, inspect individual prompts, and discover relevant prompt packages directly through ChatGPT.\n\nThe published connector provides read-only access to Promptbanken’s open catalog. No personal or confidential user data is sent to or stored by the Promptbanken server.",
+  "developer_identity_name": "GUSTAV PETER WENSTRÖM",
+  "developer_name": "Peter Wenström",
+  "display_name": "Promptbanken",
+  "entity_type": "individual",
+  "frame_domain_enabled": false,
+  "frame_domain_explanation": null,
+  "has_rights_to_3p_content": true,
+  "icons": {
+    "original": {
+      "file_id": "file_00000000f5c4820cbfbda6a53bb33c3e",
+      "url": "[redacted signed URL for file_00000000f5c4820cbfbda6a53bb33c3e]"
+    },
+    "256_square": {
+      "file_id": "file_00000000ce4c82438a490393245f99d6",
+      "url": "[redacted signed URL for file_00000000ce4c82438a490393245f99d6]"
+    },
+    "256_circle": {
+      "file_id": "file_000000006cbc8246b308d5d3ca25582d",
+      "url": "[redacted signed URL for file_000000006cbc8246b308d5d3ca25582d]"
+    }
+  },
+  "icons_dark": {
+    "original": {
+      "file_id": "file_00000000f5c4820cbfbda6a53bb33c3e",
+      "url": "[redacted signed URL for file_00000000f5c4820cbfbda6a53bb33c3e]"
+    },
+    "256_square": {
+      "file_id": "file_00000000ce4c82438a490393245f99d6",
+      "url": "[redacted signed URL for file_00000000ce4c82438a490393245f99d6]"
+    },
+    "256_circle": {
+      "file_id": "file_000000006cbc8246b308d5d3ca25582d",
+      "url": "[redacted signed URL for file_000000006cbc8246b308d5d3ca25582d]"
+    }
+  },
+  "initialized": false,
+  "intended_audience": "all_ages",
+  "is_health_related": null,
+  "logo_url": null,
+  "logo_url_dark": null,
+  "mcp": {
+    "type": "metadata_populated",
+    "mcp_url": "https://mcp.promptbanken.se/mcp",
+    "requires_mtls": false,
+    "supported_auth": [
+      {
+        "type": "NONE"
+      }
+    ],
+    "policy_info": {
+      "safety_status": "SCANNED_OK"
+    },
+    "resources": [
+      {
+        "name": "Kontrollera tjänstens status",
+        "description": "Return lightweight service status without loading prompt text.",
+        "action_name": "health_check",
+        "input_json_schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "capability_labels": [
+          "read_only"
+        ],
+        "provided_tool_annotations": {
+          "title": "Kontrollera tjänstens status",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "tool_invoking_message": "",
+        "tool_invoked_message": "",
+        "metadata": {},
+        "visibility": "public"
+      },
+      {
+        "name": "Hämta routing- och integritetsregler",
+        "description": "Return instructions for client-side skill routing without sending user text to the MCP server.",
+        "action_name": "get_client_routing_instructions",
+        "input_json_schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "capability_labels": [
+          "read_only"
+        ],
+        "provided_tool_annotations": {
+          "title": "Hämta routing- och integritetsregler",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "tool_invoking_message": "",
+        "tool_invoked_message": "",
+        "metadata": {},
+        "visibility": "public"
+      },
+      {
+        "name": "Lista publicerade promptmallar",
+        "description": "List the full Promptbanken template catalog. The catalog is open -- no plan or key required; full prompt text is always included. Pass context_keys to combine profile variants. The server never renders a finished prompt -- each template carries raw prompt_text plus parameter_schema, default_bindings and binding_overrides; the client fills these in and renders the final text itself.",
+        "action_name": "list_templates",
+        "input_json_schema": {
+          "type": "object",
+          "properties": {
+            "context_keys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "capability_labels": [
+          "read_only"
+        ],
+        "provided_tool_annotations": {
+          "title": "Lista publicerade promptmallar",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "tool_invoking_message": "",
+        "tool_invoked_message": "",
+        "metadata": {},
+        "visibility": "public"
+      },
+      {
+        "name": "Sök publicerade promptmallar",
+        "description": "Search the open Promptbanken template catalog without fetching every full prompt. Filter by free-text query (matched against title, syfte, tags, output format), area and/or risk_level. role ranks results toward relevant job functions -- it does not exclude templates from other areas. context_keys can combine profile variants. Returns lightweight summaries -- no prompt_text -- so use get_template(id) on a chosen result to fetch the full prompt.",
+        "action_name": "search_templates",
+        "input_json_schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string",
+              "description": "Ranks results toward relevant job functions. Does not exclude templates from other areas."
+            },
+            "area": {
+              "type": "string",
+              "enum": [
+                "kommunikation",
+                "forandringsledning",
+                "processer",
+                "beslutsberedning",
+                "visuellt",
+                "ledarskap",
+                "arbetsbank"
+              ]
+            },
+            "risk_level": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "limit": {
+              "type": "integer",
+              "default": 10
+            },
+            "context_keys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "capability_labels": [
+          "read_only"
+        ],
+        "provided_tool_annotations": {
+          "title": "Sök publicerade promptmallar",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "tool_invoking_message": "",
+        "tool_invoked_message": "",
+        "metadata": {},
+        "visibility": "public"
+      },
+      {
+        "name": "Hämta en publicerad promptmall",
+        "description": "Fetch one full template, including prompt_text, by its id (as returned by search_templates or list_templates). context_keys can combine profile variants and only select which stored variant is returned -- the server never assembles a finished prompt. The payload carries prompt_text, parameter_schema, default_bindings and binding_overrides; the client does all filling-in and rendering locally.",
+        "action_name": "get_template",
+        "input_json_schema": {
+          "type": "object",
+          "properties": {
+            "template_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "context_keys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "template_id"
+          ],
+          "additionalProperties": false
+        },
+        "capability_labels": [
+          "read_only"
+        ],
+        "provided_tool_annotations": {
+          "title": "Hämta en publicerad promptmall",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "tool_invoking_message": "",
+        "tool_invoked_message": "",
+        "metadata": {},
+        "visibility": "public"
+      },
+      {
+        "name": "Lista publicerade promptpaket",
+        "description": "List published Promptbanken packages/workflows. context_keys can combine profile variants; package_type filters when supplied. Each package carries raw intro_text plus parameter_schema, default_bindings and binding_overrides for the client to render itself.",
+        "action_name": "list_packages",
+        "input_json_schema": {
+          "type": "object",
+          "properties": {
+            "context_keys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "package_type": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "capability_labels": [
+          "read_only"
+        ],
+        "provided_tool_annotations": {
+          "title": "Lista publicerade promptpaket",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "tool_invoking_message": "",
+        "tool_invoked_message": "",
+        "metadata": {},
+        "visibility": "public"
+      },
+      {
+        "name": "Hämta ett publicerat promptpaket",
+        "description": "Fetch one published package by slug, including the best matching profile variant for the supplied context_keys (variant selection only -- no server-side rendering). The payload carries raw intro_text, parameter_schema, default_bindings and binding_overrides; the client fills these in and renders the final text itself.",
+        "action_name": "get_package",
+        "input_json_schema": {
+          "type": "object",
+          "properties": {
+            "package_slug": {
+              "type": "string"
+            },
+            "context_keys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "package_slug"
+          ],
+          "additionalProperties": false
+        },
+        "capability_labels": [
+          "read_only"
+        ],
+        "provided_tool_annotations": {
+          "title": "Hämta ett publicerat promptpaket",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "tool_invoking_message": "",
+        "tool_invoked_message": "",
+        "metadata": {},
+        "visibility": "public"
+      },
+      {
+        "name": "Lista mallar i ett promptpaket",
+        "description": "List the prompts inside one published package, in sort order, using the best matching profile variant for the supplied context_keys (variant selection only -- no server-side rendering). Each prompt carries raw prompt_text, parameter_schema, default_bindings and binding_overrides; the client fills these in and renders the final text itself.",
+        "action_name": "list_package_prompts",
+        "input_json_schema": {
+          "type": "object",
+          "properties": {
+            "package_slug": {
+              "type": "string"
+            },
+            "context_keys": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "package_slug"
+          ],
+          "additionalProperties": false
+        },
+        "capability_labels": [
+          "read_only"
+        ],
+        "provided_tool_annotations": {
+          "title": "Lista mallar i ett promptpaket",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "tool_invoking_message": "",
+        "tool_invoked_message": "",
+        "metadata": {},
+        "visibility": "public"
+      },
+      {
+        "name": "Rekommendera promptpaket för en roll",
+        "description": "Recommend prompt packages (areas) suited to a job role. Pass a short role term (e.g. 'chef', 'kommunikator') -- if the calling client doesn't know the user's role, it should ask the user first. If the role isn't recognized, all packages are returned with role_recognized=false rather than an empty result.",
+        "action_name": "recommend_packages",
+        "input_json_schema": {
+          "type": "object",
+          "properties": {
+            "role": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "role"
+          ],
+          "additionalProperties": false
+        },
+        "capability_labels": [
+          "read_only"
+        ],
+        "provided_tool_annotations": {
+          "title": "Rekommendera promptpaket för en roll",
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "tool_invoking_message": "",
+        "tool_invoked_message": "",
+        "metadata": {},
+        "visibility": "public"
+      }
+    ]
+  },
+  "mcp_url": "https://mcp.promptbanken.se/mcp",
+  "negative_test_cases": [
+    {
+      "description": "Do not trigger the public catalog for a personal calendar request.",
+      "expected_output": "The app should not be invoked because personal calendar management is outside the public catalog workflow.",
+      "expected_output_url": null,
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "user_prompt": "What meetings do I have tomorrow?"
+    },
+    {
+      "description": "Do not trigger the public catalog to save private content.",
+      "expected_output": "The app should not be invoked because private Valvet write tools are not published in the open connector.",
+      "expected_output_url": null,
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "user_prompt": "Save this prompt in my private vault."
+    },
+    {
+      "description": "Do not send sensitive documents to the public catalog.",
+      "expected_output": "The app should not be invoked because the public connector is metadata-only and must not receive personal or confidential source material.",
+      "expected_output_url": null,
+      "file_attachment_urls": null,
+      "tools_triggered": null,
+      "user_prompt": "Upload this student record and create a prompt from it."
+    }
+  ],
+  "no_money_transfers_crypto_or_investment_trades": true,
+  "no_serving_or_displaying_advertisements": true,
+  "not_marketed_to_children_under_13": true,
+  "oauth_client": null,
+  "plugin_category": "productivity",
+  "policy_info": {
+    "safety_status": "SCANNED_OK"
+  },
+  "read_policy_guidelines": true,
+  "release_notes": "1.2.1 — Initial release\n\nPromptbanken is an open, curated library of ready-to-use prompt templates for\nmunicipalities, schools, companies, associations, and individuals. This\nconnector exposes nine public, read-only tools against the open catalog:\n\n- health_check, get_client_routing_instructions — server status and client guidance\n- list_templates, search_templates, get_template — browse, search, and retrieve full prompt templates\n- list_packages, get_package, list_package_prompts — browse curated prompt packages and their contents\n- recommend_packages — role-based package recommendations\n\nNo authentication is required. No personal or confidential data is sent to\nor stored by the server -- the connector is metadata-only against a public,\nread-only catalog",
+  "resources": [
+    {
+      "name": "Kontrollera tjänstens status",
+      "title": null,
+      "description": "Return lightweight service status without loading prompt text.",
+      "action_name": "health_check",
+      "input_json_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "output_json_schema": null,
+      "capability_labels": [
+        "read_only"
+      ],
+      "provided_tool_annotations": {
+        "title": "Kontrollera tjänstens status",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "templates": null,
+      "supported_auth_override": null,
+      "tool_invoking_message": "",
+      "tool_invoked_message": "",
+      "metadata": {},
+      "description_model": null,
+      "visibility": "public"
+    },
+    {
+      "name": "Hämta routing- och integritetsregler",
+      "title": null,
+      "description": "Return instructions for client-side skill routing without sending user text to the MCP server.",
+      "action_name": "get_client_routing_instructions",
+      "input_json_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "output_json_schema": null,
+      "capability_labels": [
+        "read_only"
+      ],
+      "provided_tool_annotations": {
+        "title": "Hämta routing- och integritetsregler",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "templates": null,
+      "supported_auth_override": null,
+      "tool_invoking_message": "",
+      "tool_invoked_message": "",
+      "metadata": {},
+      "description_model": null,
+      "visibility": "public"
+    },
+    {
+      "name": "Lista publicerade promptmallar",
+      "title": null,
+      "description": "List the full Promptbanken template catalog. The catalog is open -- no plan or key required; full prompt text is always included. Pass context_keys to combine profile variants. The server never renders a finished prompt -- each template carries raw prompt_text plus parameter_schema, default_bindings and binding_overrides; the client fills these in and renders the final text itself.",
+      "action_name": "list_templates",
+      "input_json_schema": {
+        "type": "object",
+        "properties": {
+          "context_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "output_json_schema": null,
+      "capability_labels": [
+        "read_only"
+      ],
+      "provided_tool_annotations": {
+        "title": "Lista publicerade promptmallar",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "templates": null,
+      "supported_auth_override": null,
+      "tool_invoking_message": "",
+      "tool_invoked_message": "",
+      "metadata": {},
+      "description_model": null,
+      "visibility": "public"
+    },
+    {
+      "name": "Sök publicerade promptmallar",
+      "title": null,
+      "description": "Search the open Promptbanken template catalog without fetching every full prompt. Filter by free-text query (matched against title, syfte, tags, output format), area and/or risk_level. role ranks results toward relevant job functions -- it does not exclude templates from other areas. context_keys can combine profile variants. Returns lightweight summaries -- no prompt_text -- so use get_template(id) on a chosen result to fetch the full prompt.",
+      "action_name": "search_templates",
+      "input_json_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "description": "Ranks results toward relevant job functions. Does not exclude templates from other areas."
+          },
+          "area": {
+            "type": "string",
+            "enum": [
+              "kommunikation",
+              "forandringsledning",
+              "processer",
+              "beslutsberedning",
+              "visuellt",
+              "ledarskap",
+              "arbetsbank"
+            ]
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "limit": {
+            "type": "integer",
+            "default": 10
+          },
+          "context_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "output_json_schema": null,
+      "capability_labels": [
+        "read_only"
+      ],
+      "provided_tool_annotations": {
+        "title": "Sök publicerade promptmallar",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "templates": null,
+      "supported_auth_override": null,
+      "tool_invoking_message": "",
+      "tool_invoked_message": "",
+      "metadata": {},
+      "description_model": null,
+      "visibility": "public"
+    },
+    {
+      "name": "Hämta en publicerad promptmall",
+      "title": null,
+      "description": "Fetch one full template, including prompt_text, by its id (as returned by search_templates or list_templates). context_keys can combine profile variants and only select which stored variant is returned -- the server never assembles a finished prompt. The payload carries prompt_text, parameter_schema, default_bindings and binding_overrides; the client does all filling-in and rendering locally.",
+      "action_name": "get_template",
+      "input_json_schema": {
+        "type": "object",
+        "properties": {
+          "template_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "context_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "template_id"
+        ],
+        "additionalProperties": false
+      },
+      "output_json_schema": null,
+      "capability_labels": [
+        "read_only"
+      ],
+      "provided_tool_annotations": {
+        "title": "Hämta en publicerad promptmall",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "templates": null,
+      "supported_auth_override": null,
+      "tool_invoking_message": "",
+      "tool_invoked_message": "",
+      "metadata": {},
+      "description_model": null,
+      "visibility": "public"
+    },
+    {
+      "name": "Lista publicerade promptpaket",
+      "title": null,
+      "description": "List published Promptbanken packages/workflows. context_keys can combine profile variants; package_type filters when supplied. Each package carries raw intro_text plus parameter_schema, default_bindings and binding_overrides for the client to render itself.",
+      "action_name": "list_packages",
+      "input_json_schema": {
+        "type": "object",
+        "properties": {
+          "context_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "package_type": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "output_json_schema": null,
+      "capability_labels": [
+        "read_only"
+      ],
+      "provided_tool_annotations": {
+        "title": "Lista publicerade promptpaket",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "templates": null,
+      "supported_auth_override": null,
+      "tool_invoking_message": "",
+      "tool_invoked_message": "",
+      "metadata": {},
+      "description_model": null,
+      "visibility": "public"
+    },
+    {
+      "name": "Hämta ett publicerat promptpaket",
+      "title": null,
+      "description": "Fetch one published package by slug, including the best matching profile variant for the supplied context_keys (variant selection only -- no server-side rendering). The payload carries raw intro_text, parameter_schema, default_bindings and binding_overrides; the client fills these in and renders the final text itself.",
+      "action_name": "get_package",
+      "input_json_schema": {
+        "type": "object",
+        "properties": {
+          "package_slug": {
+            "type": "string"
+          },
+          "context_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "package_slug"
+        ],
+        "additionalProperties": false
+      },
+      "output_json_schema": null,
+      "capability_labels": [
+        "read_only"
+      ],
+      "provided_tool_annotations": {
+        "title": "Hämta ett publicerat promptpaket",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "templates": null,
+      "supported_auth_override": null,
+      "tool_invoking_message": "",
+      "tool_invoked_message": "",
+      "metadata": {},
+      "description_model": null,
+      "visibility": "public"
+    },
+    {
+      "name": "Lista mallar i ett promptpaket",
+      "title": null,
+      "description": "List the prompts inside one published package, in sort order, using the best matching profile variant for the supplied context_keys (variant selection only -- no server-side rendering). Each prompt carries raw prompt_text, parameter_schema, default_bindings and binding_overrides; the client fills these in and renders the final text itself.",
+      "action_name": "list_package_prompts",
+      "input_json_schema": {
+        "type": "object",
+        "properties": {
+          "package_slug": {
+            "type": "string"
+          },
+          "context_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "package_slug"
+        ],
+        "additionalProperties": false
+      },
+      "output_json_schema": null,
+      "capability_labels": [
+        "read_only"
+      ],
+      "provided_tool_annotations": {
+        "title": "Lista mallar i ett promptpaket",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "templates": null,
+      "supported_auth_override": null,
+      "tool_invoking_message": "",
+      "tool_invoked_message": "",
+      "metadata": {},
+      "description_model": null,
+      "visibility": "public"
+    },
+    {
+      "name": "Rekommendera promptpaket för en roll",
+      "title": null,
+      "description": "Recommend prompt packages (areas) suited to a job role. Pass a short role term (e.g. 'chef', 'kommunikator') -- if the calling client doesn't know the user's role, it should ask the user first. If the role isn't recognized, all packages are returned with role_recognized=false rather than an empty result.",
+      "action_name": "recommend_packages",
+      "input_json_schema": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role"
+        ],
+        "additionalProperties": false
+      },
+      "output_json_schema": null,
+      "capability_labels": [
+        "read_only"
+      ],
+      "provided_tool_annotations": {
+        "title": "Rekommendera promptpaket för en roll",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "templates": null,
+      "supported_auth_override": null,
+      "tool_invoking_message": "",
+      "tool_invoked_message": "",
+      "metadata": {},
+      "description_model": null,
+      "visibility": "public"
+    }
+  ],
+  "screenshots": null,
+  "subtitle": "Find and use prompt templates",
+  "supported_auth": [
+    {
+      "type": "NONE"
+    }
+  ],
+  "template_params": null,
+  "test_cases": [
+    {
+      "description": "Search the catalog for a relevant municipal communication template.",
+      "expected_output": "Returns relevant public template summaries so the user can select one.",
+      "expected_output_url": null,
+      "file_attachment_urls": null,
+      "tools_triggered": "search_templates",
+      "user_prompt": "Find a template for informing staff about a service disruption."
+    },
+    {
+      "description": "Retrieve a template after the user has selected it.",
+      "expected_output": "Returns the selected public prompt template for the user to use locally.",
+      "expected_output_url": null,
+      "file_attachment_urls": null,
+      "tools_triggered": "get_template",
+      "user_prompt": "Show me the full template with ID <selected template ID>."
+    },
+    {
+      "description": "Browse available prompt packages.",
+      "expected_output": "Returns the available public packages with enough information to choose one.",
+      "expected_output_url": null,
+      "file_attachment_urls": null,
+      "tools_triggered": "list_packages",
+      "user_prompt": "What public prompt packages are available?"
+    },
+    {
+      "description": "Inspect prompts included in a selected package.",
+      "expected_output": "Returns the public prompts belonging to the selected package.",
+      "expected_output_url": null,
+      "file_attachment_urls": null,
+      "tools_triggered": "list_package_prompts",
+      "user_prompt": "List the prompts in the package <selected package ID>."
+    },
+    {
+      "description": "Get package recommendations for a municipal role.",
+      "expected_output": "Returns relevant public package recommendations without changing catalog data.",
+      "expected_output_url": null,
+      "file_attachment_urls": null,
+      "tools_triggered": "recommend_packages",
+      "user_prompt": "Which prompt packages are relevant for an IT coordinator?"
+    }
+  ],
+  "test_credentials": null,
+  "tool_justifications": {
+    "health_check": {
+      "destructive_justification": "Does not delete, overwrite, revoke access, or perform an irreversible action.",
+      "open_world_justification": "Does not publish content or change an external system.",
+      "read_only_justification": "Returns health status for the public catalog without creating or changing data."
+    },
+    "get_client_routing_instructions": {
+      "destructive_justification": "Does not delete, overwrite, revoke access, or perform an irreversible action.",
+      "open_world_justification": "Does not publish content or change an external system.",
+      "read_only_justification": "Returns client guidance for using the public catalog and does not modify data."
+    },
+    "list_templates": {
+      "destructive_justification": "Does not delete, overwrite, revoke access, or perform an irreversible action.",
+      "open_world_justification": "Does not publish content or change an external system.",
+      "read_only_justification": "Retrieves the open catalog of prompt templates without modifying it."
+    },
+    "search_templates": {
+      "destructive_justification": "Does not delete, overwrite, revoke access, or perform an irreversible action.",
+      "open_world_justification": "Does not publish content or change an external system.",
+      "read_only_justification": "Searches the open template catalog and returns matching summaries without changing data."
+    },
+    "get_template": {
+      "destructive_justification": "Does not delete, overwrite, revoke access, or perform an irreversible action.",
+      "open_world_justification": "Does not publish content or change an external system.",
+      "read_only_justification": "Retrieves one selected public prompt template without changing data."
+    },
+    "list_packages": {
+      "destructive_justification": "Does not delete, overwrite, revoke access, or perform an irreversible action.",
+      "open_world_justification": "Does not publish content or change an external system.",
+      "read_only_justification": "Retrieves available public prompt packages without creating or changing records."
+    },
+    "get_package": {
+      "destructive_justification": "Does not delete, overwrite, revoke access, or perform an irreversible action.",
+      "open_world_justification": "Does not publish content or change an external system.",
+      "read_only_justification": "Retrieves one selected public package without changing data."
+    },
+    "list_package_prompts": {
+      "destructive_justification": "Does not delete, overwrite, revoke access, or perform an irreversible action.",
+      "open_world_justification": "Does not publish content or change an external system.",
+      "read_only_justification": "Lists prompts in a selected public package without changing catalog data."
+    },
+    "recommend_packages": {
+      "destructive_justification": "Does not delete, overwrite, revoke access, or perform an irreversible action.",
+      "open_world_justification": "Does not publish content or change an external system.",
+      "read_only_justification": "Computes package recommendations from the public catalog without changing data."
+    }
+  },
+  "translations": {
+    "sv-SE": {
+      "description": "Promptbanken är ett öppet, kurerat bibliotek med färdiga promptmallar, med särskilt fokus på svenska kommuner, skolor, offentlig sektor och yrkesverksamma. Bläddra bland mallar, granska enskilda prompts och hitta relevanta promptpaket direkt via ChatGPT.\n\nDen publicerade anslutningen ger skrivskyddad åtkomst till Promptbankens öppna katalog. Inga personuppgifter eller konfidentiella användaruppgifter skickas till eller lagras på Promptbankens server.",
+      "screenshots": null,
+      "subtitle": "Hitta och använd promptmallar"
+    }
+  },
+  "version": "1.2.1"
+}
