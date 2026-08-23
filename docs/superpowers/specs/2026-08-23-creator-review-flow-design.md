@@ -30,9 +30,14 @@ Open/MCP.
 
 Delprojekt 3 lämnade kedjan bruten efter inskicket: `submit_creator_prompt`
 och `submit_creator_package_draft` sätter `status = 'review'`, men ingen
-adminyta läser det. `src/admin.js` filtrerar `content_items` på
-`.eq('workspace_id', state.workspace.id)`, så en creators personliga
-arbetsyta är osynlig för plattformsägaren. Denna spec stänger glappet.
+adminyta läser det. Denna spec stänger glappet.
+
+Obs: `src/admin.js` (arbetsyte-UI:t med `.eq('workspace_id', ...)`-filtrerad
+promptlista) laddas inte längre av någon sida. Commit `5a09156 feat: replace
+admin with library analytics dashboard` ersatte `admin.html` med
+analysskalet, och modulen blev kvar som död kod. Granskningsvyn byggs
+därför som ny yta i analysskalet — den behöver inte förhålla sig till
+arbetsytefiltret, och `src/admin.js` ska inte återupplivas för detta.
 
 ## Nuvarande arkitektur (referens)
 
@@ -238,9 +243,12 @@ eller i någon frontend-bundle.
 
 ## Granskningsvyn
 
-Ny flik i `admin.html`, med logiken i en egen modul `src/adminCreatorReview.js`.
-`src/admin.js` är redan omkring 2 800 rader; granskningsflödet läggs inte
-där. Fliken registreras i `admin.js` men implementeras i den nya modulen.
+Ny sektion i `admin.html` med ankaret `#creator-granskning`, plus en rad i
+`admin-nav`. Logiken i en egen modul `src/adminCreatorReview.js`, laddad
+med en egen `<script type="module">`-tagg. Det är exakt mönstret de tre
+befintliga adminmodulerna följer (`adminUsage.js`, `adminPackageSeo.js`,
+`adminCreatorProfiles.js`) — varje sektion äger sin modul, ingen delad
+tillståndsbutik.
 
 Vyn listar prompts i `review` och paket-utkast i `review`, över
 arbetsytegränsen, med senaste verdikt som färgmarkering. Öppnad post visar
