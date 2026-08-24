@@ -88,6 +88,7 @@ async function loadPrompts() {
 function registerNewPromptForm() {
     const titleInput = el('[data-new-prompt-title]');
     const contentInput = el('[data-new-prompt-content]');
+    const summaryInput = el('[data-new-prompt-summary]');
     const categoryInput = el('[data-new-prompt-category]');
     const errorEl = el('[data-new-prompt-error]');
     const btn = el('[data-new-prompt-btn]');
@@ -98,6 +99,7 @@ function registerNewPromptForm() {
         const { error } = await supabase.rpc('create_my_creator_prompt', {
             p_title: titleInput.value,
             p_content: contentInput.value,
+            p_summary: summaryInput.value,
             p_category: categoryInput.value
         });
         btn.disabled = false;
@@ -108,6 +110,7 @@ function registerNewPromptForm() {
         }
         titleInput.value = '';
         contentInput.value = '';
+        summaryInput.value = '';
         categoryInput.value = '';
         await loadPrompts();
     });
