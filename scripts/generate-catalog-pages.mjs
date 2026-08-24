@@ -82,6 +82,15 @@ async function main() {
         p_include_creator_content: true
     });
 
+    // Uppslagstabell slug -> creator för "Av <namn>"-raden. Egen RPC i
+    // stället för nya returkolumner på list_published_packages: den läses
+    // av både webben och den hostade MCP:n, och att röra dess signatur för
+    // en presentationsdetalj vore onödig risk.
+    const bylines = new Map(
+        (await rpc('list_catalog_creator_bylines', {}))
+            .map((row) => [`${row.kind}:${row.slug}`, row])
+    );
+
     const usable = packages.filter((pkg) => {
         if (isSafeSlug(pkg.slug)) return true;
         console.warn(`[generate-catalog-pages] hoppar över paket med osäker slug: ${JSON.stringify(pkg.slug)}`);
@@ -118,7 +127,8 @@ async function main() {
                 prompts,
                 related,
                 indexable,
-                supabase: { url: supabaseUrl, anonKey: supabaseKey }
+                supabase: { url: supabaseUrl, anonKey: supabaseKey },
+                creator: bylines.get(`package:${pkg.slug}`) || null
             })
         );
     }
@@ -145,9 +155,16 @@ async function main() {
     const creatorUrls = indexableProfiles.map((profile) => absoluteUrl(creatorUrl(profile.slug)));
 
     for (const profile of usableProfiles) {
+        const publishedContent = await rpc('list_creator_published_content', {
+            p_slug: profile.slug
+        });
         await writePage(
             `creator/${profile.slug}`,
-            renderCreatorPage({ profile, indexable: isProfileIndexable(profile) })
+            renderCreatorPage({
+                profile,
+                indexable: isProfileIndexable(profile),
+                publishedContent
+            })
         );
     }
 

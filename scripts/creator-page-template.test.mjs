@@ -100,3 +100,39 @@ test('tom översikt får noindex', () => {
     const html = renderCreatorIndexPage({ profiles: [], indexable: false });
     assert.match(html, /<meta name="robots" content="noindex">/);
 });
+
+test('publicerat innehåll listas och länkar rätt', () => {
+    const html = render({
+        publishedContent: [
+            { kind: 'package', slug: 'mitt-paket', title: 'Mitt paket', summary: 'Om paketet' },
+            { kind: 'prompt', slug: 'min-prompt', title: 'Min prompt', summary: 'Om prompten' }
+        ]
+    });
+    assert.match(html, /href="\/paket\/mitt-paket\/"/);
+    assert.match(html, /href="\/\?prompt=min-prompt"/);
+    assert.match(html, /Mitt paket/);
+    assert.match(html, /Min prompt/);
+});
+
+test('utan publicerat innehåll visas nolläge', () => {
+    const html = render({ publishedContent: [] });
+    assert.match(html, /Publicerade paket<\/h2>\s*<p>Inget publicerat ännu\./);
+    assert.match(html, /Publicerade prompts<\/h2>\s*<p>Inget publicerat ännu\./);
+});
+
+test('Workshopkrediter är kvar som nolläge (delprojekt 5)', () => {
+    const html = render({
+        publishedContent: [{ kind: 'prompt', slug: 'p', title: 'P', summary: '' }]
+    });
+    assert.match(html, /Workshopkrediter<\/h2>\s*<p>Inget publicerat ännu\./);
+});
+
+test('titlar escapas i innehållslistan', () => {
+    const html = render({
+        publishedContent: [
+            { kind: 'prompt', slug: 'x', title: '<script>alert(1)</script>', summary: '' }
+        ]
+    });
+    assert.doesNotMatch(html, /<script>alert\(1\)<\/script>/);
+    assert.match(html, /&lt;script&gt;/);
+});

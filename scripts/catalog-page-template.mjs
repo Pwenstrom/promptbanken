@@ -145,7 +145,7 @@ function usageBeacon(slug, supabase) {
     </script>`;
 }
 
-export function renderPackagePage({ pkg, prompts, related, indexable, supabase }) {
+export function renderPackagePage({ pkg, prompts, related, indexable, supabase, creator = null }) {
     const trail = [
         { name: 'Hem', path: '/' },
         { name: 'Paket', path: '/paket/' },
@@ -176,6 +176,13 @@ export function renderPackagePage({ pkg, prompts, related, indexable, supabase }
         </section>`
         : '';
 
+    // Kurerat innehåll står som Promptbankens. Ett godkänt creator-paket
+    // krediteras creatorn, med länk till profilen — det är hela SEO-värdet
+    // i creator-programmet.
+    const byline = creator
+        ? `Av <a href="${escapeHtml(`/creator/${creator.creator_slug}/`)}">${escapeHtml(creator.creator_display_name)}</a>`
+        : 'Av Promptbanken';
+
     const tagList = Array.isArray(pkg.tags) && pkg.tags.length
         ? `<p class="paket-tags">${pkg.tags.map((tag) => `<a href="/paket/#${escapeHtml(areaAnchor(pkg.area))}">${escapeHtml(tag)}</a>`).join(' · ')}</p>`
         : '';
@@ -195,7 +202,7 @@ ${head({
         <article class="paket-article">
             <h1>${escapeHtml(pkg.title)}</h1>
             <p class="paket-lead">${escapeHtml(pkg.summary)}</p>
-            <p class="paket-source">Av Promptbanken</p>
+            <p class="paket-source">${byline}</p>
             ${hasText(pkg.intro_text) ? `<p class="paket-intro">${escapeHtml(pkg.intro_text)}</p>` : ''}
         ${editorialSections}
         <section class="paket-section paket-contents">

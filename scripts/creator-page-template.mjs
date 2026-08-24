@@ -122,7 +122,33 @@ function emptyStateSection(heading) {
         </section>`;
 }
 
-export function renderCreatorPage({ profile, indexable }) {
+// Prompts har inga egna statiska sidor — de öppnas via katalogens
+// djuplänk, samma format som delningsknappen i script.js använder.
+function contentUrl(kind, slug) {
+    return kind === 'package' ? `/paket/${slug}/` : `/?prompt=${slug}`;
+}
+
+function contentSection(heading, items) {
+    if (!items.length) return emptyStateSection(heading);
+
+    const rows = items
+        .map((item) => {
+            const href = escapeHtml(contentUrl(item.kind, item.slug));
+            const title = escapeHtml(item.title);
+            const summary = item.summary ? ` — ${escapeHtml(item.summary)}` : '';
+            return `<li><a href="${href}">${title}</a>${summary}</li>`;
+        })
+        .join('\n                ');
+
+    return `<section class="creator-section">
+            <h2>${escapeHtml(heading)}</h2>
+            <ul class="creator-content-list">
+                ${rows}
+            </ul>
+        </section>`;
+}
+
+export function renderCreatorPage({ profile, indexable, publishedContent = [] }) {
     const trail = [
         { name: 'Hem', path: '/' },
         { name: 'Creators', path: '/creator/' },
@@ -166,8 +192,8 @@ ${head({
             ${hasText(profile.organisation) ? `<p class="creator-organisation"><strong>Organisation:</strong> ${escapeHtml(profile.organisation)}</p>` : ''}
             ${competenceAreas.length ? `<p class="creator-competence"><strong>Kompetensområden:</strong> ${competenceAreas.map((area) => escapeHtml(area)).join(', ')}</p>` : ''}
             ${links}
-            ${emptyStateSection('Publicerade paket')}
-            ${emptyStateSection('Publicerade prompts')}
+            ${contentSection('Publicerade paket', publishedContent.filter((item) => item.kind === 'package'))}
+            ${contentSection('Publicerade prompts', publishedContent.filter((item) => item.kind === 'prompt'))}
             ${emptyStateSection('Workshopkrediter')}
         </article>
     </main>
