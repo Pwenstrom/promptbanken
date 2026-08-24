@@ -6489,3 +6489,54 @@ body.detail-panel-closed .prompt-detail-panel {
         overflow-x: auto;
     }
 }
+
+/* Creator-vyerna: etiketter som egna block. Utan detta flyter fält och
+   etiketter ihop på samma rad på mobil, och kryssrutorna för samtycke
+   hamnar inklämda intill knappen — lätta att missa precis där de betyder
+   mest. */
+[data-creator-content-new-prompt] label,
+.creator-edit-form label {
+    display: block;
+    margin-bottom: 0.6rem;
+    color: #3d4859;
+    font-size: 0.9rem;
+}
+
+[data-creator-content-new-prompt] input[type="text"],
+[data-creator-content-new-prompt] textarea,
+.creator-edit-form input[type="text"],
+.creator-edit-form textarea {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid #d9e1ec;
+    border-radius: 6px;
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.creator-edit-form {
+    margin: 0.75rem 0;
+    padding: 0.85rem;
+    border: 1px solid #d9e1ec;
+    border-radius: 8px;
+    background: #fbfcfe;
+}
+
+.creator-consent {
+    display: block;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.creator-consent input[type="checkbox"] {
+    margin-right: 0.4rem;
+}
+
+.creator-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}

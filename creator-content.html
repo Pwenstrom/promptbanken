@@ -58,11 +58,26 @@
                 </div>
                 <p data-row-summary></p>
                 <p class="mp-hint is-error" data-row-review-note hidden></p>
+
+                <div class="creator-edit-form" data-row-edit-form hidden>
+                    <label>Titel <input type="text" data-row-edit-title maxlength="200"></label>
+                    <label>Prompttext <textarea data-row-edit-content rows="8" maxlength="20000"></textarea></label>
+                    <label>Sammanfattning <input type="text" data-row-edit-summary maxlength="500" placeholder="Vad prompten gör, i en mening"></label>
+                    <label>Kategori (valfritt) <input type="text" data-row-edit-category></label>
+                    <div class="creator-row-actions">
+                        <button type="button" data-row-save-btn>Spara ändringar</button>
+                        <button type="button" data-row-cancel-btn>Avbryt</button>
+                    </div>
+                </div>
+
                 <div data-row-submit-form hidden>
-                    <label><input type="checkbox" data-row-consent-shared> Jag godkänner att prompten delas i öppna Promptbanken</label>
-                    <label><input type="checkbox" data-row-consent-reusable> Andra creators får återanvända den i sina paket</label>
+                    <label class="creator-consent"><input type="checkbox" data-row-consent-shared> Jag godkänner att prompten delas i öppna Promptbanken</label>
+                    <label class="creator-consent"><input type="checkbox" data-row-consent-reusable> Andra creators får återanvända den i sina paket</label>
                     <p data-row-error role="alert" hidden></p>
-                    <button type="button" data-row-submit-btn>Skicka in för granskning</button>
+                    <div class="creator-row-actions">
+                        <button type="button" data-row-edit-btn>Redigera</button>
+                        <button type="button" data-row-submit-btn>Skicka in för granskning</button>
+                    </div>
                 </div>
                 <button type="button" data-row-withdraw-btn hidden>Dra tillbaka</button>
             </article>

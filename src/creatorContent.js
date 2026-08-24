@@ -26,6 +26,55 @@ function renderRow(template, prompt) {
 
     const submitForm = el('[data-row-submit-form]', node);
     const withdrawBtn = el('[data-row-withdraw-btn]', node);
+    const editForm = el('[data-row-edit-form]', node);
+
+    // Redigering. Utan den blir "Begär ändring" en återvändsgränd:
+    // creatorn läser motiveringen men kan inte åtgärda något.
+    if (prompt.status === 'draft') {
+        const editBtn = el('[data-row-edit-btn]', node);
+        const saveBtn = el('[data-row-save-btn]', node);
+        const cancelBtn = el('[data-row-cancel-btn]', node);
+        const titleInput = el('[data-row-edit-title]', node);
+        const contentInput = el('[data-row-edit-content]', node);
+        const summaryInput = el('[data-row-edit-summary]', node);
+        const categoryInput = el('[data-row-edit-category]', node);
+        const editError = el('[data-row-error]', node);
+
+        const openEditor = (open) => {
+            editForm.hidden = !open;
+            editBtn.hidden = open;
+            el('[data-row-submit-btn]', node).hidden = open;
+        };
+
+        editBtn.addEventListener('click', () => {
+            titleInput.value = prompt.title || '';
+            contentInput.value = prompt.content || '';
+            summaryInput.value = prompt.summary || '';
+            categoryInput.value = prompt.category || '';
+            openEditor(true);
+        });
+
+        cancelBtn.addEventListener('click', () => openEditor(false));
+
+        saveBtn.addEventListener('click', async () => {
+            editError.hidden = true;
+            saveBtn.disabled = true;
+            const { error } = await supabase.rpc('update_my_creator_prompt', {
+                p_content_item_id: prompt.id,
+                p_title: titleInput.value,
+                p_content: contentInput.value,
+                p_summary: summaryInput.value,
+                p_category: categoryInput.value
+            });
+            saveBtn.disabled = false;
+            if (error) {
+                editError.textContent = error.message;
+                editError.hidden = false;
+                return;
+            }
+            await loadPrompts();
+        });
+    }
 
     if (prompt.status === 'draft') {
         submitForm.hidden = false;
