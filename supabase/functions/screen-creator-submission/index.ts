@@ -56,21 +56,53 @@ const SCREENING_SCHEMA = {
   },
 };
 
-function jsonResponse(body: unknown, status: number): Response {
+// Anropas från adminvyn i webbläsaren, alltså alltid cross-origin mot
+// supabase.co. Utan preflight-svar och CORS-headers faller anropet redan i
+// webbläsaren med "Failed to fetch", innan någon kod här körs.
+//
+// Origin speglas bara om den står i listan. Endpointen är
+// platform_owner-gatad, men det finns ingen anledning att låta vilken sida
+// som helst anropa den från en inloggad admins webbläsare.
+const ALLOWED_ORIGINS = new Set([
+  "https://app.promptbanken.se",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+
+function corsHeaders(origin: string | null): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "authorization, content-type, apikey",
+    "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
+  };
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+  return headers;
+}
+
+function jsonResponse(body: unknown, status: number, origin: string | null = null): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...corsHeaders(origin) },
   });
 }
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get("Origin");
+
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  }
+
   if (req.method !== "POST") {
-    return jsonResponse({ error: "Method not allowed" }, 405);
+    return jsonResponse({ error: "Method not allowed" }, 405, origin);
   }
 
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) {
-    return jsonResponse({ error: "Saknar Authorization-header." }, 401);
+    return jsonResponse({ error: "Saknar Authorization-header." }, 401, origin);
   }
 
   let subjectType: string;
@@ -80,14 +112,14 @@ Deno.serve(async (req) => {
     subjectType = body.subject_type;
     subjectId = body.subject_id;
   } catch {
-    return jsonResponse({ error: "Ogiltig JSON i anropet." }, 400);
+    return jsonResponse({ error: "Ogiltig JSON i anropet." }, 400, origin);
   }
 
   if (subjectType !== "prompt" && subjectType !== "package") {
-    return jsonResponse({ error: "Okänd typ. Ange prompt eller package." }, 400);
+    return jsonResponse({ error: "Okänd typ. Ange prompt eller package." }, 400, origin);
   }
   if (typeof subjectId !== "string" || subjectId.length === 0) {
-    return jsonResponse({ error: "subject_id saknas." }, 400);
+    return jsonResponse({ error: "subject_id saknas." }, 400, origin);
   }
 
   // Klient scopead till anroparens JWT. Används bara för att läsa
@@ -101,7 +133,7 @@ Deno.serve(async (req) => {
   );
   const userId = userData?.user?.id;
   if (!userId) {
-    return jsonResponse({ error: "Ogiltig session." }, 401);
+    return jsonResponse({ error: "Ogiltig session." }, 401, origin);
   }
 
   const { data: submission, error: submissionError } = await callerClient.rpc(
@@ -110,7 +142,7 @@ Deno.serve(async (req) => {
   );
 
   if (submissionError) {
-    return jsonResponse({ error: submissionError.message }, 403);
+    return jsonResponse({ error: submissionError.message }, 403, origin);
   }
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
@@ -182,6 +214,7 @@ Deno.serve(async (req) => {
     return jsonResponse(
       { error: `Granskningen kunde inte köras: ${String(error)}` },
       502,
+      origin,
     );
   }
 
@@ -193,6 +226,7 @@ Deno.serve(async (req) => {
           `Granskningen kunde inte köras: ${openaiResponse.status} ${detail.slice(0, 300)}`,
       },
       502,
+      origin,
     );
   }
 
@@ -204,6 +238,7 @@ Deno.serve(async (req) => {
     return jsonResponse(
       { error: `Modellen avböjde att granska inskicket: ${choice.refusal}` },
       502,
+      origin,
     );
   }
 
@@ -217,6 +252,7 @@ Deno.serve(async (req) => {
           "Modellen svarade i ett format som inte gick att tolka. Ingen granskning sparades.",
       },
       502,
+      origin,
     );
   }
 
@@ -227,6 +263,7 @@ Deno.serve(async (req) => {
           "Modellsvaret saknade omdöme. Ingen granskning sparades.",
       },
       502,
+      origin,
     );
   }
 
@@ -246,8 +283,8 @@ Deno.serve(async (req) => {
     .single();
 
   if (insertError) {
-    return jsonResponse({ error: insertError.message }, 500);
+    return jsonResponse({ error: insertError.message }, 500, origin);
   }
 
-  return jsonResponse(inserted, 200);
+  return jsonResponse(inserted, 200, origin);
 });
