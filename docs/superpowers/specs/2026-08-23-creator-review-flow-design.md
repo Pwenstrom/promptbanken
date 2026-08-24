@@ -223,22 +223,28 @@ Flöde:
    ersättas av en kandidatsökning; det är den enda delen av designen som
    inte skalar rakt av.
 4. Läs den inbakade regel-markdownen och dess versionsrad.
-5. Anropa `claude-sonnet-5` med regelverket, innehållet och
+5. Anropa `gpt-5.6-terra` med regelverket, innehållet och
    jämförelselistan. Modellvalet motiveras av att felbedömningar här
    kostar adminstid eller släpper igenom fel innehåll, medan volymen är
-   låg — granskning sker på begäran, inte per inskick.
+   låg — granskning sker på begäran, inte per inskick. Ett anrop är
+   ungefär 5 000 tokens in och 800 ut, alltså cirka två cent. Luna är
+   billigare men fel ställe att spara: en förgranskning som missbedömer
+   risk eller rättigheter slutar bli läst. Modellen är en konstant i
+   `index.ts` och kan bytas utan andra ändringar.
 6. Skriv resultatet till `creator_submission_screenings` och returnera det.
 
 Två promptmallar, en per `subject_type`. Paketmallen bedömer helheten:
 hänger prompterna ihop, är ordningen logisk, överlappar de varandra,
 motsvarar titel och sammanfattning innehållet.
 
-Modellsvaret begärs som JSON via `tool_use` med ett fast schema, inte som
-fritext. Går svaret ändå inte att tolka skrivs ingen granskningsrad, och
-funktionen returnerar ett fel som visas i adminvyn — aldrig ett tomt eller
-gissat verdikt.
+Modellsvaret begärs med OpenAI:s structured outputs —
+`response_format: { type: 'json_schema', json_schema: { strict: true } }` —
+inte som fritext. Går svaret ändå inte att tolka skrivs ingen
+granskningsrad, och funktionen returnerar ett fel som visas i adminvyn —
+aldrig ett tomt eller gissat verdikt. Modellen kan också vägra svara
+(`refusal`), vilket hanteras som samma sorts fel.
 
-`ANTHROPIC_API_KEY` sätts som Supabase-secret. Den får inte hamna i repot
+`OPENAI_API_KEY` sätts som Supabase-secret. Den får inte hamna i repot
 eller i någon frontend-bundle.
 
 ## Granskningsvyn
