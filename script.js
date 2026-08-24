@@ -306,7 +306,26 @@ function matchesGlobalContext(promptId, activeContextKey) {
     return activeContextKey === DEFAULT_CONTEXT_KEY || contexts.includes(activeContextKey);
 }
 
+// Webben visar godkänt creator-innehåll; Open/MCP gör det inte. Katalogens
+// fem läs-RPC:er utesluter creator-innehåll som default, så webbanropen
+// måste säga till. Flaggan sätts här i stället för på varje anropsställe:
+// en glömd rad ska ge för lite innehåll på webben, aldrig en läcka till MCP.
+//
+// Bara dessa fem tar parametern. track_library_usage_event går genom samma
+// hjälpfunktion och skulle avvisas av PostgREST för okänt argument.
+const CATALOG_RPCS_WITH_CREATOR_GATE = new Set([
+    'list_published_prompts',
+    'get_published_prompt',
+    'list_published_packages',
+    'get_published_package',
+    'list_published_package_prompts'
+]);
+
 async function callCatalogRpc(functionName, payload) {
+    const body = CATALOG_RPCS_WITH_CREATOR_GATE.has(functionName)
+        ? { p_include_creator_content: true, ...payload }
+        : payload;
+
     const response = await fetch(`${SUPABASE_CATALOG_URL}/rest/v1/rpc/${functionName}`, {
         method: 'POST',
         headers: {
@@ -314,7 +333,7 @@ async function callCatalogRpc(functionName, payload) {
             'apikey': SUPABASE_CATALOG_ANON_KEY,
             'Authorization': `Bearer ${SUPABASE_CATALOG_ANON_KEY}`
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(body)
     });
 
     if (!response.ok) {

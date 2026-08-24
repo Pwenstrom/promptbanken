@@ -73,9 +73,13 @@ async function writePage(path, html) {
 async function main() {
     const staticUrls = await readStaticUrlsFromSitemap();
 
+    // p_include_creator_content: katalogens läs-RPC:er utesluter godkänt
+    // creator-innehåll som default, så att Open/MCP inte serverar det. De
+    // statiska sidorna är webben och ska ta med det.
     const packages = await rpc('list_published_packages', {
         p_context_keys: ['generell'],
-        p_package_type: null
+        p_package_type: null,
+        p_include_creator_content: true
     });
 
     const usable = packages.filter((pkg) => {
@@ -91,7 +95,8 @@ async function main() {
     for (const pkg of usable) {
         const prompts = await rpc('list_published_package_prompts', {
             p_package_slug: pkg.slug,
-            p_context_keys: ['generell']
+            p_context_keys: ['generell'],
+            p_include_creator_content: true
         });
         usableWithPrompts.push({ pkg, prompts, indexable: isIndexable(pkg, prompts.length) });
     }

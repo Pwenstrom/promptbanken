@@ -83,7 +83,10 @@ function renderForm() {
 }
 
 async function loadPromptCount(slug) {
-  const { data, error } = await supabase.rpc('list_published_package_prompts', { p_package_slug: slug });
+  const { data, error } = await supabase.rpc('list_published_package_prompts', {
+    p_package_slug: slug,
+    p_include_creator_content: true
+  });
   if (error) return 0;
   return (data || []).length;
 }
@@ -91,7 +94,10 @@ async function loadPromptCount(slug) {
 async function loadPackages() {
   const requestId = ++latestRequestId;
   setStatus('Laddar paket...');
-  const { data, error } = await supabase.rpc('list_published_packages');
+  // Admin ska se allt publicerat, inklusive godkänt creator-innehåll.
+  const { data, error } = await supabase.rpc('list_published_packages', {
+    p_include_creator_content: true
+  });
   if (requestId !== latestRequestId) return;
 
   if (error) {
