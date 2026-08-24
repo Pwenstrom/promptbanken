@@ -83,10 +83,29 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
             });
         }
 
+        const consentGroup = el('[data-draft-consent-group]', node);
+        const consentDistribution = el('[data-draft-consent-distribution]', node);
+        const rightsAttested = el('[data-draft-rights-attested]', node);
+        consentGroup.hidden = false;
+
+        // Speglar RPC:ns regel: rättighetsintyget krävs om
+        // distributionssamtycket är i.
+        const syncSubmitEnabled = () => {
+            submitBtn.disabled = consentDistribution.checked && !rightsAttested.checked;
+        };
+        [consentDistribution, rightsAttested].forEach((box) => {
+            box.addEventListener('change', syncSubmitEnabled);
+        });
+        syncSubmitEnabled();
+
         submitBtn.hidden = false;
         submitBtn.addEventListener('click', async () => {
             errorEl.hidden = true;
-            const { error } = await supabase.rpc('submit_creator_package_draft', { p_draft_id: draft.id });
+            const { error } = await supabase.rpc('submit_creator_package_draft', {
+                p_draft_id: draft.id,
+                p_consent_distribution: consentDistribution.checked,
+                p_rights_attested: rightsAttested.checked
+            });
             if (error) {
                 errorEl.textContent = error.message;
                 errorEl.hidden = false;

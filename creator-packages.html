@@ -64,6 +64,12 @@
                     <select data-draft-add-select></select>
                     <button type="button" data-draft-add-btn>Lägg till</button>
                 </div>
+                <fieldset class="creator-consent-group" data-draft-consent-group hidden>
+                    <legend>Spridning utanför Promptbanken</legend>
+                    <label class="creator-consent"><input type="checkbox" data-draft-consent-distribution> Paketet får distribueras via Promptbanken Open till externa AI-klienter, till exempel ChatGPT</label>
+                    <label class="creator-consent"><input type="checkbox" data-draft-rights-attested> Innehållet är mitt eget, eller jag har rätt att sprida det</label>
+                    <p class="creator-consent-hint">Båda krävs för spridning utanför Promptbanken. Lämnar du dem tomma publiceras paketet ändå — men bara på webben.</p>
+                </fieldset>
                 <p data-draft-error role="alert" hidden></p>
                 <button type="button" data-draft-submit-btn hidden>Skicka in för granskning</button>
                 <button type="button" data-draft-withdraw-btn hidden>Dra tillbaka</button>

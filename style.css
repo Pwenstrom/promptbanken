@@ -6540,3 +6540,33 @@ body.detail-panel-closed .prompt-detail-panel {
     gap: 0.5rem;
     margin-top: 0.75rem;
 }
+
+/* Samtyckesgruppen för spridning utanför Promptbanken. Avgränsad för att
+   det är en annan sorts beslut än publicering: den lämnar Promptbankens
+   egna ytor. */
+.creator-consent-group {
+    margin: 0.75rem 0;
+    padding: 0.6rem 0.85rem 0.4rem;
+    border: 1px solid #d9e1ec;
+    border-radius: 8px;
+    background: #f7f9fc;
+}
+
+.creator-consent-group legend {
+    padding: 0 0.35rem;
+    color: #3d4859;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.creator-consent-hint {
+    margin: 0.35rem 0 0;
+    color: #5b6779;
+    font-size: 0.82rem;
+}
+
+.creator-consent em {
+    color: #5b6779;
+    font-style: normal;
+    font-size: 0.85em;
+}

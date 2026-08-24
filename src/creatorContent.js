@@ -80,11 +80,21 @@ function renderRow(template, prompt) {
         submitForm.hidden = false;
         const consentShared = el('[data-row-consent-shared]', node);
         const consentReusable = el('[data-row-consent-reusable]', node);
+        const consentDistribution = el('[data-row-consent-distribution]', node);
+        const rightsAttested = el('[data-row-rights-attested]', node);
         const submitBtn = el('[data-row-submit-btn]', node);
         const errorEl = el('[data-row-error]', node);
 
-        const syncSubmitEnabled = () => { submitBtn.disabled = !consentShared.checked; };
-        consentShared.addEventListener('change', syncSubmitEnabled);
+        // Rättighetsintyget krävs bara om distributionssamtycket är i.
+        // RPC:n vägrar annars, men att spegla regeln här sparar creatorn
+        // ett misslyckat inskick.
+        const syncSubmitEnabled = () => {
+            const rightsMissing = consentDistribution.checked && !rightsAttested.checked;
+            submitBtn.disabled = !consentShared.checked || rightsMissing;
+        };
+        [consentShared, consentDistribution, rightsAttested].forEach((box) => {
+            box.addEventListener('change', syncSubmitEnabled);
+        });
         syncSubmitEnabled();
 
         submitBtn.addEventListener('click', async () => {
@@ -92,7 +102,9 @@ function renderRow(template, prompt) {
             const { error } = await supabase.rpc('submit_creator_prompt', {
                 p_content_item_id: prompt.id,
                 p_consent_shared: consentShared.checked,
-                p_consent_reusable: consentReusable.checked
+                p_consent_reusable: consentReusable.checked,
+                p_consent_distribution: consentDistribution.checked,
+                p_rights_attested: rightsAttested.checked
             });
             if (error) {
                 errorEl.textContent = error.message;

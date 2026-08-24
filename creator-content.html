@@ -71,8 +71,14 @@
                 </div>
 
                 <div data-row-submit-form hidden>
-                    <label class="creator-consent"><input type="checkbox" data-row-consent-shared> Jag godkänner att prompten delas i öppna Promptbanken</label>
+                    <label class="creator-consent"><input type="checkbox" data-row-consent-shared> Jag godkänner att prompten publiceras i öppna Promptbanken <em>(krävs)</em></label>
                     <label class="creator-consent"><input type="checkbox" data-row-consent-reusable> Andra creators får återanvända den i sina paket</label>
+                    <fieldset class="creator-consent-group">
+                        <legend>Spridning utanför Promptbanken</legend>
+                        <label class="creator-consent"><input type="checkbox" data-row-consent-distribution> Prompten får distribueras via Promptbanken Open till externa AI-klienter, till exempel ChatGPT</label>
+                        <label class="creator-consent"><input type="checkbox" data-row-rights-attested> Innehållet är mitt eget, eller jag har rätt att sprida det</label>
+                        <p class="creator-consent-hint">Båda krävs för spridning utanför Promptbanken. Lämnar du dem tomma publiceras prompten ändå — men bara på webben.</p>
+                    </fieldset>
                     <p data-row-error role="alert" hidden></p>
                     <div class="creator-row-actions">
                         <button type="button" data-row-edit-btn>Redigera</button>
