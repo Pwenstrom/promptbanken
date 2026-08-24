@@ -45,6 +45,25 @@
                 <h2>Nytt paket</h2>
                 <label>Titel <input type="text" data-new-draft-title></label>
                 <label>Beskrivning <textarea data-new-draft-summary rows="2"></textarea></label>
+
+                <fieldset class="package-type-choice">
+                    <legend>Vilken sorts paket?</legend>
+                    <label class="package-type-card">
+                        <input type="radio" name="package-type" value="collection" data-new-draft-type checked>
+                        <span>
+                            <strong>Samling</strong>
+                            Mallar som hör ihop. Användaren väljer själv vilken hen behöver.
+                        </span>
+                    </label>
+                    <label class="package-type-card">
+                        <input type="radio" name="package-type" value="workflow" data-new-draft-type>
+                        <span>
+                            <strong>Workflow</strong>
+                            Steg som körs i ordning, från början till färdigt resultat.
+                        </span>
+                    </label>
+                </fieldset>
+
                 <p data-new-draft-error role="alert" hidden></p>
                 <button type="button" data-new-draft-btn>Skapa paket-utkast</button>
             </section>
@@ -59,9 +78,14 @@
                     <strong data-draft-status-badge>-</strong>
                 </div>
                 <p data-draft-summary></p>
+                <p class="package-type-badge" data-draft-type-badge></p>
                 <p class="mp-hint is-error" data-draft-review-note hidden></p>
                 <p data-draft-count-hint></p>
                 <div data-draft-items></div>
+                <div class="creator-row-actions">
+                    <button type="button" data-draft-preview-btn hidden>Förhandsgranska</button>
+                </div>
+                <div class="package-preview" data-draft-preview hidden></div>
                 <div data-draft-add-row hidden>
                     <select data-draft-add-select></select>
                     <button type="button" data-draft-add-btn>Lägg till</button>
@@ -79,9 +103,13 @@
         </template>
 
         <template data-draft-item-template>
-            <div data-item-content-item-id>
+            <div class="package-item-row" data-item-content-item-id>
                 <span data-item-title></span>
-                <button type="button" data-item-remove-btn hidden>Ta bort</button>
+                <span class="package-item-actions">
+                    <button type="button" data-item-up-btn hidden aria-label="Flytta upp">Upp</button>
+                    <button type="button" data-item-down-btn hidden aria-label="Flytta ner">Ner</button>
+                    <button type="button" data-item-remove-btn hidden>Ta bort</button>
+                </span>
             </div>
         </template>
     </main>

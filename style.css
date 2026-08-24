@@ -6684,3 +6684,89 @@ body.detail-panel-closed .prompt-detail-panel {
     color: #5b6779;
     font-size: 0.82rem;
 }
+
+/* Pakettyp: två kort i stället för en rullista. Valet styr hur paketet
+   presenteras för användaren, så det förtjänar en förklaring intill sig. */
+.package-type-choice {
+    margin: 0.75rem 0;
+    padding: 0.6rem 0.85rem 0.4rem;
+    border: 1px solid #d9e1ec;
+    border-radius: 8px;
+}
+
+.package-type-choice legend {
+    padding: 0 0.35rem;
+    color: #3d4859;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.package-type-card {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+}
+
+.package-type-card span {
+    color: #5b6779;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.package-type-card strong {
+    display: block;
+    color: #172033;
+}
+
+.package-type-badge {
+    margin: 0.2rem 0 0;
+    color: #5b6779;
+    font-size: 0.82rem;
+}
+
+.package-item-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem 0.75rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.package-item-row:last-child {
+    border-bottom: 0;
+}
+
+.package-item-actions {
+    display: flex;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+.package-preview {
+    margin-top: 0.75rem;
+    padding: 0.85rem;
+    border: 1px solid #d9e1ec;
+    border-radius: 8px;
+    background: #fbfcfe;
+}
+
+.package-preview h3 {
+    margin: 0 0 0.35rem;
+    color: #172033;
+}
+
+.package-preview h4 {
+    margin: 0.75rem 0 0.2rem;
+    color: #172033;
+    font-size: 0.92rem;
+}
+
+.package-preview p {
+    margin: 0;
+    color: #5b6779;
+    font-size: 0.88rem;
+}

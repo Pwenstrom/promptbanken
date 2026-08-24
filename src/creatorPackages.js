@@ -2,7 +2,20 @@ import { requireSupabaseConfig } from './auth.js';
 import { supabase } from './supabaseClient.js';
 
 const STATUS_LABELS = { draft: 'Utkast', review: 'Under granskning', published: 'Publicerad', archived: 'Arkiverad' };
+const TYPE_LABELS = {
+    collection: 'Samling — användaren väljer själv vilken mall hen behöver',
+    workflow: 'Workflow — stegen körs i ordning'
+};
 const MAX_ITEMS = 8;
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
 
 function el(selector, root = document) {
     return root.querySelector(selector);
@@ -36,12 +49,42 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
     const countHint = el('[data-draft-count-hint]', node);
     countHint.textContent = `${itemList.length}/${MAX_ITEMS} prompts` + (itemList.length >= 3 && itemList.length <= 6 ? ' — lagom paket' : itemList.length < 3 ? ' — 3–6 prompts brukar vara ett lagom paket' : '');
 
+    el('[data-draft-type-badge]', node).textContent =
+        TYPE_LABELS[draft.package_type] || TYPE_LABELS.collection;
+
+    // Ordningen skrivs med reorder_package_draft_items, som funnits sedan
+    // delprojekt 3 men aldrig anropats från gränssnittet. För ett workflow
+    // är ordningen hela innebörden.
+    const moveItem = async (fromIndex, toIndex) => {
+        const ordered = itemList.map((i) => i.content_item_id);
+        const [moved] = ordered.splice(fromIndex, 1);
+        ordered.splice(toIndex, 0, moved);
+        const { error } = await supabase.rpc('reorder_package_draft_items', {
+            p_draft_id: draft.id,
+            p_ordered_ids: ordered
+        });
+        if (error) {
+            const errorEl = el('[data-draft-error]', node);
+            errorEl.textContent = error.message;
+            errorEl.hidden = false;
+            return;
+        }
+        await loadDrafts();
+    };
+
     const itemsEl = el('[data-draft-items]', node);
-    itemList.forEach((item) => {
+    itemList.forEach((item, index) => {
         const row = itemTemplate.content.firstElementChild.cloneNode(true);
         row.dataset.itemContentItemId = item.content_item_id;
         el('[data-item-title]', row).textContent = item.title;
         if (draft.status === 'draft') {
+            const upBtn = el('[data-item-up-btn]', row);
+            const downBtn = el('[data-item-down-btn]', row);
+            upBtn.hidden = index === 0;
+            downBtn.hidden = index === itemList.length - 1;
+            upBtn.addEventListener('click', () => moveItem(index, index - 1));
+            downBtn.addEventListener('click', () => moveItem(index, index + 1));
+
             const removeBtn = el('[data-item-remove-btn]', row);
             removeBtn.hidden = false;
             removeBtn.addEventListener('click', async () => {
@@ -55,6 +98,35 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
         }
         itemsEl.appendChild(row);
     });
+
+    // Förhandsgranskning: paketet som en användare skulle möta det.
+    // Ingenting sparas, ingenting skickas.
+    if (itemList.length) {
+        const previewBtn = el('[data-draft-preview-btn]', node);
+        const previewEl = el('[data-draft-preview]', node);
+        previewBtn.hidden = false;
+        previewBtn.addEventListener('click', () => {
+            if (!previewEl.hidden) {
+                previewEl.hidden = true;
+                previewBtn.textContent = 'Förhandsgranska';
+                return;
+            }
+            const heading = `<h3>${escapeHtml(draft.title)}</h3>` +
+                (draft.summary ? `<p>${escapeHtml(draft.summary)}</p>` : '');
+            const steps = itemList
+                .map((item, index) => {
+                    const label = draft.package_type === 'workflow'
+                        ? `Steg ${index + 1}: ${item.title}`
+                        : item.title;
+                    return `<h4>${escapeHtml(label)}</h4>` +
+                        (item.summary ? `<p>${escapeHtml(item.summary)}</p>` : '');
+                })
+                .join('');
+            previewEl.innerHTML = heading + steps;
+            previewEl.hidden = false;
+            previewBtn.textContent = 'Dölj förhandsgranskning';
+        });
+    }
 
     if (draft.status === 'draft') {
         const addRow = el('[data-draft-add-row]', node);
@@ -157,9 +229,11 @@ function registerNewDraftForm() {
 
     el('[data-new-draft-btn]').addEventListener('click', async () => {
         errorEl.hidden = true;
+        const selectedType = document.querySelector('[data-new-draft-type]:checked');
         const { error } = await supabase.rpc('upsert_creator_package_draft', {
             p_title: titleInput.value,
-            p_summary: summaryInput.value
+            p_summary: summaryInput.value,
+            p_package_type: selectedType ? selectedType.value : 'collection'
         });
         if (error) {
             errorEl.textContent = error.message;
