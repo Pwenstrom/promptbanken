@@ -15,6 +15,15 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
     el('[data-draft-summary]', node).textContent = draft.summary || '';
     el('[data-draft-status-badge]', node).textContent = STATUS_LABELS[draft.status] || draft.status;
 
+    // Redaktionell återkoppling, samma mönster som creatorContent.js.
+    const reviewNote = el('[data-draft-review-note]', node);
+    if (draft.review_note && (draft.status === 'draft' || draft.status === 'archived')) {
+        reviewNote.textContent = draft.status === 'archived'
+            ? `Avslogs: ${draft.review_note}`
+            : `Skickades tillbaka: ${draft.review_note}`;
+        reviewNote.hidden = false;
+    }
+
     const { data: items, error: itemsError } = await supabase.rpc('list_creator_package_draft_items', { p_draft_id: draft.id });
     const itemList = itemsError ? [] : items;
 

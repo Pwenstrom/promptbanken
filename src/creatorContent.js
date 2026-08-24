@@ -14,6 +14,16 @@ function renderRow(template, prompt) {
     el('[data-row-summary]', node).textContent = prompt.summary || '';
     el('[data-row-status-badge]', node).textContent = STATUS_LABELS[prompt.status] || prompt.status;
 
+    // Redaktionell återkoppling. Utan den vet creatorn inte varför prompten
+    // kom tillbaka, och "Begär ändring" i adminvyn blir en återvändsgränd.
+    const reviewNote = el('[data-row-review-note]', node);
+    if (prompt.review_note && (prompt.status === 'draft' || prompt.status === 'archived')) {
+        reviewNote.textContent = prompt.status === 'archived'
+            ? `Avslogs: ${prompt.review_note}`
+            : `Skickades tillbaka: ${prompt.review_note}`;
+        reviewNote.hidden = false;
+    }
+
     const submitForm = el('[data-row-submit-form]', node);
     const withdrawBtn = el('[data-row-withdraw-btn]', node);
 
