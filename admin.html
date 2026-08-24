@@ -27,6 +27,7 @@
                 <a class="admin-nav-link" href="#export"><span class="app-icon" data-icon="clipboard"></span>Export</a>
                 <a class="admin-nav-link" href="#paket-seo"><span class="app-icon" data-icon="files"></span>Paket-SEO</a>
                 <a class="admin-nav-link" href="#creator-profiler"><span class="app-icon" data-icon="library"></span>Creator-profiler</a>
+                <a class="admin-nav-link" href="#creator-granskning"><span class="app-icon" data-icon="shield"></span>Creator-granskning</a>
             </nav>
             <button class="admin-logout" type="button" data-logout>Logga ut</button>
         </aside>
@@ -181,11 +182,49 @@
                         </div>
                     </div>
                 </section>
+
+                <section class="workspace-section" id="creator-granskning" aria-labelledby="creator-granskning-title">
+                    <div class="workspace-section-heading">
+                        <h2 id="creator-granskning-title">Creator-granskning</h2>
+                        <button type="button" data-review-refresh>Uppdatera</button>
+                    </div>
+                    <p class="workspace-hint">
+                        Inskickade prompts och paket väntar på ditt beslut. Förgranskningen är
+                        rådgivande — den kan aldrig publicera eller avslå något själv.
+                    </p>
+                    <p class="workspace-status" role="status" data-review-status>Laddar inskick...</p>
+                    <section class="workspace-empty" data-review-denied hidden>
+                        <p>Bara plattformsägare kan granska creator-inskick.</p>
+                    </section>
+                    <div class="review-list" data-review-list hidden></div>
+                </section>
             </main>
         </div>
     </div>
+
+    <template data-review-row-template>
+        <article class="review-card">
+            <div class="review-card-head">
+                <h3 data-review-title></h3>
+                <span class="review-verdict" data-review-verdict></span>
+            </div>
+            <p class="review-meta" data-review-meta></p>
+            <p class="review-consents" data-review-consents></p>
+            <div class="review-detail" data-review-detail hidden></div>
+            <div class="review-actions">
+                <button type="button" data-review-open>Visa</button>
+                <button type="button" data-review-screen>Kör granskning</button>
+                <button type="button" data-review-approve>Godkänn</button>
+                <button type="button" data-review-changes>Begär ändring</button>
+                <button type="button" data-review-reject>Avslå</button>
+            </div>
+            <p class="mp-hint is-error" data-review-error hidden></p>
+        </article>
+    </template>
+
     <script type="module" src="/src/adminUsage.js"></script>
     <script type="module" src="/src/adminPackageSeo.js"></script>
     <script type="module" src="/src/adminCreatorProfiles.js"></script>
+    <script type="module" src="/src/adminCreatorReview.js"></script>
 </body>
 </html>
