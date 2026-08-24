@@ -6455,3 +6455,37 @@ body.detail-panel-closed .prompt-detail-panel {
     gap: 0.5rem;
     margin-top: 0.75rem;
 }
+
+/* Tabellen "verktyg för verktyg" i connectorpolicyn (privacy-mcp*.html).
+   Måste kunna scrollas i sidled på mobil utan att sidan gör det. */
+.policy-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0 1rem;
+    font-size: 0.9rem;
+}
+
+.policy-table th,
+.policy-table td {
+    border: 1px solid #d9e1ec;
+    padding: 0.5rem 0.65rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.policy-table th {
+    background: #f2f6fb;
+    color: #172033;
+    font-weight: 600;
+}
+
+.policy-table code {
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .policy-table {
+        display: block;
+        overflow-x: auto;
+    }
+}

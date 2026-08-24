@@ -61,11 +61,31 @@
                     <li><code>query</code> — en söksträng</li>
                     <li><code>role</code> — ett kort rollord, till exempel <em>chef</em> eller <em>kommunikatör</em></li>
                     <li><code>area</code> och <code>risk_level</code> — filter valda ur fasta listor</li>
-                    <li><code>limit</code> och <code>offset</code> — hur många träffar, och var i listan som ska fortsätta</li>
+                    <li><code>limit</code> — hur många träffar som ska returneras</li>
                     <li><code>context_keys</code> — vilken profilvariant som ska returneras, till exempel <em>kommun</em> eller <em>skola</em></li>
-                    <li><code>include_prompt_text</code> — om full prompttext ska följa med</li>
+                    <li><code>package_type</code> — <em>collection</em> eller <em>workflow</em></li>
                     <li><code>template_id</code> och <code>package_slug</code> — vilken katalogpost du valt</li>
                 </ul>
+
+                <h3>3.1 Verktyg för verktyg</h3>
+                <p>Exakt vad vart och ett av de nio verktygen tar emot, och vad det skickar tillbaka:</p>
+                <table class="policy-table">
+                    <thead>
+                        <tr><th>Verktyg</th><th>Parametrar det tar emot</th><th>Vad det returnerar</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>health_check</code></td><td>Inga</td><td>Driftstatus. Inget kataloginnehåll.</td></tr>
+                        <tr><td><code>get_client_routing_instructions</code></td><td>Inga</td><td>Instruktioner som din AI-klient använder för att välja mall lokalt. Ingen text från dig skickas för att hämta dem.</td></tr>
+                        <tr><td><code>list_templates</code></td><td><code>context_keys</code></td><td>Hela den publika katalogen: varje mall med prompttext, ifyllnadsfält och standardvärden.</td></tr>
+                        <tr><td><code>search_templates</code></td><td><code>query</code>, <code>role</code>, <code>area</code>, <code>risk_level</code>, <code>context_keys</code>, <code>limit</code></td><td>Sammanfattningar av träffande mallar — id, titel, syfte, område, taggar, utdataformat, risknivå. Ingen prompttext.</td></tr>
+                        <tr><td><code>get_template</code></td><td><code>template_id</code>, <code>context_keys</code></td><td>En mall i sin helhet: prompttext, ifyllnadsfält, standardvärden, taggar, risknivå.</td></tr>
+                        <tr><td><code>list_packages</code></td><td><code>package_type</code>, <code>context_keys</code></td><td>Paketsammanfattningar — slug, titel, sammanfattning, pakettyp.</td></tr>
+                        <tr><td><code>get_package</code></td><td><code>package_slug</code>, <code>context_keys</code></td><td>Ett paket: dess inledning, ifyllnadsfält och standardvärden.</td></tr>
+                        <tr><td><code>list_package_prompts</code></td><td><code>package_slug</code>, <code>context_keys</code></td><td>Paketets steg i ordning — id, titel, syfte, position. Prompttexten hämtas separat med <code>get_template</code>.</td></tr>
+                        <tr><td><code>recommend_packages</code></td><td><code>role</code></td><td>Katalogområden som passar rollen, med antal mallar i varje. En okänd roll ger alla områden i stället för inget.</td></tr>
+                    </tbody>
+                </table>
+                <p>Fem av de nio tar ingen fritext alls. Bara <code>query</code> och <code>role</code> kan bära ord du själv skrivit, och <code>role</code> är en enda yrkestitel.</p>
                 <p><strong>Inget annat från din konversation når servern.</strong> Anslutningen har ingen parameter som bär din dokumenttext, ditt ärendematerial eller din chatthistorik, och den har inga skrivverktyg — den kan inte spara något åt dig.</p>
                 <p><strong>Håll det så:</strong> <code>query</code> är det enda fält som skulle kunna bära text du själv skrivit. Skicka bara generella, anonymiserade sökord som beskriver vilken sorts uppgift det gäller. Klistra inte in personuppgifter, elevuppgifter, patientuppgifter eller sekretessbelagt material i en sökning. Verktygsbeskrivningen säger samma sak till AI-klienten.</p>
 
@@ -89,7 +109,7 @@
                 <h2>6. Vilka som tar emot uppgifter</h2>
                 <p>Vi säljer aldrig uppgifter och delar dem inte för marknadsföring. För anslutningen är mottagarna:</p>
                 <ul>
-                    <li><strong>Supabase</strong> — databasen med den publika katalogen och användningsstatistiken. Data lagras i EU-region. Personuppgiftsbiträde.</li>
+                    <li><strong>Supabase</strong> — databasen med den publika katalogen och användningsstatistiken. Data lagras inom EU, i regionen Stockholm (Sverige). Personuppgiftsbiträde.</li>
                     <li><strong>VPS-leverantör med servrar i Sverige (EU/EES)</strong> — driftsmiljön för MCP-servern på <code>mcp.promptbanken.se</code>. Personuppgiftsbiträde.</li>
                 </ul>
                 <p><strong>Din AI-klient är en egen personuppgiftsansvarig.</strong> Om du når Promptbanken genom ChatGPT, Claude eller en annan klient behandlas din konversation av den leverantören enligt deras egen integritetspolicy, och det är deras villkor som gäller för den — inte våra. Vi varken styr eller ser vad du skriver till klienten. Vi tar bara emot de verktygsparametrar som listas i avsnitt 3.</p>

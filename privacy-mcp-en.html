@@ -61,11 +61,31 @@
                     <li><code>query</code> — a search string</li>
                     <li><code>role</code> — a short job-role term, for example <em>chef</em> or <em>kommunikatör</em></li>
                     <li><code>area</code> and <code>risk_level</code> — filters chosen from fixed lists</li>
-                    <li><code>limit</code> and <code>offset</code> — how many results, and where in the list to continue</li>
+                    <li><code>limit</code> — how many results to return</li>
                     <li><code>context_keys</code> — which profile variant to return, for example <em>kommun</em> or <em>skola</em></li>
-                    <li><code>include_prompt_text</code> — whether full prompt text should be included</li>
+                    <li><code>package_type</code> — <em>collection</em> or <em>workflow</em></li>
                     <li><code>template_id</code> and <code>package_slug</code> — which catalog entry you chose</li>
                 </ul>
+
+                <h3>3.1 Tool by tool</h3>
+                <p>Exactly what each of the nine tools receives, and what it sends back:</p>
+                <table class="policy-table">
+                    <thead>
+                        <tr><th>Tool</th><th>Parameters it receives</th><th>What it returns</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>health_check</code></td><td>None</td><td>Service status. No catalog content.</td></tr>
+                        <tr><td><code>get_client_routing_instructions</code></td><td>None</td><td>Instructions your AI client uses to pick a template locally. No text of yours is sent to obtain them.</td></tr>
+                        <tr><td><code>list_templates</code></td><td><code>context_keys</code></td><td>The whole public catalog: every template with its prompt text, fill-in fields and default values.</td></tr>
+                        <tr><td><code>search_templates</code></td><td><code>query</code>, <code>role</code>, <code>area</code>, <code>risk_level</code>, <code>context_keys</code>, <code>limit</code></td><td>Matching template summaries — id, title, purpose, area, tags, output format, risk level. No prompt text.</td></tr>
+                        <tr><td><code>get_template</code></td><td><code>template_id</code>, <code>context_keys</code></td><td>One template in full: prompt text, fill-in fields, default values, tags, risk level.</td></tr>
+                        <tr><td><code>list_packages</code></td><td><code>package_type</code>, <code>context_keys</code></td><td>Package summaries — slug, title, summary, package type.</td></tr>
+                        <tr><td><code>get_package</code></td><td><code>package_slug</code>, <code>context_keys</code></td><td>One package: its introduction, fill-in fields and default values.</td></tr>
+                        <tr><td><code>list_package_prompts</code></td><td><code>package_slug</code>, <code>context_keys</code></td><td>The package's steps in order — id, title, purpose, position. Prompt text is fetched separately with <code>get_template</code>.</td></tr>
+                        <tr><td><code>recommend_packages</code></td><td><code>role</code></td><td>Catalog areas suited to that role, with the number of templates in each. An unrecognised role returns all areas rather than nothing.</td></tr>
+                    </tbody>
+                </table>
+                <p>Five of the nine take no free text at all. Only <code>query</code> and <code>role</code> can carry words you typed, and <code>role</code> is a single job title.</p>
                 <p><strong>Nothing else from your conversation reaches the server.</strong> The connector has no parameter that carries your document text, your case material, or your chat history, and it has no write tools — it cannot store anything on your behalf.</p>
                 <p><strong>Please keep it that way:</strong> the <code>query</code> parameter is the one field that could carry text you typed. Send only general, anonymized search terms describing the kind of task. Do not paste personal data, student records, patient data, or confidential material into a search. The tool description tells AI clients the same thing.</p>
 
@@ -89,7 +109,7 @@
                 <h2>6. Who receives data</h2>
                 <p>We never sell data and never share it for marketing. For the connector, the recipients are:</p>
                 <ul>
-                    <li><strong>Supabase</strong> — the database holding the public catalog and the usage statistics. Data is stored in an EU region. Processor.</li>
+                    <li><strong>Supabase</strong> — the database holding the public catalog and the usage statistics. Data is stored in the EU, in the Stockholm (Sweden) region. Processor.</li>
                     <li><strong>VPS provider with servers in Sweden (EU/EEA)</strong> — the environment running the MCP server at <code>mcp.promptbanken.se</code>. Processor.</li>
                 </ul>
                 <p><strong>Your AI client is a separate controller.</strong> If you reach Promptbanken through ChatGPT, Claude, or another client, your conversation is processed by that provider under their own privacy policy, and their terms — not ours — govern it. We neither control nor see what you write to the client. We receive only the tool parameters listed in section 3.</p>
