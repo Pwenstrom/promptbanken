@@ -42,6 +42,7 @@ export default defineConfig({
         invite: resolve(__dirname, 'invite.html'),
         'team-invite': resolve(__dirname, 'team-invite.html'),
         creator: resolve(__dirname, 'creator.html'),
+        'creator-profile': resolve(__dirname, 'creator-profile.html'),
         'creator-content': resolve(__dirname, 'creator-content.html'),
         'creator-packages': resolve(__dirname, 'creator-packages.html')
       }

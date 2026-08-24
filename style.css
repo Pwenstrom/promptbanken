@@ -6570,3 +6570,117 @@ body.detail-panel-closed .prompt-detail-panel {
     font-style: normal;
     font-size: 0.85em;
 }
+
+/* Creator-översikten. */
+.overview-action-list {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.overview-action {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    border: 1px solid #f0d3d3;
+    border-radius: 8px;
+    background: #fdf7f7;
+    padding: 0.7rem 0.85rem;
+}
+
+.overview-action-kind {
+    display: block;
+    color: #5b6779;
+    font-size: 0.82rem;
+    margin-top: 0.15rem;
+}
+
+.overview-action .mp-hint {
+    margin: 0.4rem 0 0;
+}
+
+.overview-action-link {
+    flex-shrink: 0;
+    font-weight: 600;
+}
+
+.overview-recent {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.overview-recent li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.overview-recent li:last-child {
+    border-bottom: 0;
+}
+
+.overview-recent-meta {
+    color: #5b6779;
+    font-size: 0.82rem;
+}
+
+.overview-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.6rem;
+}
+
+.overview-card {
+    display: block;
+    border: 1px solid #d9e1ec;
+    border-radius: 8px;
+    background: #fbfcfe;
+    padding: 0.8rem 0.9rem;
+    text-decoration: none;
+}
+
+.overview-card strong {
+    display: block;
+    color: #172033;
+}
+
+.overview-card span {
+    display: block;
+    margin-top: 0.2rem;
+    color: #5b6779;
+    font-size: 0.85rem;
+}
+
+.overview-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.6rem;
+}
+
+.overview-stat {
+    display: block;
+    border: 1px solid #d9e1ec;
+    border-radius: 8px;
+    padding: 0.7rem 0.85rem;
+    text-decoration: none;
+}
+
+.overview-stat strong {
+    display: block;
+    color: #172033;
+    font-size: 1.5rem;
+    line-height: 1.1;
+}
+
+.overview-stat span {
+    display: block;
+    margin-top: 0.15rem;
+    color: #5b6779;
+    font-size: 0.82rem;
+}

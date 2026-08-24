@@ -18,7 +18,7 @@ avstämd mot vad som faktiskt finns i koden i dag.
 | --- | --- |
 | Mina prompts — skapa, redigera, skicka in, dra tillbaka | Byggt (`creator-content.html`) |
 | Mina paket — utkast, lägg till/ta bort, skicka in, dra tillbaka | Byggt (`creator-packages.html`) |
-| Profil — redigera, publicera, avpublicera | Byggt (`creator.html`) |
+| Profil — redigera, publicera, avpublicera | Byggt (`creator-profile.html`) |
 | Redaktionell granskning i admin, med AI-förgranskning | Byggt (delprojekt 4) |
 | Publik creator-sida med publicerat innehåll | Byggt |
 | Översikt | **Finns inte** |
@@ -37,13 +37,16 @@ Creator-ytan får en egen vänsternavigation, samma mönster som
 `admin.html` använder i dag:
 
 ```
-Översikt          creator.html
-Mina prompts      creator-content.html
-Mina paket        creator-packages.html
-Delningar         creator-shares.html
-Granskning        creator-review.html
-Profil            creator-profile.html
+Översikt          creator.html          byggd
+Mina prompts      creator-content.html  byggd
+Mina paket        creator-packages.html byggd
+Profil            creator-profile.html  byggd
+Delningar         creator-shares.html   läggs till när vyn finns
+Granskning        creator-review.html   läggs till när vyn finns
 ```
+
+De två sista raderna sätts in i navigationen först när sidorna existerar.
+En navigationsrad som leder till 404 är sämre än en kort navigation.
 
 `Inställningar` ligger **inte** här utan under användarmenyn uppe till
 höger, tillsammans med e-postadress och Logga ut. Motivet: inställningar
