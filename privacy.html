@@ -42,10 +42,10 @@
             </header>
 
             <article class="help-content">
-                <p class="workspace-kicker">Senast uppdaterad: 2026-08-23 · Version 3.0 · <a href="privacy-en.html">Read this policy in English</a></p>
+                <p class="workspace-kicker">Senast uppdaterad: 2026-08-25 · Version 3.1 · <a href="privacy-en.html">Read this policy in English</a></p>
                 <h1>Integritetspolicy</h1>
                 <p>Promptbanken är en öppen tjänst med färdiga AI-promptmallar för yrkespersoner och organisationer. Du behöver <strong>inget konto</strong> för att bläddra bland, öppna eller kopiera prompts. Den här policyn beskriver <strong>vilka uppgifter som behandlas, för vilka ändamål, med vilken rättslig grund, vilka som tar emot dem, hur länge de sparas och vilka kontroller du har</strong> i webbtjänsten.</p>
-                <p><strong>Använder du Promptbanken från ChatGPT, Claude eller en annan AI-klient?</strong> Den öppna MCP-anslutningen har en <a href="privacy-mcp.html">egen policy</a>. Den anslutningen har varken konto eller inloggning, så inget i avsnitt 2.3 nedan gäller för den.</p>
+                <p><strong>Använder du Promptbanken från ChatGPT, Claude eller en annan AI-klient?</strong> Den öppna MCP-anslutningen har en <a href="privacy-mcp.html">egen policy</a>. Den anslutningen har varken konto eller inloggning, så inget i avsnitt 2.6 om organisationskonton gäller för den.</p>
 
                 <h2>1. Personuppgiftsansvarig</h2>
                 <p>Gustav Peter Wenström, enskild näringsidkare, Sverige. Kontakt: <a href="mailto:info@promptbanken.se">info@promptbanken.se</a>.</p>
@@ -62,14 +62,20 @@
                 <p><strong>Uppgifter som aldrig sparas i statistiken:</strong> prompttext eller annat innehåll du skrivit, råa söktermer, IP-adresser, e-postadresser, user-agent, kontonycklar eller andra uppgifter som kan knytas till dig. Statistiktabellen saknar helt kolumner för sådana uppgifter, och händelsetyp, utfall och källa är i databasen begränsade till fasta listor av tillåtna värden. </p>
                 <p><strong>Ändamål:</strong> se vilka delar av biblioteket som används, hitta trasiga eller saknade prompts och prioritera innehåll. <strong>Rättslig grund:</strong> berättigat intresse (art. 6.1 f GDPR) — uppgifterna är avsiktligt icke-identifierande. <strong>Lagringstid:</strong> högst <strong>180 dagar</strong>, därefter automatisk radering genom ett schemalagt jobb som körs dagligen.</p>
 
-                <h3>2.3 MCP-anslutningen (ChatGPT, Claude och andra AI-klienter)</h3>
+                <h3>2.3 Delningslänkar</h3>
+                <p>En creator kan skapa en länk till sitt eget <strong>publicerade</strong> innehåll. Länken öppnas utan inloggning av den som har adressen. Delningssidor är alltid märkta <code>noindex</code> och kan därför inte hittas via sökmotorer.</p>
+                <p><strong>Uppgifter som sparas:</strong> för varje delning räknas antalet visningar och antalet kopieringar <strong>per dygn</strong>. Det som lagras är delningens id, händelsetyp och datum, plus en räknare.</p>
+                <p><strong>Uppgifter som aldrig sparas:</strong> tidpunkt för en enskild visning, IP-adress, user-agent, enhet, hänvisande sida eller något annat om besökaren. Tabellen saknar kolumner för sådant — dygnsaggregeringen är en egenskap hos lagringen, inte ett löfte.</p>
+                <p><strong>Ändamål:</strong> låta den som delat se om länken används. <strong>Rättslig grund:</strong> berättigat intresse (art. 6.1 f GDPR). <strong>Lagringstid:</strong> statistiken finns kvar så länge delningen finns kvar och raderas när den tas bort; en avslutad delning behåller sina tal tills creatorn raderar den.</p>
+
+                <h3>2.4 MCP-anslutningen (ChatGPT, Claude och andra AI-klienter)</h3>
                 <p>Den öppna MCP-anslutningen på <code>https://mcp.promptbanken.se/mcp</code> har <strong>ingen inloggning och inget konto</strong>, och beskrivs i sin helhet i en <a href="privacy-mcp.html">egen policy</a> — vad den tar emot, vad den returnerar, vad som sparas och hur länge.</p>
 
-                <h3>2.4 Tekniska driftloggar (webbtjänsten)</h3>
+                <h3>2.5 Tekniska driftloggar (webbtjänsten)</h3>
                 <p>Webbtjänsten är en statisk sajt som ligger hos GitHub Pages. Vi driver ingen egen webbserver för den och för inga egna åtkomstloggar över ditt besök. GitHub behandlar anslutningsdata som IP-adress i sin egen infrastruktur för att leverera sidorna — det ligger utanför vår kontroll och beskrivs i avsnitt 3.</p>
                 <p>Driftloggarna för MCP-anslutningen, som vi själva driver, beskrivs i <a href="privacy-mcp.html">policyn för den öppna anslutningen</a>.</p>
 
-                <h3>2.5 Organisationskonton (Arbetsyta, Förvaltning, Kommun)</h3>
+                <h3>2.6 Organisationskonton (Arbetsyta, Förvaltning, Kommun)</h3>
                 <p>Konton hör till en organisation och skapas i samverkan med oss — det finns inget formulär för att registrera sig själv med e-post och lösenord. Loggar du in med Google skapas dock ett konto automatiskt första gången, om det inte redan finns ett. Följande behandlas:</p>
                 <ul>
                     <li><strong>E-postadress</strong> — inloggning och nödvändig kontakt om tjänsten</li>

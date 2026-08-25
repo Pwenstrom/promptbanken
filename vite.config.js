@@ -43,6 +43,8 @@ export default defineConfig({
         'team-invite': resolve(__dirname, 'team-invite.html'),
         creator: resolve(__dirname, 'creator.html'),
         'creator-profile': resolve(__dirname, 'creator-profile.html'),
+        'creator-shares': resolve(__dirname, 'creator-shares.html'),
+        delning: resolve(__dirname, 'delning/index.html'),
         'creator-content': resolve(__dirname, 'creator-content.html'),
         'creator-packages': resolve(__dirname, 'creator-packages.html')
       }

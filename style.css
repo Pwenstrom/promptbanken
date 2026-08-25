@@ -6770,3 +6770,102 @@ body.detail-panel-closed .prompt-detail-panel {
     color: #5b6779;
     font-size: 0.88rem;
 }
+
+/* Delningar — creatorns vy. */
+.share-row {
+    border: 1px solid #d9e1ec;
+    border-radius: 8px;
+    background: #fbfcfe;
+    padding: 0.75rem 0.9rem;
+    margin-bottom: 0.6rem;
+}
+
+.share-row-meta {
+    display: block;
+    color: #5b6779;
+    font-size: 0.82rem;
+    margin-top: 0.15rem;
+}
+
+.share-row-url {
+    display: block;
+    margin-top: 0.35rem;
+    padding: 0.3rem 0.45rem;
+    border-radius: 4px;
+    background: #eef2f7;
+    color: #3d4859;
+    font-size: 0.78rem;
+    overflow-wrap: anywhere;
+}
+
+.share-row-stats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    color: #5b6779;
+    font-size: 0.85rem;
+}
+
+.share-created {
+    margin-top: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #cfe6d8;
+    border-radius: 8px;
+    background: #f2faf5;
+    overflow-wrap: anywhere;
+}
+
+/* Delningssidan — publik, anonym, aldrig indexerad. */
+.share-shell {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
+}
+
+.share-byline {
+    color: #5b6779;
+    font-size: 0.9rem;
+    margin: 0 0 0.35rem;
+}
+
+.share-summary {
+    color: #3d4859;
+    font-size: 1.02rem;
+}
+
+.share-meta {
+    color: #5b6779;
+    font-size: 0.85rem;
+}
+
+.share-prompt-text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    border: 1px solid #d9e1ec;
+    border-radius: 8px;
+    background: #fbfcfe;
+    padding: 0.85rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.share-security {
+    color: #5b6779;
+    font-size: 0.88rem;
+}
+
+.share-actions {
+    margin: 1rem 0;
+}
+
+.share-footnote {
+    color: #5b6779;
+    font-size: 0.85rem;
+    border-top: 1px solid #eef2f7;
+    padding-top: 0.75rem;
+}
+
+.share-gone {
+    text-align: center;
+    padding: 2rem 1rem;
+}

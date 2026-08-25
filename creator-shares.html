@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delningar | Promptbanken</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="workspace-page">
+    <header class="workspace-topbar">
+        <a class="workspace-brand" href="index.html">Promptbanken</a>
+        <nav>
+            <a href="creator.html">Översikt</a>
+            <a href="creator-content.html">Mina prompts</a>
+            <a href="creator-packages.html">Mina paket</a>
+            <a href="creator-shares.html">Delningar</a>
+            <a href="creator-profile.html">Profil</a>
+            <strong data-shares-user-email>-</strong>
+            <button type="button" data-shares-logout>Logga ut</button>
+        </nav>
+    </header>
+
+    <main class="workspace-shell" aria-labelledby="shares-title">
+        <div class="workspace-heading">
+            <div>
+                <p class="workspace-kicker">Länkar till ditt publicerade innehåll</p>
+                <h1 id="shares-title">Delningar</h1>
+            </div>
+        </div>
+
+        <p class="workspace-status" role="status" data-shares-status>Laddar...</p>
+
+        <section class="workspace-empty" data-shares-login-needed hidden>
+            <h1>Du är inte inloggad</h1>
+            <p>Logga in för att skapa och se dina delningar.</p>
+            <p><a href="login.html">Till inloggningen</a></p>
+        </section>
+
+        <div data-shares-content hidden>
+            <section class="workspace-section">
+                <h2>Skapa delning</h2>
+                <p>
+                    Du kan dela innehåll som är publicerat i Promptbanken. Utkast och
+                    innehåll under granskning går inte att dela — en delningslänk ska
+                    aldrig kunna bli en väg förbi granskningen.
+                </p>
+
+                <label>Vad vill du dela
+                    <select data-share-subject></select>
+                </label>
+
+                <label>Namn på delningen
+                    <input type="text" data-share-label maxlength="120" placeholder="Syns bara för dig">
+                </label>
+
+                <fieldset class="package-type-choice">
+                    <legend>Version</legend>
+                    <label class="package-type-card">
+                        <input type="radio" name="share-version" value="latest" data-share-version checked>
+                        <span>
+                            <strong>Följ senaste</strong>
+                            Mottagaren ser alltid den nuvarande versionen.
+                        </span>
+                    </label>
+                    <label class="package-type-card">
+                        <input type="radio" name="share-version" value="pinned" data-share-version>
+                        <span>
+                            <strong>Lås till nuvarande version</strong>
+                            En kopia sparas nu. Senare ändringar syns inte i den här länken.
+                        </span>
+                    </label>
+                </fieldset>
+
+                <label>Giltig
+                    <select data-share-expiry>
+                        <option value="7">7 dagar</option>
+                        <option value="30" selected>30 dagar</option>
+                        <option value="custom">Eget datum</option>
+                        <option value="never">Tills vidare</option>
+                    </select>
+                </label>
+
+                <label data-share-custom-date-wrap hidden>Slutdatum
+                    <input type="date" data-share-custom-date>
+                </label>
+
+                <p data-share-create-error role="alert" hidden></p>
+                <button type="button" data-share-create-btn>Skapa delning</button>
+
+                <p class="share-created" data-share-created hidden>
+                    Delningen är skapad. <strong data-share-created-url></strong>
+                    <button type="button" data-share-created-copy>Kopiera länken</button>
+                </p>
+            </section>
+
+            <section class="workspace-section">
+                <h2>Aktiva delningar</h2>
+                <div data-shares-active></div>
+                <p data-shares-active-empty hidden>Du har inga aktiva delningar.</p>
+            </section>
+
+            <section class="workspace-section" data-shares-ended-section hidden>
+                <h2>Avslutade</h2>
+                <div data-shares-ended></div>
+            </section>
+        </div>
+    </main>
+
+    <template data-share-row-template>
+        <article class="share-row">
+            <div class="share-row-main">
+                <strong data-row-label>-</strong>
+                <span class="share-row-meta" data-row-meta></span>
+                <code class="share-row-url" data-row-url></code>
+            </div>
+            <div class="share-row-stats">
+                <span><strong data-row-views>0</strong> visningar</span>
+                <span><strong data-row-copies>0</strong> kopieringar</span>
+            </div>
+            <div class="creator-row-actions">
+                <button type="button" data-row-copy-btn>Kopiera länk</button>
+                <button type="button" data-row-extend-btn>Förläng 30 dagar</button>
+                <button type="button" data-row-revoke-btn>Avsluta</button>
+            </div>
+            <p class="mp-hint is-error" data-row-error hidden></p>
+        </article>
+    </template>
+
+    <script type="module" src="src/creatorShares.js"></script>
+</body>
+</html>

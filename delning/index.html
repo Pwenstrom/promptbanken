@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delad prompt | Promptbanken</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <!-- Delningssidor indexeras aldrig. Skulle de göra det vore en
+         delningslänk i praktiken publicering, och granskningsgrinden gick
+         att kringgå. Se docs/superpowers/specs/2026-08-24-creator-ux-structure.md. -->
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="share-page">
+    <header class="landing-topbar">
+        <a class="landing-brand" href="/index.html" aria-label="Promptbanken startsida">Promptbanken</a>
+        <nav class="landing-nav" aria-label="Huvudlänkar">
+            <a href="/paket/">Paket</a>
+            <a href="/promptbanken.html">Katalog</a>
+            <a href="/creator/">Creators</a>
+        </nav>
+    </header>
+
+    <main class="share-shell">
+        <p class="workspace-status" role="status" data-share-status>Hämtar innehållet...</p>
+
+        <section class="share-gone" data-share-gone hidden>
+            <h1 data-share-gone-title>Den här delningen har upphört</h1>
+            <p data-share-gone-text></p>
+            <p><a href="/promptbanken.html">Bläddra i Promptbanken i stället</a></p>
+        </section>
+
+        <article class="share-article" data-share-content hidden>
+            <p class="share-byline" data-share-byline hidden>
+                Delad av <a data-share-creator-link href="#"><span data-share-creator-name></span></a>
+            </p>
+            <h1 data-share-title>-</h1>
+            <p class="share-summary" data-share-summary></p>
+            <p class="share-meta" data-share-meta></p>
+
+            <div data-share-body></div>
+
+            <div class="share-actions">
+                <button type="button" data-share-copy>Kopiera prompten</button>
+            </div>
+
+            <p class="share-footnote">
+                Innehållet kommer från Promptbanken. Klistra aldrig in personuppgifter
+                eller sekretessbelagt material i en AI-tjänst.
+            </p>
+        </article>
+    </main>
+
+    <footer class="landing-footer">
+        <p>Promptbanken — öppet bibliotek för arbete med AI.</p>
+        <p><a href="/privacy.html">Integritet</a> · <a href="/terms.html">Villkor</a></p>
+    </footer>
+
+    <script type="module" src="/src/share.js"></script>
+</body>
+</html>
