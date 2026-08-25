@@ -231,6 +231,10 @@ function registerNewDraftForm() {
         errorEl.hidden = true;
         const selectedType = document.querySelector('[data-new-draft-type]:checked');
         const { error } = await supabase.rpc('upsert_creator_package_draft', {
+            // null betyder nytt utkast. Måste skickas uttryckligen: parametern
+            // har ingen default, och PostgREST matchar på namngivna argument —
+            // utelämnad blir anropet en signatur som inte finns.
+            p_draft_id: null,
             p_title: titleInput.value,
             p_summary: summaryInput.value,
             p_package_type: selectedType ? selectedType.value : 'collection'
