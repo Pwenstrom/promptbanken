@@ -1,4 +1,4 @@
-import { requireSession, requireSupabaseConfig } from './auth.js';
+import { isPlatformOwner, requireSession, requireSupabaseConfig } from './auth.js';
 import { supabase } from './supabaseClient.js';
 
 const state = {
@@ -292,6 +292,15 @@ async function init() {
   if (!requireSupabaseConfig(statusElement)) return;
   const session = await requireSession();
   if (!session) return;
+
+  // Rollen avgörs innan något ritas. En creator som når hit — via ett gammalt
+  // bokmärke eller en länk — ska skickas hem, inte mötas av plattformsägarens
+  // sidomeny och ett "Ingen åtkomst" när fem anrop hunnit fela.
+  if (!(await isPlatformOwner())) {
+    window.location.replace('creator.html');
+    return;
+  }
+
   state.user = session.user;
   document.querySelector('[data-user-email]').textContent = session.user.email || '-';
   await loadDashboard();

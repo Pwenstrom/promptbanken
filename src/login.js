@@ -1,4 +1,9 @@
-import { getRedirectTarget, redirectIfAuthenticated, requireSupabaseConfig } from './auth.js';
+import {
+  getCurrentSession,
+  getExplicitRedirect,
+  resolveHomeTarget,
+  requireSupabaseConfig
+} from './auth.js';
 import { supabase } from './supabaseClient.js';
 
 const form = document.querySelector('[data-login-form]');
@@ -45,7 +50,7 @@ async function handleLogin(event) {
     return;
   }
 
-  window.location.assign(getRedirectTarget());
+  window.location.assign(await resolveHomeTarget());
 }
 
 function setAuthMode(nextMode) {
@@ -75,9 +80,18 @@ const googleButton = document.querySelector('[data-google-signin]');
 if (googleButton) {
   googleButton.addEventListener('click', async () => {
     if (!requireSupabaseConfig(statusElement)) return;
+    // Tillbaka till login.html, inte rakt till en sida. Sessionen finns när
+    // vi landar här igen, och blocket längst ned routar efter roll — annars
+    // hade Google-inloggningen alltid gett admin.html, även för en creator.
+    const explicit = getExplicitRedirect();
+    const returnTo = new URL('/login.html', window.location.origin);
+    if (explicit) {
+      returnTo.searchParams.set('redirect', explicit);
+    }
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin + '/admin.html' }
+      options: { redirectTo: returnTo.toString() }
     });
     if (error) setStatus(error.message || 'Kunde inte starta Google-inloggning.', true);
   });
@@ -88,7 +102,13 @@ modeButtons.forEach((button) => {
 });
 
 if (requireSupabaseConfig(statusElement)) {
-  redirectIfAuthenticated(getRedirectTarget()).catch((error) => {
-    setStatus(error.message || 'Kunde inte kontrollera session.', true);
-  });
+  getCurrentSession()
+    .then(async (session) => {
+      if (session) {
+        window.location.replace(await resolveHomeTarget());
+      }
+    })
+    .catch((error) => {
+      setStatus(error.message || 'Kunde inte kontrollera session.', true);
+    });
 }
