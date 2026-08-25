@@ -566,6 +566,7 @@
     <script src="script.js?v=prompt-preview-status-20260726b" defer></script>
     <script type="module">
       import { supabase, hasSupabaseConfig } from '/src/supabaseClient.js';
+      import { isPlatformOwner } from '/src/auth.js';
 
       const riskLabels = { low: 'Låg risk', medium: 'Medelrisk', high: 'Hög risk' };
 
@@ -627,7 +628,9 @@
         const link = document.getElementById('auth-nav-link');
         const label = document.getElementById('auth-nav-label');
         if (session && link && label) {
-          link.href = 'admin.html';
+          // Analysytan är bara plattformsägarens. Alla andra hör hemma på
+          // sin creator-yta, annars möts de av en adminmeny de inte får se.
+          link.href = (await isPlatformOwner()) ? 'admin.html' : 'creator.html';
           label.textContent = 'Min workspace';
         }
 

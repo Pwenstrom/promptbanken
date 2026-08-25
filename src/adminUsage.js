@@ -301,6 +301,7 @@ async function init() {
     return;
   }
 
+  document.querySelector('[data-admin-shell]').hidden = false;
   state.user = session.user;
   document.querySelector('[data-user-email]').textContent = session.user.email || '-';
   await loadDashboard();

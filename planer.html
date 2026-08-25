@@ -118,12 +118,15 @@
     </div>
     <script type="module">
       import { supabase, hasSupabaseConfig } from '/src/supabaseClient.js';
+      import { isPlatformOwner } from '/src/auth.js';
       if (hasSupabaseConfig) {
-        supabase.auth.getSession().then(({ data }) => {
+        supabase.auth.getSession().then(async ({ data }) => {
           const link = document.getElementById('auth-nav-link');
           const label = document.getElementById('auth-nav-label');
           if (data?.session && link && label) {
-            link.href = 'admin.html';
+            // Analysytan är bara plattformsägarens. Alla andra hör hemma på
+            // sin creator-yta, annars möts de av en adminmeny de inte får se.
+            link.href = (await isPlatformOwner()) ? 'admin.html' : 'creator.html';
             label.textContent = 'Min workspace';
           }
         });

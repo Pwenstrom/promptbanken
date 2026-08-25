@@ -12,7 +12,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="workspace-page admin-workspace-page library-admin-page">
-    <div class="admin-app-shell library-admin-shell">
+    <!-- Dold tills rollen är bekräftad. Ramen är statisk HTML och skulle
+         annars blinka förbi för en creator innan omdirigeringen hinner ske. -->
+    <div class="admin-app-shell library-admin-shell" data-admin-shell hidden>
         <aside class="admin-sidebar" aria-label="Adminmeny">
             <a class="admin-brand" href="index.html">
                 <img class="brand-logo-mark" src="/brand-mark.png" alt="" width="28" height="28">

@@ -2470,6 +2470,11 @@ body.local-chat-enabled .card-actions .local-chat-btn {
     grid-template-columns: 240px minmax(0, 1fr);
 }
 
+/* display: grid vinner över webbläsarens [hidden], så dölj uttryckligen. */
+.admin-app-shell[hidden] {
+    display: none;
+}
+
 .admin-sidebar {
     position: sticky;
     top: 0;
