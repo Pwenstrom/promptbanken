@@ -12,7 +12,9 @@ function renderRow(template, prompt) {
     node.dataset.rowContentItemId = prompt.id;
     el('[data-row-title]', node).textContent = prompt.title;
     el('[data-row-summary]', node).textContent = prompt.summary || '';
-    el('[data-row-status-badge]', node).textContent = STATUS_LABELS[prompt.status] || prompt.status;
+    const statusBadge = el('[data-row-status-badge]', node);
+    statusBadge.textContent = STATUS_LABELS[prompt.status] || prompt.status;
+    statusBadge.dataset.status = prompt.status;
 
     // Redaktionell återkoppling. Utan den vet creatorn inte varför prompten
     // kom tillbaka, och "Begär ändring" i adminvyn blir en återvändsgränd.

@@ -6578,6 +6578,34 @@ body.detail-panel-closed .prompt-detail-panel {
 
 /* Importera prompt från .md-fil: dropzone, bläddra-länk och en chip som
    visar vilken fil som ligger till grund för fälten under. */
+
+/* Statusbadge för prompts och paket i creator-vyerna. Samma
+   status-namn (utkast/granskning/publicerad/arkiverad) på båda ytorna,
+   så en delad klass håller färgerna i synk. */
+.status-badge {
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+    background: #eef2f6;
+    color: #475569;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.status-badge[data-status="review"] {
+    background: #fff4d8;
+    color: #8a5c00;
+}
+
+.status-badge[data-status="published"] {
+    background: #e8f7ee;
+    color: #167344;
+}
+
+.status-badge[data-status="archived"] {
+    background: #fee4e2;
+    color: #b42318;
+}
+
 .creator-import-skill-link {
     display: flex;
     align-items: center;
@@ -6773,10 +6801,21 @@ body.detail-panel-closed .prompt-detail-panel {
 /* Pakettyp: två kort i stället för en rullista. Valet styr hur paketet
    presenteras för användaren, så det förtjänar en förklaring intill sig. */
 .package-type-choice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
     margin: 0.75rem 0;
     padding: 0.6rem 0.85rem 0.4rem;
     border: 1px solid #d9e1ec;
     border-radius: 8px;
+}
+
+.package-type-choice legend {
+    width: 100%;
+}
+
+.package-type-card {
+    flex: 1 1 260px;
 }
 
 .package-type-choice legend {
@@ -6791,7 +6830,20 @@ body.detail-panel-closed .prompt-detail-panel {
     gap: 0.5rem;
     align-items: flex-start;
     margin-bottom: 0.5rem;
+    padding: 0.65rem 0.75rem;
+    border: 1.5px solid #d9e1ec;
+    border-radius: 8px;
     cursor: pointer;
+}
+
+.package-type-card input[type="radio"] {
+    margin-top: 0.2rem;
+    accent-color: #0f5ea8;
+}
+
+.package-type-card:has(input:checked) {
+    border-color: #0f5ea8;
+    background: #e8f1fb;
 }
 
 .package-type-card span {
@@ -6829,6 +6881,34 @@ body.detail-panel-closed .prompt-detail-panel {
     display: flex;
     gap: 0.35rem;
     flex-shrink: 0;
+}
+
+/* Omordningsknapparna ska läsas som verktyg, inte som primärknappar --
+   annars väger tre knappar per rad tyngre än raden själv. Samma
+   :not()-uppsättning som basregeln, för att faktiskt vinna över den. */
+.workspace-section button.package-item-reorder-btn:not(.integration-tab),
+.workspace-section button.package-item-remove-btn:not(.integration-tab) {
+    background: #fff;
+    font-weight: 600;
+    padding: 0.3rem 0.4rem;
+}
+
+.workspace-section button.package-item-reorder-btn:not(.integration-tab) {
+    display: flex;
+    border: 1px solid #d9e1ec;
+    color: #475569;
+}
+
+.workspace-section button.package-item-remove-btn:not(.integration-tab) {
+    border: 0;
+    color: #b42318;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.4rem;
+}
+
+.workspace-section button.package-item-preview-btn:not(.integration-tab) {
+    background: #e8f1fb;
+    color: #0f5ea8;
 }
 
 .package-preview {
