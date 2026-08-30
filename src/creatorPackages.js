@@ -209,7 +209,7 @@ async function loadDrafts() {
     statusEl.textContent = 'Laddar...';
     const [{ data: drafts, error: draftsError }, { data: ownPrompts, error: promptsError }] = await Promise.all([
         supabase.rpc('list_my_creator_package_drafts'),
-        supabase.rpc('list_my_creator_prompts')
+        supabase.rpc('list_my_package_eligible_prompts')
     ]);
 
     if (draftsError || promptsError) {
