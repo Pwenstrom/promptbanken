@@ -1,0 +1,24 @@
+-- 20260831111500_build_content_payload_revoke_public.sql
+-- Fixup found by an independent Codex review of 20260831110000: app_private.
+-- build_content_payload is SECURITY DEFINER and has zero ownership check
+-- inside it -- by design, it's only ever meant to be called after the
+-- caller (create_creator_share, get_shared_content) has already verified
+-- ownership or a valid token. The 'prompt'/'package' branches were always
+-- safe to leave un-revoked because they only ever return already-published
+-- (public) rows. The new 'draft_prompt'/'package_draft' branches added in
+-- 20260831110000 return PRIVATE, unpublished content with no such filter --
+-- if `app_private` is ever reachable to `authenticated` (schema USAGE is
+-- granted per 20260612121000_rls_policies.sql, and this function was never
+-- individually revoked), any authenticated user could call
+-- build_content_payload('draft_prompt', <any content_items.id>) directly
+-- and read someone else's private draft, bypassing create_creator_share's
+-- ownership check entirely.
+--
+-- Fix: explicit revoke, matching the pattern already used for other
+-- sensitive app_private functions in this codebase (see
+-- app_private.get_mcp_key_context, 20260727150500). The internal callers
+-- (create_creator_share, get_shared_content) are unaffected -- a SECURITY
+-- DEFINER function executes with its owner's privileges when calling
+-- another function it owns, independent of GRANT/REVOKE on the callee.
+
+revoke all on function app_private.build_content_payload(text, uuid) from public;

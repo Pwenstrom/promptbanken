@@ -1,11 +1,20 @@
 -- supabase/tests/verify_creator_shares_private_content.sql
 -- Self-contained, rollback-wrapped verification of the generalized
--- creator_shares (draft_prompt/package_draft subject types) and of a
--- pre-existing bug this work uncovered: create_creator_share called
--- gen_random_bytes(16) unqualified under `set search_path = ''`, which
--- fails because pgcrypto lives in the `extensions` schema -- every call
--- to create_creator_share (published OR unpublished content) failed
--- until 20260831110500_create_creator_share_gen_random_bytes_fix.sql.
+-- creator_shares (draft_prompt/package_draft subject types) and of two
+-- bugs this work uncovered:
+-- 1. create_creator_share called gen_random_bytes(16) unqualified under
+--    `set search_path = ''`, which fails because pgcrypto lives in the
+--    `extensions` schema -- a PRE-EXISTING bug, every call to
+--    create_creator_share (published OR unpublished content) failed
+--    until 20260831110500_create_creator_share_gen_random_bytes_fix.sql.
+-- 2. app_private.build_content_payload had no ownership check AND no
+--    explicit revoke, so any `authenticated` caller could read someone
+--    else's private draft directly -- found by an independent Codex
+--    review, fixed in 20260831111500_build_content_payload_revoke_public.sql.
+-- 3. content_snapshots.subject_type's check constraint was never widened
+--    alongside creator_shares.subject_type, so the PINNED path for the two
+--    new subject types was completely broken -- found while re-verifying
+--    fix #2, fixed in 20260831112000_content_snapshots_subject_type_check.sql.
 -- Same pattern as rls_staging_check.sql / verify_library_reference_prompts.sql:
 -- creates its own fixtures, asserts, rolls back -- safe against production.
 
@@ -128,6 +137,52 @@ begin
         'get_shared_content follows latest edit (unpinned)',
         v_result->'content'->>'prompt_text' = 'Updated draft text',
         v_result::text
+    );
+end $$;
+
+-- 4b. Pinned path for draft_prompt: content_snapshots must accept the new
+-- subject_type, and the snapshot must NOT follow later edits.
+do $$
+declare
+    v_result jsonb;
+    v_token text;
+    v_read jsonb;
+begin
+    v_result := public.create_creator_share('draft_prompt', '64000000-0000-0000-0000-000000000001', true);
+    v_token := v_result->>'token';
+
+    update public.content_items set content = 'Edited after pinning'
+     where id = '64000000-0000-0000-0000-000000000001';
+
+    v_read := public.get_shared_content(v_token);
+
+    insert into creator_share_priv_results values (
+        'pinned draft_prompt share: snapshot accepted, ignores later edits',
+        (v_result->>'pinned')::boolean = true
+            and v_read->'content'->>'prompt_text' = 'Updated draft text',
+        v_read::text
+    );
+end $$;
+
+-- 4c. app_private.build_content_payload must be unreachable directly by
+-- an ordinary authenticated caller (the ownership check lives one level
+-- up, in create_creator_share -- this function has none of its own).
+do $$
+declare
+    v_rejected boolean := false;
+begin
+    begin
+        perform app_private.build_content_payload('draft_prompt', '64000000-0000-0000-0000-000000000001');
+    exception
+        when insufficient_privilege then
+            v_rejected := true;
+        when others then
+            v_rejected := false;
+    end;
+    insert into creator_share_priv_results values (
+        'build_content_payload is not directly callable by authenticated',
+        v_rejected,
+        case when v_rejected then 'insufficient_privilege as expected' else 'NOT rejected -- security hole' end
     );
 end $$;
 

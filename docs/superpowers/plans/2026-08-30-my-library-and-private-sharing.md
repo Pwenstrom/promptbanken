@@ -892,6 +892,19 @@ git commit -m "feat(catalog): add 'add to my library' button"
   published content too — has failed since 2026-08-25 with "function
   gen_random_bytes(integer) does not exist". Caught by the rollback-
   wrapped verification in Step 3/4.)
+- Create: `supabase/migrations/20260831111500_build_content_payload_revoke_public.sql`
+  (fixup — an independent Codex review of this migration found
+  `app_private.build_content_payload` had no ownership check and no
+  explicit `revoke`, so any `authenticated` caller could read someone
+  else's private draft directly, bypassing `create_creator_share`'s
+  ownership gate entirely. The `'prompt'`/`'package'` branches were always
+  safe left un-revoked since they only ever return already-published
+  data; the new draft branches broke that invariant.)
+- Create: `supabase/migrations/20260831112000_content_snapshots_subject_type_check.sql`
+  (fixup — found while re-verifying the revoke above: `content_snapshots`
+  has the identical `subject_type` check constraint as `creator_shares`,
+  and `20260831110000` only widened the latter. The **pinned** path for
+  `draft_prompt`/`package_draft` was completely broken until this fix.)
 - Create: `supabase/tests/verify_creator_shares_private_content.sql`
 - Modify: `src/creatorShares.js:33-68` (`loadSubjects`)
 - Modify: `src/share.js` (banner för ogranskat innehåll)
