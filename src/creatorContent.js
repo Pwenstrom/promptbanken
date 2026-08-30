@@ -146,6 +146,26 @@ async function loadPrompts() {
     listEl.hidden = false;
 }
 
+// Plockar en titel och en sammanfattning ur en importerad .md-fil så att
+// "Skapa ny prompt" kan förifyllas. Enkel heuristik, inte en full
+// Markdown-parser: filens första "# rubrik" blir titel (annars filnamnet
+// utan ändelse), och den första textraden efter den blir sammanfattning.
+function parseMarkdownPrompt(rawText, fallbackTitle) {
+    const lines = rawText.replace(/\r\n/g, '\n').split('\n');
+    let title = fallbackTitle;
+    const headingIndex = lines.findIndex((line) => /^#\s+\S/.test(line));
+    if (headingIndex !== -1) {
+        title = lines[headingIndex].replace(/^#\s+/, '').trim();
+        lines.splice(headingIndex, 1);
+    }
+
+    const content = lines.join('\n').trim();
+    const firstParagraph = lines.find((line) => line.trim().length > 0) || '';
+    const summary = firstParagraph.replace(/^#+\s*/, '').trim().slice(0, 500);
+
+    return { title, content, summary };
+}
+
 function registerNewPromptForm() {
     const titleInput = el('[data-new-prompt-title]');
     const contentInput = el('[data-new-prompt-content]');
@@ -153,6 +173,82 @@ function registerNewPromptForm() {
     const categoryInput = el('[data-new-prompt-category]');
     const errorEl = el('[data-new-prompt-error]');
     const btn = el('[data-new-prompt-btn]');
+
+    const dropzone = el('[data-new-prompt-dropzone]');
+    const browseLink = el('[data-new-prompt-browse]');
+    const fileInput = el('[data-new-prompt-file]');
+    const importChip = el('[data-new-prompt-import-chip]');
+    const importFilename = el('[data-new-prompt-import-filename]');
+    const importClearBtn = el('[data-new-prompt-import-clear]');
+    const importErrorEl = el('[data-new-prompt-import-error]');
+
+    const resetImportChip = () => {
+        importChip.hidden = true;
+        importFilename.textContent = '';
+    };
+
+    const showImportError = (message) => {
+        importErrorEl.textContent = message;
+        importErrorEl.hidden = false;
+    };
+
+    const importFile = (file) => {
+        importErrorEl.hidden = true;
+        if (!file) return;
+        if (!/\.md$/i.test(file.name) && file.type !== 'text/markdown') {
+            showImportError('Filen måste vara en .md-fil.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onerror = () => showImportError('Kunde inte läsa filen.');
+        reader.onload = () => {
+            const fallbackTitle = file.name.replace(/\.md$/i, '');
+            const { title, content, summary } = parseMarkdownPrompt(String(reader.result || ''), fallbackTitle);
+            titleInput.value = title;
+            contentInput.value = content;
+            summaryInput.value = summary;
+            importFilename.textContent = `${file.name} importerad`;
+            importChip.hidden = false;
+        };
+        reader.readAsText(file);
+    };
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            fileInput.click();
+        }
+    });
+    browseLink.addEventListener('click', (event) => {
+        event.stopPropagation();
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', () => {
+        importFile(fileInput.files[0]);
+        fileInput.value = '';
+    });
+
+    ['dragenter', 'dragover'].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            dropzone.classList.add('is-dragover');
+        });
+    });
+    ['dragleave', 'dragend', 'drop'].forEach((eventName) => {
+        dropzone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            dropzone.classList.remove('is-dragover');
+        });
+    });
+    dropzone.addEventListener('drop', (event) => {
+        const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+        importFile(file);
+    });
+
+    importClearBtn.addEventListener('click', resetImportChip);
 
     btn.addEventListener('click', async () => {
         errorEl.hidden = true;
@@ -173,6 +269,7 @@ function registerNewPromptForm() {
         contentInput.value = '';
         summaryInput.value = '';
         categoryInput.value = '';
+        resetImportChip();
         await loadPrompts();
     });
 }

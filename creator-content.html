@@ -42,8 +42,35 @@
         </section>
 
         <section class="workspace-section" data-creator-content-new-prompt hidden>
-            <h2>Skapa ny prompt</h2>
+            <div class="workspace-section-heading">
+                <h2>Skapa ny prompt</h2>
+                <a class="creator-import-skill-link" href="https://github.com/promptbanken/creator-import-skill" target="_blank" rel="noopener">
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path></svg>
+                    Importera direkt från ditt AI-verktyg? Se vår skill på GitHub
+                </a>
+            </div>
             <p>Skriv en egen prompt i din personliga arbetsyta. Den sparas som utkast — du väljer sedan om och hur den ska skickas in för granskning.</p>
+
+            <div class="creator-import-dropzone" data-new-prompt-dropzone tabindex="0" role="button" aria-label="Importera prompt från .md-fil">
+                <svg class="creator-import-dropzone-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 15V4"></path>
+                    <path d="M7.5 8.5 12 4l4.5 4.5"></path>
+                    <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path>
+                </svg>
+                <div>
+                    <p class="creator-import-dropzone-title">Dra och släpp en .md-fil här, eller <span class="creator-import-browse" data-new-prompt-browse>bläddra bland filer</span></p>
+                    <p class="creator-import-hint">Fyller i titel, prompttext och sammanfattning automatiskt — du kan redigera innan du sparar.</p>
+                </div>
+            </div>
+            <input type="file" accept=".md,text/markdown" data-new-prompt-file hidden>
+
+            <p class="creator-import-chip" data-new-prompt-import-chip hidden>
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10l4 4 8-8"></path></svg>
+                <span data-new-prompt-import-filename></span>
+                <button type="button" data-new-prompt-import-clear aria-label="Ta bort importerad fil">×</button>
+            </p>
+            <p class="field-error" data-new-prompt-import-error role="alert" hidden></p>
+
             <label>Titel <input type="text" data-new-prompt-title maxlength="200"></label>
             <label>Prompttext <textarea data-new-prompt-content rows="6" maxlength="20000"></textarea></label>
             <label>Sammanfattning <input type="text" data-new-prompt-summary maxlength="500" placeholder="Vad prompten gör, i en mening"></label>
