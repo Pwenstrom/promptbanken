@@ -490,6 +490,262 @@ Steg 2 och 4 kan byggas parallellt (olika repon, ingen delad kod). Steg 3
 
 ---
 
+## P. Tillägg 2026-08-30 (efter genomförd session): Pro-princip, Creator som Valvet-superset, privata paket
+
+Detta avsnitt lades till efter att sektion A–O redan legat till grund för ett
+första genomfört arbetspass (se
+`docs/superpowers/plans/2026-08-30-my-library-and-private-sharing.md`).
+Det korrigerar och skärper två saker som var uttryckligen öppna i sektion
+13 (Affärsmodell): vad Pro faktiskt betyder, och var privata paket ska bo.
+
+### P.1 Pro-princip — beslutad, inte längre öppen
+
+**Connect är inte synonymt med Pro.** Connect är åtkomstlagret (den
+autentiserade MCP-ytan). Abonnemanget styr entitlement/kvoter på det
+lagret — samma princip som redan gäller för dagens MCP-nycklar (Free: 1
+nyckel, 5 sparningar/månad, 5 katalogkopior/månad; Pro: 3 nycklar,
+obegränsat). Connect byggs en gång; Free kan fortsätta ha begränsad
+Connect/MCP-användning medan Pro låser upp högre eller obegränsade
+nivåer. Under beta kan Connect öppnas generöst för att mäta användning
+utan att det innebär ett permanent pris-löfte — samma verktyg, en
+entitlements-koll som skärps senare.
+
+**Webben är full skaparyta, oavsett plan.** Privata prompts och privata
+paket i Creator är Free och ska inte Pro-gatas. Det som är Pro är att nå
+samma underliggande bibliotek AI-native, direkt från en extern AI-klient,
+via Connect — inte förmågan att skapa och spara.
+
+Detta ersätter den öppna frågan i sektion 13 om Connects prismodell:
+principen är nu **åtkomstlager (Connect) separat från entitlement (plan)**,
+inte "Connect = en Pro-produkt".
+
+### P.2 Creator som Valvet-superset
+
+Allt en användare kan göra i Valvet ska gå att göra i Creator också.
+Skillnaden är inte funktionsomfång utan skapandemetod: i Creator kan
+skapandet ske med **bring your own AI** (creatorns egen AI-klient, via en
+nedladdningsbar Creator Skill som redan är specad i
+`docs/superpowers/specs/2026-08-24-creator-ux-structure.md` avsnitt 7,
+inte byggd än) — detta är redan en Free-funktion i sin manuella form
+(fylla i formulär) och förblir Free även i sin AI-assisterade form.
+Connect gör samma flöde smidigare (direkt läs/skriv i stället för manuell
+JSON-export/import genom webbläsaren) men lägger inte till en ny förmåga.
+
+### P.3 Privata paket — bekräftad återanvändning, ingen duplicering
+
+Uppdraget var att INTE gå vidare till implementation förrän det är
+bekräftat att privata paket kan återanvända Valvets befintliga datamodell.
+Bekräftat, med kod som bevis:
+
+`creator_package_drafts`/`creator_package_items`
+(`supabase/migrations/20260819090000_creator_authoring.sql`) är redan en
+generisch container av `content_items`-rader, inte specifik för
+`module='kommun'`. Skrivvägen `add_prompt_to_package_draft`s
+behörighetskontroll (rad 267–275 i samma fil):
+
+```sql
+select exists (
+    select 1 from public.content_items ci
+     where ci.id = p_content_item_id
+       and ci.type = 'prompt'
+       and (
+           ci.owner_user_id = (select auth.uid())
+           or (ci.status = 'published' and ci.creator_consent_reusable = true)
+       )
+) into v_item_eligible;
+```
+
+kontrollerar bara `type = 'prompt'` och ägarskap — **ingen
+modulrestriktion**. En Valvet-rad (`module = 'valvet'`) ägd av samma
+användare är alltså redan idag giltig att lägga till i ett
+`creator_package_draft`, utan någon kodändring. Ett `creator_package_draft`
+som aldrig skickas in (`submit_creator_package_draft` anropas aldrig,
+status förblir `'draft'`) är redan, ordagrant, ett privat paket — inget
+nytt att bygga i datalagret.
+
+**Den enda faktiska begränsningen finns i UI-picker-läsvägen, inte i
+datamodellen eller skrivvägen:** `list_my_creator_prompts()`
+(samma fil, rad 159–182) filtrerar explicit `ci.module = 'kommun'`, och
+`src/creatorPackages.js:212` är den enda anropspunkten för paketbyggarens
+"lägg till prompt"-lista. Det är alltså UI-picker-RPC:n, inte skrivvägen,
+som idag osynliggör en användares Valvet-prompts i paketbyggaren.
+
+**Minsta möjliga förändring, när implementation väl påbörjas** (inte gjort
+i denna session): antingen (a) ta bort `module = 'kommun'`-filtret i
+`list_my_creator_prompts()` så den returnerar ägda prompts oavsett modul
+(enklast, men namnet blir missvisande — se sektion M om `module='kommun'`-
+namnet), eller (b) lägga till en ny, tunn läs-RPC `list_my_package_eligible_prompts()`
+som unionar `module in ('kommun','valvet')` utan att röra den befintliga
+funktionens kontrakt (säkrare — `list_my_creator_prompts()` kan ha andra
+beroenden att inte störa). Ingen ny tabell, ingen ny kolumn, ingen ny
+skriv-RPC krävs i något av fallen.
+
+**Slutsats:** privata paket kräver ingen ny datamodell. De är redan byggda.
+Det som saknas är en (1) breddad läs-RPC för paketbyggarens picker, och en
+UI-yta i Creator som exponerar "spara som privat paket" (dvs. bygg ett
+`creator_package_draft` och lämna det i `draft`) som ett explicit,
+namngivet alternativ vid sidan av "skicka in för granskning" — idag
+antyder UI:t (`creator-packages.html`) bara publicering som mål, även om
+data-/RPC-lagret redan stödjer rent privat användning.
+
+### P.4 Fullständig produktstrategi (Peters formulering, 2026-08-30) — kanonisk
+
+Detta är den fullständiga, beslutade strategin. Den ersätter P.1–P.3 som
+den auktoritativa källan där de överlappar; P.1–P.3 står kvar som
+bevisföring (kodreferenser) för punkterna nedan, inte som en konkurrerande
+version.
+
+**Free — full skaparkraft i webben, oförändrat:**
+skapa/redigera privata prompts, skapa/redigera privata paket, spara
+privat, dela via länk, importera/exportera, BYOAI, skapa profil, bygga
+creatorportfolio, skicka material till granskning, publiceras i Open
+efter godkännande, lägga Open-material i sitt privata bibliotek, skapa
+egen redigerbar version av Open-material. Skapandet Pro-gatas aldrig.
+Privata paket ligger på samma nivå som privata prompts (bekräftat i P.3:
+redan sant i datamodellen idag).
+
+**Pro/betallogik:** värdet ligger i SKALA + AUTOMATISERING + AI-NATIVE
+ACCESS, inte i att låsa skapandet. Connect ≠ Pro. Modellen:
+Connect = åtkomstlager, entitlements/config styr hur mycket en given
+användare får använda det. Detta mönster **finns redan i produktion**,
+inte bara som idé — `app_private.has_active_pro_entitlement(user)`
+(pro_licenses/pro_orders, `20260703110000`/`20260703120000`) styr redan
+`valvet_catalog_copy_quota` oberoende av den råa `workspaces.plan`-flaggan
+(se `get_plan_usage`, rad 114 nedan) — dvs. "en riktig, tidsbegränsad
+licens avgör kvoten, inte bara en textsträng på workspace-raden" är
+exakt samma princip Connect-entitlements bör återanvända, inte en ny
+uppfinning.
+
+**Verifierade Free/Pro-MCP-tal, 2026-08-30** (kontrollerat i faktisk kod,
+inte antaget — se `supabase/migrations/20260702150000_pro_mcp_key_limit.sql`
+och `20260718120000_plan_usage_valvet_fields.sql`):
+
+| Gräns | Free | Pro | Källa |
+| --- | --- | --- | --- |
+| Egna prompts (Creator/`kommun`) | 3 | 100 | `workspaces.max_prompts`, satt vid signup |
+| Valvet-objekt | 50 | 1000 | `enforce_vault_item_limit` |
+| MCP-sparningar/månad | 5 | obegränsat | `save_my_item_for_key`-räknaren i `get_plan_usage` |
+| Katalogkopior/månad | 5 | obegränsat (kräver aktiv entitlement, inte bara `plan='pro'`) | `valvet_catalog_copy_quota` |
+| **MCP-nycklar** | **1** | **✱ se nedan** | se not |
+
+**✱ Verklig, tidigare okänd drift hittad under detta arbete:** den
+faktiska **enforcerande** triggern `app_private.enforce_mcp_key_limit`
+(`20260702150000_pro_mcp_key_limit.sql:22`) tillåter **5** nycklar för
+Pro. Men den RPC webben/Valvet faktiskt läser för att visa gränsen,
+`get_plan_usage` (`20260718120000_plan_usage_valvet_fields.sql:85`),
+rapporterar **3**. En Pro-användare kan alltså i praktiken skapa upp
+till 5 nycklar i databasen, men UI:t (`vault.js`s `mcpKeyLimit()`, som
+litar på `state.usage.max_mcp_keys`) visar "X av 3" och inaktiverar
+troligen "skapa ny nyckel" vid 3 — en beteendemässig bugg, inte bara ett
+kosmetiskt fel, eftersom de två talen kommer från olika ställen i koden
+och aldrig synkats efter `20260718120000`. **Kräver ett beslut** (är 3
+eller 5 rätt gräns för Pro?) och en liten fixmigration innan Connect
+introducerar ÄNNU ett ställe som behöver känna till samma tal — annars
+blir det tre källor att hålla i synk istället för två.
+
+**Connect** — separat autentiserad MCP, inte en modifiering av Open MCP.
+Äger ingen egen innehållsmodell; är ett accesslager ovanpå samma data som
+webben (redan arkitekturens grundprincip, se sektion I). Open MCP förblir
+publik/anonym/read-only/fryst 1.2.2, oavsett vad som byggs i Connect.
+
+**Connect Beta — byggs en gång, ingen omskrivning:** flödet
+`request → authenticate → resolve entitlement → check quota/access →
+execute same tool` — samma MCP, samma tools, samma data, samma
+auth-princip; bara entitlement/quota/plan varierar och är
+konfigurationsstyrt. Det befintliga mönstret i sektion J
+(`api_keys.scopes` + `key_hash`-uppslag) bär redan denna form: att lägga
+till `entitlement`/`quota_tier` som ytterligare kolumner eller en
+kopplad `pro_licenses`-rad på samma nyckelrad, avläst i samma
+`get_mcp_key_context`-stil RPC, är en ren utökning — inget att bygga om.
+
+**BYOAI/Creator Skill** — redan gratis i sin manuella form, förblir
+gratis i sin AI-assisterade form (Creator Skill, specad men inte byggd,
+se P.2). Flödet utan Connect: AI → export → import → webb. Med Connect:
+AI ↔ Connect ↔ Mitt bibliotek, direkt. Connect skapar alltså ingen ny
+FÖRMÅGA, bara mindre friktion — exakt den distinktion som redan
+gjordes i P.1/P.2, nu explicit bekräftad.
+
+**Creator som distributionsloop, inte en creator-ekonomi:** creator-
+profilen är en AI-portfolio (namn, LinkedIn, webbplats, företag,
+publicerat material), och syftet är spridning/attribution — inte
+utbetalningar, inte en marknadsplats. Matchar redan sektion 15 i
+handover-dokumentet ("bygg inte marketplace/creator payouts nu") och
+kräver ingen ändring av det som redan är byggt (creator_profiles,
+attribution i katalogen).
+
+**Open-material i privata bibliotek — redan levererat, inte längre
+öppet:** båda operationerna som efterfrågas här är redan byggda och
+live i produktion sedan denna sessions tidigare arbetspass
+(`docs/superpowers/plans/2026-08-30-my-library-and-private-sharing.md`):
+
+- **Lägg till i mitt bibliotek (referens)** — `add_catalog_prompt_to_library`
+  skapar en `content_items`-rad med `library_ref_catalog_prompt_id` satt
+  och tomt `content`; `get_referenced_library_prompt` läser originalet
+  live. Attribution följer automatiskt via `catalog_prompts.creator_profile_id`.
+  Fungerar idag bara för prompts, inte paket (se nedan).
+- **Skapa egen version** — `copy_published_prompt_to_valvet` (redan
+  existerande sedan tidigare) skapar en full, redigerbar kopia med
+  `source_template_id`/`source_version`/`source_copied_at` som
+  ursprungsspårning — samma princip som `source_type`/`source_id`/
+  `derived_from` i din formulering, bara med andra kolumnnamn i den
+  redan skarpa implementationen. Fungerar idag bara för prompts.
+
+**Kvarstående gap, inte tidigare identifierat i klartext:** ingen av de
+två operationerna finns för **paket** ännu — bara för enskilda prompts.
+Att bygga `add_catalog_package_to_library`/motsvarande "skapa egen
+paketversion" är en rimlig nästa, avgränsad implementation, och kan
+återanvända exakt samma mönster (nullbar referenskolumn på
+`creator_package_drafts`, eller en ny liten unionstabell om paket-
+referenser ska kunna peka på både egna och Open-paket).
+
+### P.5 Slutgiltig modell (beslutad, 2026-08-30) — ersätter Free/Pro-axeln i P.1/P.4
+
+Detta är den låsta modellen. Den ersätter specifikt Free/Pro-distinktionen
+för Connect i P.1 och P.4 (som lämnade den som "begränsad vs. obegränsad
+kvot") med en skarpare, enklare axel: **läsrättighet, inte kvot, är vad
+som skiljer Free och Pro på Connect.**
+
+| Yta | Nivå | Vad |
+| --- | --- | --- |
+| Webben | Free | Skapa/redigera privata prompts och paket, importera/exportera, dela länk, profil/portfolio, skicka in för granskning/publicering. Ingen Pro-spärr på skapandet. |
+| Open MCP | Alla | Oförändrad, fryst 1.2.2. Publik, anonym, read-only, ingen privat data. |
+| Connect | Free | **Read-only.** AI:n läser/söker användarens privata prompts och paket. Skapande/ändring sker i webben. |
+| Connect | Pro | **Read + write/manage.** AI:n skapar, sparar, redigerar, paketerar och förvaltar biblioteket direkt via MCP. |
+| Connect | Beta | Full Pro-funktion (read+write) gratis under testperioden, för att validera just den upplevelsen. Efter beta växlar entitlement till Free=read/Pro=read+write utan kodändring — bara en flagga per nyckel. |
+
+**En Connect, inte två.** Samma MCP-endpoint, samma verktygsmodell, samma
+tool-lista — `tools/list` returnerar samma uppsättning oavsett plan
+(annars läcker planinformation genom vilka verktyg som ens syns).
+Entitlementen avgör per anrop om ett skrivverktyg faktiskt får utföra
+något, inte om det syns. Detta är samma "definiera kapacitet, kolla vid
+körning"-princip som redan gäller för `/mcp/key`s Free/Pro-gating av
+`save_workspace_prompt` m.fl. (sektion I) — ingen ny mekanism, en ny
+gränslinje (read vs. write, inte bara kvot) ovanpå en redan befintlig
+mekanism.
+
+**Valvet är källan, inget nytt lagras.** Connects läsverktyg pekar mot
+samma `content_items`/`creator_package_drafts` som webben och Valvet
+redan läser/skriver. Skrivverktygen i Connect Pro är, konkret, MCP-
+speglingar av redan existerande RPC:er (`saveItem`/`add_prompt_to_package_draft`-
+motsvarigheter) bakom nyckelhash istället för `auth.uid()` — samma mönster
+som `save_my_item_for_key`/`copy_template_to_valvet_for_key` redan
+använder (sektion I, `_for_key`-familjen). Att bygga Connect Pro-skriv är
+alltså till stor del "lägg till en `_for_key`-variant av redan befintliga
+webb-RPC:er", inte ny affärslogik.
+
+**Enkel formulering, för produktcopy:**
+> Free: din AI får använda ditt bibliotek.
+> Pro: din AI får också bygga och förvalta det.
+
+Detta är nu den auktoritativa formuleringen av Free/Pro-gränsen för
+Connect. Där P.1 och P.4 talade om "begränsad/obegränsad kvot" ska den
+läsningen anses ersatt av tabellen ovan — kvot (antal nycklar,
+anropstak) kan fortfarande existera som ett SEPARAT, sekundärt tak
+(missbruksskydd), men det är inte den axel som definierar Free kontra Pro
+på Connect. Läs/skriv är det.
+
+---
+
 ## O. Rekommenderad stegordning
 
 1. **Publicera "Lägg till i mitt bibliotek"-knappen i huvudkatalogen**
