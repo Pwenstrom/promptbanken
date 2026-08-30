@@ -761,6 +761,7 @@ function createCatalogPromptCard(prompt) {
         <div class="catalog-card-actions">
             <button type="button" class="primary-btn catalog-select-btn">Välj</button>
             <button type="button" class="secondary-btn catalog-preview-btn">Förhandsvisa</button>
+            <button type="button" class="secondary-btn catalog-library-btn">Lägg till i mitt bibliotek</button>
         </div>
     `;
     card.addEventListener('click', () => selectCatalogPromptInSidebar(prompt));
@@ -771,6 +772,11 @@ function createCatalogPromptCard(prompt) {
     card.querySelector('.catalog-preview-btn').addEventListener('click', (event) => {
         event.stopPropagation();
         openCatalogPromptDetail(prompt.slug);
+    });
+    card.querySelector('.catalog-library-btn').addEventListener('click', (event) => {
+        event.stopPropagation();
+        window.addPublishedPromptToLibrary?.(prompt.id, event.currentTarget);
+        trackLibraryUsageEvent({ eventType: 'library_add', promptSlug: prompt.slug });
     });
     return card;
 }
@@ -926,7 +932,10 @@ function renderCatalogDetailVariant(variant) {
 
     const introOrPromptHtml = isPrompt
         ? `<pre class="catalog-detail-prompt-text">${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'prompt_text'))}</pre>
-           <div class="catalog-card-actions"><button type="button" class="catalog-copy-btn" id="catalog-detail-copy-btn">Kopiera prompt</button></div>`
+           <div class="catalog-card-actions">
+               <button type="button" class="catalog-copy-btn" id="catalog-detail-copy-btn">Kopiera prompt</button>
+               <button type="button" class="secondary-btn" id="catalog-detail-library-btn">Lägg till i mitt bibliotek</button>
+           </div>`
         : (normalizedVariant.intro_text
             ? `<p>${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'intro_text'))}</p>`
             : '');
@@ -956,6 +965,10 @@ function renderCatalogDetailVariant(variant) {
     if (isPrompt) {
         document.getElementById('catalog-detail-copy-btn')?.addEventListener('click', (event) => {
             copyCatalogEntityText(normalizedVariant, event.currentTarget);
+        });
+        document.getElementById('catalog-detail-library-btn')?.addEventListener('click', (event) => {
+            window.addPublishedPromptToLibrary?.(normalizedVariant.id, event.currentTarget);
+            trackLibraryUsageEvent({ eventType: 'library_add', promptSlug: normalizedVariant.slug });
         });
     }
 

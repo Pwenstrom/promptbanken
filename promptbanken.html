@@ -675,6 +675,7 @@
           .from('content_items')
           .select('id, title, summary, content, status, visibility, category, audience, risk_level, updated_at')
           .eq('workspace_id', profile.workspace_id)
+          .is('library_ref_catalog_prompt_id', null)
           .order('updated_at', { ascending: false });
 
         if (itemsError) {
@@ -712,6 +713,34 @@
         renderMyPromptsTiles(body, mappedItems);
         window.registerOwnPrompts?.(mappedItems);
       }
+
+      window.addPublishedPromptToLibrary = async function (promptId, button) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const session = sessionData?.session;
+
+        if (!session) {
+          window.location.href = 'login.html?redirect=promptbanken.html';
+          return;
+        }
+
+        const original = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Lägger till...';
+
+        const { error } = await supabase.rpc('add_catalog_prompt_to_library', { p_prompt_id: promptId });
+
+        button.disabled = false;
+
+        if (error) {
+          console.error('Kunde inte lägga till i biblioteket', error);
+          button.textContent = 'Kunde inte lägga till';
+          setTimeout(() => { button.textContent = original; }, 2500);
+          return;
+        }
+
+        button.textContent = 'Tillagd ✓';
+        setTimeout(() => { button.textContent = original; }, 2500);
+      };
 
       async function loadProTemplates() {
         const [
