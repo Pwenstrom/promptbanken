@@ -884,6 +884,14 @@ git commit -m "feat(catalog): add 'add to my library' button"
 
 **Files:**
 - Create: `supabase/migrations/20260831110000_creator_shares_private_content.sql`
+- Create: `supabase/migrations/20260831110500_create_creator_share_gen_random_bytes_fix.sql`
+  (fixup — uncovered a PRE-EXISTING production bug, not introduced by this
+  task: the original `create_creator_share` (`20260825090000`) called
+  `gen_random_bytes(16)` unqualified under `set search_path = ''`.
+  pgcrypto lives in the `extensions` schema, so every call — for
+  published content too — has failed since 2026-08-25 with "function
+  gen_random_bytes(integer) does not exist". Caught by the rollback-
+  wrapped verification in Step 3/4.)
 - Create: `supabase/tests/verify_creator_shares_private_content.sql`
 - Modify: `src/creatorShares.js:33-68` (`loadSubjects`)
 - Modify: `src/share.js` (banner för ogranskat innehåll)

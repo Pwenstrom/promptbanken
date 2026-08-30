@@ -110,6 +110,8 @@ async function init() {
     const content = data.content || {};
     const bodyEl = el('[data-share-body]');
 
+    el('[data-share-unreviewed]').hidden = data.reviewed !== false;
+
     el('[data-share-title]').textContent = content.title || '';
     el('[data-share-summary]').textContent = content.summary || '';
 

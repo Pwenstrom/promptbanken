@@ -30,28 +30,18 @@ async function copyToClipboard(text, button, doneLabel = 'Kopierad') {
     setTimeout(() => { button.textContent = original; }, 2000);
 }
 
-// Rullistan visar bara eget publicerat innehåll. list_creator_published_content
-// tar creatorns slug och returnerar just det.
+// Rullistan visar allt eget delbart innehåll -- publicerat OCH eget
+// opublicerat. list_my_shareable_content returnerar rätt subject_id för
+// respektive kind (katalog-id för publicerat, content_items/draft-id för
+// opublicerat).
 async function loadSubjects() {
     const select = el('[data-share-subject]');
-    // get_my_creator_profile returnerar SETOF creator_profiles, alltså en
-    // array med noll eller en rad — inte ett objekt.
-    const { data: profileRows } = await supabase.rpc('get_my_creator_profile');
-    const slug = Array.isArray(profileRows) && profileRows.length ? profileRows[0].slug : null;
+    const { data, error } = await supabase.rpc('list_my_shareable_content');
 
     select.innerHTML = '';
-    if (!slug) {
-        const option = document.createElement('option');
-        option.textContent = 'Du behöver en publicerad creator-profil först';
-        option.value = '';
-        select.appendChild(option);
-        return;
-    }
-
-    const { data, error } = await supabase.rpc('list_creator_published_content', { p_slug: slug });
     if (error || !data || !data.length) {
         const option = document.createElement('option');
-        option.textContent = 'Du har inget publicerat innehåll att dela än';
+        option.textContent = 'Du har inget att dela än';
         option.value = '';
         select.appendChild(option);
         return;
@@ -59,10 +49,11 @@ async function loadSubjects() {
 
     data.forEach((item) => {
         const option = document.createElement('option');
-        option.value = `${item.kind}:${item.slug}`;
-        option.textContent = `${item.kind === 'package' ? 'Paket' : 'Prompt'}: ${item.title}`;
+        option.value = `${item.kind}:${item.subject_id}`;
+        const kindLabel = item.kind.startsWith('package') ? 'Paket' : 'Prompt';
+        option.textContent = `${kindLabel} (${item.status_label}): ${item.title}`;
         option.dataset.kind = item.kind;
-        option.dataset.slug = item.slug;
+        option.dataset.subjectId = item.subject_id;
         select.appendChild(option);
     });
 }
@@ -94,6 +85,13 @@ function renderRow(share, template, container) {
     ];
     el('[data-row-meta]', node).textContent = meta.join(' · ');
     el('[data-row-url]', node).textContent = url;
+
+    if (share.subject_type === 'draft_prompt' || share.subject_type === 'package_draft') {
+        const warning = document.createElement('p');
+        warning.className = 'mp-hint';
+        warning.textContent = 'Detta innehåll är inte granskat av Promptbanken än.';
+        node.querySelector('.share-row-main').appendChild(warning);
+    }
     el('[data-row-views]', node).textContent = share.views ?? 0;
     el('[data-row-copies]', node).textContent = share.copies ?? 0;
 
@@ -196,30 +194,14 @@ function registerCreateForm() {
             return;
         }
 
-        // Rullistan bär slug; RPC:n vill ha id. Läs det via katalogens
-        // publika läsväg i stället för att lita på ett dolt fält.
-        const { kind, slug } = option.dataset;
-        const rpcName = kind === 'package' ? 'get_published_package' : 'get_published_prompt';
-        const { data: rows, error: lookupError } = await supabase.rpc(rpcName, {
-            p_slug: slug,
-            p_context_keys: ['generell'],
-            p_include_creator_content: true
-        });
-
-        if (lookupError || !rows || !rows.length) {
-            errorEl.textContent = lookupError
-                ? lookupError.message
-                : 'Innehållet kunde inte läsas. Ladda om sidan och försök igen.';
-            errorEl.hidden = false;
-            return;
-        }
+        const { kind, subjectId } = option.dataset;
 
         const pinned = el('[data-share-version]:checked')?.value === 'pinned'
             || document.querySelector('[data-share-version][value="pinned"]')?.checked;
 
         const { data, error } = await supabase.rpc('create_creator_share', {
             p_subject_type: kind,
-            p_subject_id: rows[0].id,
+            p_subject_id: subjectId,
             p_pin_version: Boolean(pinned),
             p_expires_at: expiryValue(),
             p_label: el('[data-share-label]').value
