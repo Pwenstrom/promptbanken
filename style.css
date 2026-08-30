@@ -6576,6 +6576,86 @@ body.detail-panel-closed .prompt-detail-panel {
     font-size: 0.85em;
 }
 
+/* Importera prompt från .md-fil: dropzone, bläddra-länk och en chip som
+   visar vilken fil som ligger till grund för fälten under. */
+.creator-import-skill-link {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #64748b;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.creator-import-skill-link:hover {
+    color: #0f5ea8;
+}
+
+.creator-import-dropzone {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 0.75rem;
+    padding: 1.1rem 1rem;
+    border: 2px dashed #b9c6da;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #0f5ea8;
+    cursor: pointer;
+}
+
+.creator-import-dropzone.is-dragover {
+    border-color: #0f5ea8;
+    background: #e8f1fb;
+}
+
+.creator-import-dropzone-icon {
+    flex-shrink: 0;
+}
+
+.creator-import-dropzone-title {
+    margin: 0;
+    color: #172033;
+    font-weight: 700;
+    font-size: 0.92rem;
+}
+
+.creator-import-browse {
+    color: #0f5ea8;
+    text-decoration: underline;
+}
+
+.creator-import-hint {
+    margin: 0.2rem 0 0;
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.creator-import-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: fit-content;
+    margin: -0.4rem 0 1rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    background: #e8f7ee;
+    color: #167344;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.creator-import-chip button {
+    border: 0;
+    background: transparent;
+    color: #167344;
+    font-size: 0.95rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+
 /* Creator-översikten. */
 .overview-action-list {
     display: grid;
