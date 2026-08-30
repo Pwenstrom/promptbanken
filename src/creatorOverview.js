@@ -42,6 +42,33 @@ function relativeTime(value) {
     return 'nyss';
 }
 
+// Samma mönster som renderOnboardingChecklist i admin.js: växla .is-done
+// och ✓/○ per steg. Klar checklista döljs helt -- den har gjort sitt.
+function renderChecklist(checklist) {
+    const section = el('[data-overview-onboarding-section]');
+    if (!checklist) {
+        section.hidden = true;
+        return;
+    }
+
+    const steps = {
+        profile: Boolean(checklist.has_profile),
+        prompt: Boolean(checklist.has_prompt),
+        package: Boolean(checklist.has_package),
+        share: Boolean(checklist.has_share)
+    };
+
+    Object.entries(steps).forEach(([step, done]) => {
+        const item = section.querySelector(`[data-onboarding-step="${step}"]`);
+        if (!item) return;
+        item.classList.toggle('is-done', done);
+        const check = item.querySelector('.onboarding-check');
+        if (check) check.textContent = done ? '✓' : '○';
+    });
+
+    section.hidden = Object.values(steps).every(Boolean);
+}
+
 function renderNeedsAction(items) {
     const section = el('[data-overview-needs-action-section]');
     const list = el('[data-overview-needs-action]');
@@ -144,6 +171,7 @@ async function load() {
         return;
     }
 
+    renderChecklist(data.checklist);
     renderNeedsAction(data.needs_action || []);
     renderRecent(data.recent || []);
     renderStats(data.stats || {});
