@@ -26,7 +26,9 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
     node.dataset.draftId = draft.id;
     el('[data-draft-title]', node).textContent = draft.title;
     el('[data-draft-summary]', node).textContent = draft.summary || '';
-    el('[data-draft-status-badge]', node).textContent = STATUS_LABELS[draft.status] || draft.status;
+    const statusBadge = el('[data-draft-status-badge]', node);
+    statusBadge.textContent = STATUS_LABELS[draft.status] || draft.status;
+    statusBadge.dataset.status = draft.status;
 
     // Redaktionell återkoppling, samma mönster som creatorContent.js.
     const reviewNote = el('[data-draft-review-note]', node);
