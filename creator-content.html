@@ -15,11 +15,11 @@
     <header class="workspace-topbar">
         <a class="workspace-brand" href="index.html">Promptbanken</a>
         <nav>
-            <a href="creator.html">Översikt</a>
-            <a href="creator-content.html">Mina prompts</a>
-            <a href="creator-packages.html">Mina paket</a>
-            <a href="creator-shares.html">Delningar</a>
-            <a href="creator-profile.html">Profil</a>
+            <a href="creator.html">Mitt bibliotek</a>
+            <a href="creator-content.html">Prompts</a>
+            <a href="creator-packages.html">Paket</a>
+            <a href="creator-shares.html">Delat</a>
+            <a href="promptbanken.html">Utforska Open</a>
             <strong data-creator-content-user-email>-</strong>
             <button type="button" data-creator-content-logout>Logga ut</button>
         </nav>
@@ -28,8 +28,8 @@
     <main class="workspace-shell" aria-labelledby="creator-content-title">
         <div class="workspace-heading">
             <div>
-                <p class="workspace-kicker">Skicka in för granskning</p>
-                <h1 id="creator-content-title">Mina prompts</h1>
+                <p class="workspace-kicker">Mitt bibliotek</p>
+                <h1 id="creator-content-title">Prompts</h1>
             </div>
         </div>
 
@@ -49,7 +49,7 @@
                     Importera direkt från ditt AI-verktyg? Se vår skill på GitHub
                 </a>
             </div>
-            <p>Skriv en egen prompt i din personliga arbetsyta. Den sparas som utkast — du väljer sedan om och hur den ska skickas in för granskning.</p>
+            <p>Prompten sparas privat och kan användas direkt. Du väljer själv om en version senare ska skickas till Promptbanken Open.</p>
 
             <div class="creator-import-dropzone" data-new-prompt-dropzone tabindex="0" role="button" aria-label="Importera prompt från .md-fil">
                 <svg class="creator-import-dropzone-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -85,7 +85,10 @@
             <article class="workspace-section" data-row-content-item-id>
                 <div class="workspace-section-heading">
                     <h2 data-row-title>-</h2>
-                    <strong class="status-badge" data-row-status-badge>-</strong>
+                    <span class="library-state-pills">
+                        <strong class="status-badge" data-row-access-badge>Privat</strong>
+                        <strong class="status-badge" data-row-open-badge hidden></strong>
+                    </span>
                 </div>
                 <p data-row-summary></p>
                 <p class="mp-hint is-error" data-row-review-note hidden></p>
@@ -101,7 +104,16 @@
                     </div>
                 </div>
 
-                <div data-row-submit-form hidden>
+                <div class="creator-row-actions library-primary-actions">
+                    <a class="primary-btn" data-row-use-link href="#">Använd</a>
+                    <button type="button" data-row-edit-btn>Redigera</button>
+                    <a class="secondary-btn" href="creator-packages.html">Lägg i paket</a>
+                    <a class="secondary-btn" href="creator-shares.html">Dela</a>
+                </div>
+
+                <details class="open-distribution" data-row-submit-form>
+                    <summary>Publicera i Promptbanken Open</summary>
+                    <p class="mp-hint">Granskning gäller bara den version du skickar in. Din privata prompt kan fortsätta användas och redigeras.</p>
                     <label class="creator-consent"><input type="checkbox" data-row-consent-shared> Jag godkänner att prompten publiceras i öppna Promptbanken <em>(krävs)</em></label>
                     <label class="creator-consent"><input type="checkbox" data-row-consent-reusable> Andra creators får återanvända den i sina paket</label>
                     <fieldset class="creator-consent-group">
@@ -111,11 +123,8 @@
                         <p class="creator-consent-hint">Båda krävs för spridning utanför Promptbanken. Lämnar du dem tomma publiceras prompten ändå — men bara på webben.</p>
                     </fieldset>
                     <p data-row-error role="alert" hidden></p>
-                    <div class="creator-row-actions">
-                        <button type="button" data-row-edit-btn>Redigera</button>
-                        <button type="button" data-row-submit-btn>Skicka in för granskning</button>
-                    </div>
-                </div>
+                    <button type="button" data-row-submit-btn>Skicka version för granskning</button>
+                </details>
                 <button type="button" data-row-withdraw-btn hidden>Dra tillbaka</button>
             </article>
         </template>

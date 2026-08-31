@@ -665,6 +665,15 @@
           return;
         }
 
+        const { data: referenceRows } = await supabase
+          .from('content_items')
+          .select('library_ref_catalog_prompt_id')
+          .eq('workspace_id', profile.workspace_id)
+          .not('library_ref_catalog_prompt_id', 'is', null);
+        (referenceRows || []).forEach((row) => {
+          window.markCatalogPromptInLibrary?.(row.library_ref_catalog_prompt_id);
+        });
+
         const { data: workspace } = await supabase
           .from('workspaces')
           .select('id, max_prompts')
@@ -712,6 +721,10 @@
 
         renderMyPromptsTiles(body, mappedItems);
         window.registerOwnPrompts?.(mappedItems);
+        const requestedLibraryItem = new URLSearchParams(window.location.search).get('libraryItem');
+        if (requestedLibraryItem && mappedItems.some((item) => item.id === requestedLibraryItem)) {
+          window.selectWorkflowPrompt?.(requestedLibraryItem, { reveal: true });
+        }
       }
 
       window.addPublishedPromptToLibrary = async function (promptId, button) {
@@ -738,8 +751,7 @@
           return;
         }
 
-        button.textContent = 'Tillagd ✓';
-        setTimeout(() => { button.textContent = original; }, 2500);
+        window.markCatalogPromptInLibrary?.(promptId);
       };
 
       async function loadProTemplates() {

@@ -743,6 +743,24 @@ const catalogPromptsById = new Map();
 const catalogAreaLabels = new Map();
 const catalogLabelToArea = new Map();
 const catalogRiskLabels = { low: 'Låg risk', medium: 'Medelrisk', high: 'Hög risk' };
+const libraryReferencePromptIds = new Set();
+
+window.markCatalogPromptInLibrary = function markCatalogPromptInLibrary(promptId) {
+    if (!promptId) return;
+    libraryReferencePromptIds.add(promptId);
+    document.querySelectorAll(`[data-catalog-prompt-id="${CSS.escape(promptId)}"] .catalog-library-btn`)
+        .forEach((button) => {
+            button.textContent = '✓ Finns i Mitt bibliotek';
+            button.disabled = true;
+        });
+    if (activeCatalogPromptEntity?.id === promptId) {
+        const detailButton = document.getElementById('catalog-detail-library-btn');
+        if (detailButton) {
+            detailButton.textContent = '✓ Finns i Mitt bibliotek';
+            detailButton.disabled = true;
+        }
+    }
+};
 
 function createCatalogPromptCard(prompt) {
     const card = document.createElement('div');
@@ -778,6 +796,11 @@ function createCatalogPromptCard(prompt) {
         window.addPublishedPromptToLibrary?.(prompt.id, event.currentTarget);
         trackLibraryUsageEvent({ eventType: 'library_add', promptSlug: prompt.slug });
     });
+    if (libraryReferencePromptIds.has(prompt.id)) {
+        const libraryButton = card.querySelector('.catalog-library-btn');
+        libraryButton.textContent = '✓ Finns i Mitt bibliotek';
+        libraryButton.disabled = true;
+    }
     return card;
 }
 
@@ -970,6 +993,11 @@ function renderCatalogDetailVariant(variant) {
             window.addPublishedPromptToLibrary?.(normalizedVariant.id, event.currentTarget);
             trackLibraryUsageEvent({ eventType: 'library_add', promptSlug: normalizedVariant.slug });
         });
+        if (libraryReferencePromptIds.has(normalizedVariant.id)) {
+            const libraryButton = document.getElementById('catalog-detail-library-btn');
+            libraryButton.textContent = '✓ Finns i Mitt bibliotek';
+            libraryButton.disabled = true;
+        }
     }
 
     body.querySelectorAll('.catalog-package-item [data-package-item-index]').forEach((button) => {
