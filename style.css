@@ -5640,9 +5640,7 @@ body.detail-panel-closed .prompt-detail-panel {
 }
 
 .catalog-section {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border-color, #e2e2e2);
+    margin-top: 0;
 }
 
 .context-filter-bar {
@@ -5808,6 +5806,10 @@ body.detail-panel-closed .prompt-detail-panel {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 1rem;
     margin-bottom: 1.5rem;
+}
+
+#catalog-prompt-grid {
+    grid-template-columns: repeat(3, minmax(210px, 1fr));
 }
 
 .catalog-empty-state {
