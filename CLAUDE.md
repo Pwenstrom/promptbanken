@@ -121,7 +121,7 @@ The global quick-input textarea (id `quick-input-textarea`) stores its value in 
 - `script.js` is not bundled by Vite — keep it self-contained with no `import` statements.
 - The MCP server runs as a stdio process; it must never start an HTTP server of its own.
 
-## Handover 2026-08-31: Mitt bibliotek och Open
+## Slutförd release 2026-08-31: Mitt bibliotek och Open
 
 ### Uppdrag och hård gräns
 
@@ -135,9 +135,8 @@ Arbetet ligger isolerat här:
 
 `C:\Users\petwen\OneDrive - Höglandsförbundet\Projekt\promptbanken\.worktrees\codex-publish-private-library`
 
-Branch: `codex/fix-library-ux`. Basen är fortfarande
-`d90c59fe272f29f5c1cbba0c5d02c7b4fcee1384`, samma som `origin/main` vid
-senaste kontrollen. Ändringarna är avsiktligt inte committade eller pushade.
+Branch: `codex/fix-library-ux`. Releasen är committad som `7c6d542` samt
+live-testfixen `c8b51fd` och pushad till `main`.
 Originalarbetsytan utanför `.worktrees` är smutsig med användarens egna
 ändringar och får inte användas för implementationen.
 
@@ -165,6 +164,8 @@ Originalarbetsytan utanför `.worktrees` är smutsig med användarens egna
 - Open-navigationen säger `Mitt bibliotek` för vanliga inloggade användare och
   `Admin` för plattformsägaren.
 - Katalogens två vyknappar har nu begripliga tillgängliga namn.
+- Ett live-testfynd där dolda flytta-/ta bort-knappar syntes på Open-paket är
+  rättat. `hidden` vinner nu över paketknapparnas displayregel.
 
 ### Databasläge
 
@@ -186,7 +187,7 @@ UX-fix och kör inte en generell `supabase db push`.
 
 - TDD-regressioner skrevs först och observerades röda för privat promptval,
   kanonisk dubblettstatus och tillgängliga vyknappar.
-- Senaste fulla `npm test`: **68/68 godkända**.
+- Senaste fulla `npm test`: **69/69 godkända**.
 - Senaste produktionsbygge med rotprojektets `.env.local`: godkänt.
 - `dist/prompts/`: **21 promptfiler** efter bygget.
 - Lokal webbläsartest: utloggad creator-vy har en H1, rätt inloggningscopy och
@@ -197,26 +198,17 @@ UX-fix och kör inte en generell `supabase db push`.
 - Impeccable-kontrollen kördes en gång. Den rapporterade främst gammal teknisk
   skuld i den stora befintliga `style.css`; nya färger justerades till den
   dokumenterade paletten.
+- Promptbanken Open MCP 1.2.2:s publika produktionskontrakt: **52/52** efter
+  deploy. Free/Pro-profilerna kördes inte eftersom testnycklar saknades lokalt.
+- GitHub Pages-jobben `33360654811` och `33360931984` blev gröna.
+- Live-test med inloggad användare verifierade privat `Använd`, korrekt prompt i
+  fast panel, biblioteket före skapande, privat delningscopy, Open-promptens
+  dubblettskydd samt Open-paketets tillägg och kopieringshandlingar.
+- Testet lade avsiktligt till Open-prompten `Analysera argumentet` och
+  Open-paketet `Anti-slop` i testanvändarens bibliotek.
 
-### Återstår — gör i denna ordning
+### Slutstatus
 
-1. Kör en snabb slutlig diffgranskning i den isolerade arbetsytan. Kontrollera
-   särskilt `promptbanken.html`, `script.js`, `src/creatorPackages.js` och att
-   `src/catalogLibrary.js` faktiskt används (den exponeras från sidans modul och
-   konsumeras av `script.js`).
-2. Kör MCP 1.2.2-kontraktet mot produktion med:
-   `C:\Users\petwen\.codex\skills\promptbanken-mcp-contract-test\scripts\test-mcp-contract.ps1`
-   och exempelkontraktet i skillens `assets`-mapp. Förväntad tidigare nivå var
-   52/52. Detta är nästa ej utförda kontroll.
-3. Kör därefter på nytt `npm test`, produktionsbygget och diff-skyddet. Ändra
-   inte MCP om kontraktet skulle fallera; diagnostisera och stoppa i så fall.
-4. Commit på `codex/fix-library-ux`. Kontrollera att `origin/main` fortfarande
-   pekar på basen innan en icke-tvingad push till `main`.
-5. Följ GitHub Pages-jobbet tills det är klart.
-6. Gör ett sista live-test på `https://app.promptbanken.se/` med användarens
-   redan inloggade session: privat `Använd`, Open-prompt → lägg till, samma
-   prompt igen → ingen dubblett, Open-paket → lägg till, `Använd paket`, privat
-   delning samt smal viewport. Dokumentera fynden.
-
-Publicering var godkänd av användaren före pausen, men endast efter ovanstående
-kontroller. Skapa ingen ny migration och rör inte MCP 1.2.2.
+Releasen är klar i produktion. Ingen ny migration skapades och inga MCP-filer
+ändrades. Äldre migrationsdrift och autentiserade MCP-profiler är separata
+framtida uppgifter, inte blockerare för denna frontendrelease.
