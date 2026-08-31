@@ -799,7 +799,7 @@ function createCatalogPromptCard(prompt) {
         ? `<span class="catalog-context-badge">${escapeHtml(prompt.fallbackLabel || 'Kan vara generell version')}</span>`
         : '';
     card.innerHTML = `
-        <h4>${title}</h4>
+        <h3>${title}</h3>
         <p>${summary}</p>
         ${fallbackBadge}
         <div class="catalog-card-actions">
