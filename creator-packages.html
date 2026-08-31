@@ -15,11 +15,11 @@
     <header class="workspace-topbar">
         <a class="workspace-brand" href="index.html">Promptbanken</a>
         <nav>
-            <a href="creator.html">Översikt</a>
-            <a href="creator-content.html">Mina prompts</a>
-            <a href="creator-packages.html">Mina paket</a>
-            <a href="creator-shares.html">Delningar</a>
-            <a href="creator-profile.html">Profil</a>
+            <a href="creator.html">Mitt bibliotek</a>
+            <a href="creator-content.html">Prompts</a>
+            <a href="creator-packages.html">Paket</a>
+            <a href="creator-shares.html">Delat</a>
+            <a href="promptbanken.html">Utforska Open</a>
             <strong data-creator-packages-user-email>-</strong>
             <button type="button" data-creator-packages-logout>Logga ut</button>
         </nav>
@@ -28,8 +28,8 @@
     <main class="workspace-shell" aria-labelledby="creator-packages-title">
         <div class="workspace-heading">
             <div>
-                <p class="workspace-kicker">Bygg av egna prompts</p>
-                <h1 id="creator-packages-title">Mina paket</h1>
+                <p class="workspace-kicker">Mitt bibliotek</p>
+                <h1 id="creator-packages-title">Paket</h1>
             </div>
         </div>
 
@@ -78,22 +78,29 @@
             <article class="workspace-section" data-draft-id>
                 <div class="workspace-section-heading">
                     <h2 data-draft-title>-</h2>
-                    <strong class="status-badge" data-draft-status-badge>-</strong>
+                    <span class="library-state-pills">
+                        <strong class="status-badge" data-draft-access-badge>Privat</strong>
+                        <strong class="status-badge" data-draft-open-badge hidden></strong>
+                    </span>
                 </div>
                 <p data-draft-summary></p>
                 <p class="package-type-badge" data-draft-type-badge></p>
                 <p class="mp-hint is-error" data-draft-review-note hidden></p>
                 <p data-draft-count-hint></p>
                 <div data-draft-items></div>
-                <div class="creator-row-actions">
-                    <button type="button" class="package-item-preview-btn" data-draft-preview-btn hidden>Förhandsgranska</button>
+                <div class="creator-row-actions library-primary-actions">
+                    <button type="button" class="primary-btn package-item-preview-btn" data-draft-preview-btn hidden>Öppna paket</button>
+                    <a class="secondary-btn" data-draft-share-link href="creator-shares.html">Dela</a>
                 </div>
                 <div class="package-preview" data-draft-preview hidden></div>
                 <div data-draft-add-row hidden>
                     <select data-draft-add-select></select>
                     <button type="button" data-draft-add-btn>Lägg till</button>
                 </div>
-                <fieldset class="creator-consent-group" data-draft-consent-group hidden>
+                <details class="open-distribution" data-draft-open-details>
+                  <summary>Publicera i Promptbanken Open</summary>
+                  <p class="mp-hint">Bara den inskickade versionen granskas. Ditt privata paket fortsätter fungera som vanligt.</p>
+                <fieldset class="creator-consent-group" data-draft-consent-group>
                     <legend>Spridning utanför Promptbanken</legend>
                     <label class="creator-consent"><input type="checkbox" data-draft-consent-distribution> Paketet får distribueras via Promptbanken Open till externa AI-klienter, till exempel ChatGPT</label>
                     <label class="creator-consent"><input type="checkbox" data-draft-rights-attested> Innehållet är mitt eget, eller jag har rätt att sprida det</label>
@@ -102,6 +109,7 @@
                 <p class="field-error" data-draft-error role="alert" hidden></p>
                 <button type="button" data-draft-submit-btn hidden>Skicka in för granskning</button>
                 <button type="button" data-draft-withdraw-btn hidden>Dra tillbaka</button>
+                </details>
             </article>
         </template>
 

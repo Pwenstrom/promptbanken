@@ -11,3 +11,18 @@ export function openPublicationLabel({ open_submission_state } = {}) {
     };
     return labels[open_submission_state] || null;
 }
+
+export function libraryPromptActionUrl(action, promptId) {
+    if (!promptId || action !== 'use') return null;
+    return `promptbanken.html?libraryItem=${encodeURIComponent(promptId)}`;
+}
+
+export function libraryPromptActions(promptId) {
+    return {
+        use: libraryPromptActionUrl('use', promptId),
+        edit: true,
+        add_to_package: true,
+        share: true,
+        submit_open: true
+    };
+}

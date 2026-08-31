@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Översikt | Promptbanken</title>
+    <title>Mitt bibliotek | Promptbanken</title>
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -15,11 +15,11 @@
     <header class="workspace-topbar">
         <a class="workspace-brand" href="index.html">Promptbanken</a>
         <nav>
-            <a href="creator.html">Översikt</a>
-            <a href="creator-content.html">Mina prompts</a>
-            <a href="creator-packages.html">Mina paket</a>
-            <a href="creator-shares.html">Delningar</a>
-            <a href="creator-profile.html">Profil</a>
+            <a href="creator.html">Mitt bibliotek</a>
+            <a href="creator-content.html">Prompts</a>
+            <a href="creator-packages.html">Paket</a>
+            <a href="creator-shares.html">Delat</a>
+            <a href="promptbanken.html">Utforska Open</a>
             <strong data-overview-user-email>-</strong>
             <button type="button" data-overview-logout>Logga ut</button>
         </nav>
@@ -28,8 +28,8 @@
     <main class="workspace-shell" aria-labelledby="overview-title">
         <div class="workspace-heading">
             <div>
-                <p class="workspace-kicker">Creator</p>
-                <h1 id="overview-title">Översikt</h1>
+                <p class="workspace-kicker">Din personliga arbetsyta</p>
+                <h1 id="overview-title" data-overview-greeting>Mitt bibliotek</h1>
             </div>
         </div>
 
@@ -42,6 +42,11 @@
         </section>
 
         <div data-overview-content hidden>
+            <section class="library-quick-actions" aria-label="Skapa och importera">
+                <a class="primary-btn" href="creator-content.html#new-prompt">+ Skapa prompt</a>
+                <a class="secondary-btn" href="creator-packages.html#new-package">+ Skapa paket</a>
+                <a class="secondary-btn" href="creator-content.html#new-prompt">Importera</a>
+            </section>
             <section class="workspace-section admin-onboarding" data-overview-onboarding-section hidden>
                 <div class="workspace-section-heading">
                     <h2>Kom igång</h2>
@@ -71,8 +76,8 @@
                     <li data-onboarding-step="share">
                         <span class="onboarding-check">○</span>
                         <div>
-                            <strong>Dela egna prompts och paket</strong>
-                            <p>Skicka in för granskning, eller dela i en arbetsyta.</p>
+                            <strong>Använd eller dela ditt innehåll</strong>
+                            <p>Ditt innehåll fungerar privat utan Open-granskning.</p>
                         </div>
                     </li>
                 </ul>
@@ -87,7 +92,7 @@
 
             <section class="workspace-section">
                 <div class="workspace-section-heading">
-                    <h2>Fortsätt arbeta</h2>
+                    <h2>Senast i mitt bibliotek</h2>
                 </div>
                 <ul class="overview-recent" data-overview-recent></ul>
                 <p data-overview-recent-empty hidden>
@@ -96,24 +101,12 @@
                 </p>
             </section>
 
-            <section class="workspace-section">
+            <section class="workspace-section library-explore-open">
                 <div class="workspace-section-heading">
-                    <h2>Skapa nytt</h2>
+                    <h2>Utforska Promptbanken Open</h2>
                 </div>
-                <div class="overview-cards">
-                    <a class="overview-card" href="creator-content.html">
-                        <strong>Ny prompt</strong>
-                        <span>Skriv en egen prompt i din arbetsyta.</span>
-                    </a>
-                    <a class="overview-card" href="creator-packages.html">
-                        <strong>Nytt paket</strong>
-                        <span>Sätt ihop flera prompts som hör ihop.</span>
-                    </a>
-                    <a class="overview-card" href="creator-profile.html">
-                        <strong>Din profil</strong>
-                        <span>Så här ser besökaren dig.</span>
-                    </a>
-                </div>
+                <p>Hämta kvalitetssäkrade arbetssätt. Innehåll från Open läggs bara till i ditt bibliotek när du själv väljer det.</p>
+                <a class="secondary-btn" href="promptbanken.html">Utforska Open</a>
             </section>
 
             <section class="workspace-section" data-overview-stats-section hidden>

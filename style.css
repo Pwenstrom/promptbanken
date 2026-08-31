@@ -6546,6 +6546,44 @@ body.detail-panel-closed .prompt-detail-panel {
     margin-top: 0.75rem;
 }
 
+.library-state-pills,
+.library-quick-actions,
+.library-primary-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.library-quick-actions {
+    margin: 0 0 1.25rem;
+}
+
+.open-distribution {
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border-color, #d9e0e7);
+}
+
+.open-distribution summary {
+    cursor: pointer;
+    color: var(--primary-color, #174a67);
+    font-weight: 650;
+}
+
+.library-explore-open {
+    background: linear-gradient(135deg, #f5f9fb, #eef6f3);
+}
+
+@media (max-width: 640px) {
+    .library-quick-actions > *,
+    .library-primary-actions > * {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
 /* Samtyckesgruppen för spridning utanför Promptbanken. Avgränsad för att
    det är en annan sorts beslut än publicering: den lämnar Promptbankens
    egna ytor. */
