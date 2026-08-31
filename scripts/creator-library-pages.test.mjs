@@ -19,3 +19,8 @@ test('promptens primära handling är Använd och Open ligger separat', () => {
     assert.match(html, /data-row-use-link[^>]*>Använd</);
     assert.match(html, /<summary>Publicera i Promptbanken Open<\/summary>/);
 });
+
+test('dolda pakethandlingar förblir dolda även när knappstilar anger display', () => {
+    const css = readFileSync(new URL('../style.css', import.meta.url), 'utf8');
+    assert.match(css, /\.package-item-actions \[hidden\]\s*\{[^}]*display:\s*none\s*!important/s);
+});

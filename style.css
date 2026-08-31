@@ -6970,6 +6970,10 @@ button:disabled,
     flex-shrink: 0;
 }
 
+.package-item-actions [hidden] {
+    display: none !important;
+}
+
 /* Omordningsknapparna ska läsas som verktyg, inte som primärknappar --
    annars väger tre knappar per rad tyngre än raden själv. Samma
    :not()-uppsättning som basregeln, för att faktiskt vinna över den. */
