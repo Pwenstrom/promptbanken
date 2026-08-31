@@ -335,13 +335,20 @@ async function init() {
         return;
     }
 
-    el('[data-creator-content-user-email]').textContent = session.user.email || '-';
-    el('[data-creator-content-logout]').addEventListener('click', async () => {
+    const userEmail = el('[data-creator-content-user-email]');
+    const logoutButton = el('[data-creator-content-logout]');
+    userEmail.textContent = session.user.email || '-';
+    userEmail.hidden = false;
+    logoutButton.hidden = false;
+    logoutButton.addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.href = 'login.html';
     });
 
-    el('[data-creator-content-new-prompt]').hidden = false;
+    const composer = el('[data-creator-content-new-prompt]');
+    composer.hidden = false;
+    composer.open = window.location.hash === '#new-prompt';
+    composer.parentNode.insertBefore(el('[data-creator-content-list]'), composer);
     registerNewPromptForm();
     await loadPrompts();
 }

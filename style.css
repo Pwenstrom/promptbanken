@@ -1575,8 +1575,10 @@ body.local-chat-enabled .card-actions .local-chat-btn {
 
 .workspace-topbar nav {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.75rem;
+    min-width: 0;
 }
 
 .workspace-topbar a {
@@ -1589,9 +1591,11 @@ body.local-chat-enabled .card-actions .local-chat-btn {
 }
 
 .workspace-shell {
+    width: 100%;
     max-width: 1120px;
     margin: 0 auto;
     padding: 2rem 1rem 3rem;
+    box-sizing: border-box;
 }
 
 .workspace-heading {
@@ -6559,6 +6563,51 @@ body.detail-panel-closed .prompt-detail-panel {
     margin: 0 0 1.25rem;
 }
 
+.creator-composer {
+    margin-bottom: 1rem;
+}
+
+.creator-composer > summary {
+    cursor: pointer;
+    color: #0b63ce;
+    font-weight: 750;
+    list-style-position: inside;
+}
+
+.creator-composer[open] > summary {
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid #dfe6ee;
+}
+
+.creator-composer-body {
+    padding-top: 1rem;
+}
+
+button:disabled,
+.workspace-section button:disabled,
+.catalog-card button:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+}
+
+.library-add-notice {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 120;
+    max-width: min(26rem, calc(100vw - 2rem));
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: #067647;
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+}
+
+.library-add-notice a {
+    color: #ffffff;
+    font-weight: 750;
+}
+
 .open-distribution {
     margin-top: 1rem;
     padding-top: 0.85rem;
@@ -6972,6 +7021,74 @@ body.detail-panel-closed .prompt-detail-panel {
     margin: 0;
     color: #5b6779;
     font-size: 0.88rem;
+}
+
+.package-preview-step {
+    margin-top: 0.9rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #dfe6ee;
+}
+
+.package-preview-step .secondary-btn,
+.package-preview-step button {
+    display: inline-flex;
+    margin-top: 0.55rem;
+}
+
+@media (max-width: 1180px) {
+    .prompt-detail-panel {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 80;
+        max-height: min(82vh, 760px);
+        overflow: auto;
+        border-radius: 10px 10px 0 0;
+        box-shadow: 0 -10px 30px rgba(16, 24, 40, 0.14);
+        transform: translateY(108%);
+        transition: transform 0.22s ease-out;
+    }
+
+    body.detail-sheet-open {
+        overflow: hidden;
+    }
+
+    body.detail-sheet-open .prompt-detail-panel {
+        transform: translateY(0);
+    }
+
+    body.detail-sheet-open::after {
+        position: fixed;
+        inset: 0;
+        z-index: 70;
+        background: rgba(16, 24, 40, 0.38);
+        content: "";
+    }
+
+    body.detail-panel-closed .prompt-detail-panel {
+        display: block;
+        transform: translateY(108%);
+        pointer-events: none;
+    }
+}
+
+@media (max-width: 760px) {
+    .workspace-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .workspace-topbar nav {
+        width: 100%;
+        gap: 0.55rem 0.75rem;
+    }
+
+    .workspace-topbar nav strong {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 /* Delningar — creatorns vy. */

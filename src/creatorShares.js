@@ -235,8 +235,12 @@ async function init() {
         return;
     }
 
-    el('[data-shares-user-email]').textContent = session.user.email || '-';
-    el('[data-shares-logout]').addEventListener('click', async () => {
+    const userEmail = el('[data-shares-user-email]');
+    const logoutButton = el('[data-shares-logout]');
+    userEmail.textContent = session.user.email || '-';
+    userEmail.hidden = false;
+    logoutButton.hidden = false;
+    logoutButton.addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.href = 'login.html';
     });

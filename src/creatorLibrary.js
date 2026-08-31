@@ -26,3 +26,10 @@ export function libraryPromptActions(promptId) {
         submit_open: true
     };
 }
+
+export async function registerAndSelectLibraryItem({ items, requestedId, register, select }) {
+    await register(items);
+    if (!requestedId || !items.some((item) => item.id === requestedId)) return false;
+    select(requestedId, { reveal: true });
+    return true;
+}

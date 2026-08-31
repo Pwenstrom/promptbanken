@@ -744,21 +744,47 @@ const catalogAreaLabels = new Map();
 const catalogLabelToArea = new Map();
 const catalogRiskLabels = { low: 'Låg risk', medium: 'Medelrisk', high: 'Hög risk' };
 const libraryReferencePromptIds = new Set();
+const libraryReferencePackageIds = new Set();
+
+function getCatalogLibraryActionState(inLibrary) {
+    return window.catalogLibraryActionState?.(inLibrary) || (inLibrary
+        ? { label: '✓ Finns i Mitt bibliotek', disabled: true }
+        : { label: 'Lägg till i Mitt bibliotek', disabled: false });
+}
 
 window.markCatalogPromptInLibrary = function markCatalogPromptInLibrary(promptId) {
     if (!promptId) return;
     libraryReferencePromptIds.add(promptId);
     document.querySelectorAll(`[data-catalog-prompt-id="${CSS.escape(promptId)}"] .catalog-library-btn`)
         .forEach((button) => {
-            button.textContent = '✓ Finns i Mitt bibliotek';
-            button.disabled = true;
+            const state = getCatalogLibraryActionState(true);
+            button.textContent = state.label;
+            button.disabled = state.disabled;
         });
     if (activeCatalogPromptEntity?.id === promptId) {
         const detailButton = document.getElementById('catalog-detail-library-btn');
         if (detailButton) {
-            detailButton.textContent = '✓ Finns i Mitt bibliotek';
-            detailButton.disabled = true;
+            const state = getCatalogLibraryActionState(true);
+            detailButton.textContent = state.label;
+            detailButton.disabled = state.disabled;
         }
+    }
+};
+
+window.markCatalogPackageInLibrary = function markCatalogPackageInLibrary(packageId) {
+    if (!packageId) return;
+    libraryReferencePackageIds.add(packageId);
+    document.querySelectorAll(`[data-catalog-package-id="${CSS.escape(packageId)}"] .catalog-library-btn`)
+        .forEach((button) => {
+            const state = getCatalogLibraryActionState(true);
+            button.textContent = state.label;
+            button.disabled = state.disabled;
+        });
+    const detailButton = document.getElementById('catalog-detail-library-btn');
+    if (detailButton && catalogDetailVariants.some((variant) => variant.id === packageId)) {
+        const state = getCatalogLibraryActionState(true);
+        detailButton.textContent = state.label;
+        detailButton.disabled = state.disabled;
     }
 };
 
@@ -779,7 +805,7 @@ function createCatalogPromptCard(prompt) {
         <div class="catalog-card-actions">
             <button type="button" class="primary-btn catalog-select-btn">Välj</button>
             <button type="button" class="secondary-btn catalog-preview-btn">Förhandsvisa</button>
-            <button type="button" class="secondary-btn catalog-library-btn">Lägg till i mitt bibliotek</button>
+            <button type="button" class="secondary-btn catalog-library-btn">Lägg till i Mitt bibliotek</button>
         </div>
     `;
     card.addEventListener('click', () => selectCatalogPromptInSidebar(prompt));
@@ -957,11 +983,11 @@ function renderCatalogDetailVariant(variant) {
         ? `<pre class="catalog-detail-prompt-text">${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'prompt_text'))}</pre>
            <div class="catalog-card-actions">
                <button type="button" class="catalog-copy-btn" id="catalog-detail-copy-btn">Kopiera prompt</button>
-               <button type="button" class="secondary-btn" id="catalog-detail-library-btn">Lägg till i mitt bibliotek</button>
+               <button type="button" class="secondary-btn catalog-library-btn" id="catalog-detail-library-btn">Lägg till i Mitt bibliotek</button>
            </div>`
         : (normalizedVariant.intro_text
             ? `<p>${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'intro_text'))}</p>`
-            : '');
+            : '') + `<div class="catalog-card-actions"><button type="button" class="secondary-btn catalog-library-btn" id="catalog-detail-library-btn">Lägg till i Mitt bibliotek</button></div>`;
 
     const packageItemsHtml = (!isPrompt && catalogDetailPackageItems.length)
         ? `<div class="catalog-package-items">
@@ -994,6 +1020,15 @@ function renderCatalogDetailVariant(variant) {
             trackLibraryUsageEvent({ eventType: 'library_add', promptSlug: normalizedVariant.slug });
         });
         if (libraryReferencePromptIds.has(normalizedVariant.id)) {
+            const libraryButton = document.getElementById('catalog-detail-library-btn');
+            libraryButton.textContent = '✓ Finns i Mitt bibliotek';
+            libraryButton.disabled = true;
+        }
+    } else {
+        document.getElementById('catalog-detail-library-btn')?.addEventListener('click', (event) => {
+            window.addPublishedPackageToLibrary?.(normalizedVariant.id, event.currentTarget);
+        });
+        if (libraryReferencePackageIds.has(normalizedVariant.id)) {
             const libraryButton = document.getElementById('catalog-detail-library-btn');
             libraryButton.textContent = '✓ Finns i Mitt bibliotek';
             libraryButton.disabled = true;
@@ -1215,6 +1250,7 @@ function createCatalogPackageCard(pkg) {
     const card = document.createElement('div');
     card.className = 'catalog-card';
     card.dataset.catalogPackageSlug = pkg.slug;
+    card.dataset.catalogPackageId = pkg.id;
     const title = escapeHtml(pkg.title);
     const summary = escapeHtml(pkg.summary);
     const typeLabel = pkg.package_type === 'workflow' ? 'Arbetssätt' : 'Samling';
@@ -1226,12 +1262,29 @@ function createCatalogPackageCard(pkg) {
         <p>${summary}</p>
         <span class="catalog-package-type">${typeLabel}</span>
         ${fallbackBadge}
-        <p class="catalog-package-permalink"><a href="/paket/${encodeURIComponent(pkg.slug)}/">Läs mer om paketet</a></p>
+        <div class="catalog-card-actions">
+            <button type="button" class="primary-btn catalog-package-open-btn">Öppna paket</button>
+            <button type="button" class="secondary-btn catalog-library-btn">Lägg till i Mitt bibliotek</button>
+        </div>
+        <p class="catalog-package-permalink"><a href="/paket/${encodeURIComponent(pkg.slug)}/">Om paketet</a></p>
     `;
     card.addEventListener('click', () => openCatalogPackageDetail(pkg.slug));
+    card.querySelector('.catalog-package-open-btn')?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        openCatalogPackageDetail(pkg.slug);
+    });
+    card.querySelector('.catalog-library-btn')?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        window.addPublishedPackageToLibrary?.(pkg.id, event.currentTarget);
+    });
     card.querySelector('.catalog-package-permalink a')?.addEventListener('click', (event) => {
         event.stopPropagation();
     });
+    if (libraryReferencePackageIds.has(pkg.id)) {
+        const libraryButton = card.querySelector('.catalog-library-btn');
+        libraryButton.textContent = '✓ Finns i Mitt bibliotek';
+        libraryButton.disabled = true;
+    }
     return card;
 }
 

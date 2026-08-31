@@ -280,8 +280,8 @@
                                 <option value="risk-desc">Högst risk först</option>
                             </select>
                         </label>
-                        <button type="button" class="active"><span class="app-icon" aria-hidden="true" data-icon="grid"></span></button>
-                        <button type="button">☰</button>
+                        <button type="button" class="active" aria-label="Visa som rutnät"><span class="app-icon" aria-hidden="true" data-icon="grid"></span></button>
+                        <button type="button" aria-label="Visa som lista"><span class="app-icon" aria-hidden="true" data-icon="list"></span></button>
                     </div>
                 </div>
 
@@ -567,6 +567,10 @@
     <script type="module">
       import { supabase, hasSupabaseConfig } from '/src/supabaseClient.js';
       import { isPlatformOwner } from '/src/auth.js';
+      import { catalogLibraryActionState } from '/src/catalogLibrary.js';
+      import { registerAndSelectLibraryItem } from '/src/creatorLibrary.js';
+
+      window.catalogLibraryActionState = catalogLibraryActionState;
 
       const riskLabels = { low: 'Låg risk', medium: 'Medelrisk', high: 'Hög risk' };
 
@@ -631,7 +635,7 @@
           // Analysytan är bara plattformsägarens. Alla andra hör hemma på
           // sin creator-yta, annars möts de av en adminmeny de inte får se.
           link.href = (await isPlatformOwner()) ? 'admin.html' : 'creator.html';
-          label.textContent = 'Min workspace';
+          label.textContent = (await isPlatformOwner()) ? 'Admin' : 'Mitt bibliotek';
         }
 
         if (!session) {
@@ -665,13 +669,21 @@
           return;
         }
 
-        const { data: referenceRows } = await supabase
-          .from('content_items')
-          .select('library_ref_catalog_prompt_id')
-          .eq('workspace_id', profile.workspace_id)
-          .not('library_ref_catalog_prompt_id', 'is', null);
+        const [{ data: referenceRows }, { data: packageReferenceRows }] = await Promise.all([
+          supabase.from('content_items')
+            .select('library_ref_catalog_prompt_id')
+            .eq('workspace_id', profile.workspace_id)
+            .not('library_ref_catalog_prompt_id', 'is', null),
+          supabase.from('creator_package_drafts')
+            .select('library_ref_catalog_package_id')
+            .eq('owner_user_id', session.user.id)
+            .not('library_ref_catalog_package_id', 'is', null)
+        ]);
         (referenceRows || []).forEach((row) => {
           window.markCatalogPromptInLibrary?.(row.library_ref_catalog_prompt_id);
+        });
+        (packageReferenceRows || []).forEach((row) => {
+          window.markCatalogPackageInLibrary?.(row.library_ref_catalog_package_id);
         });
 
         const { data: workspace } = await supabase
@@ -720,11 +732,26 @@
         }));
 
         renderMyPromptsTiles(body, mappedItems);
-        window.registerOwnPrompts?.(mappedItems);
         const requestedLibraryItem = new URLSearchParams(window.location.search).get('libraryItem');
-        if (requestedLibraryItem && mappedItems.some((item) => item.id === requestedLibraryItem)) {
-          window.selectWorkflowPrompt?.(requestedLibraryItem, { reveal: true });
+        await registerAndSelectLibraryItem({
+          items: mappedItems,
+          requestedId: requestedLibraryItem,
+          register: (itemsToRegister) => window.registerOwnPrompts?.(itemsToRegister),
+          select: (id, options) => window.selectWorkflowPrompt?.(id, options)
+        });
+      }
+
+      function showLibraryConfirmation(message) {
+        let notice = document.getElementById('library-add-notice');
+        if (!notice) {
+          notice = document.createElement('div');
+          notice.id = 'library-add-notice';
+          notice.className = 'library-add-notice';
+          notice.setAttribute('role', 'status');
+          document.body.appendChild(notice);
         }
+        notice.innerHTML = `${escapeHtml(message)} <a href="creator.html">Öppna Mitt bibliotek</a>`;
+        notice.hidden = false;
       }
 
       window.addPublishedPromptToLibrary = async function (promptId, button) {
@@ -752,6 +779,27 @@
         }
 
         window.markCatalogPromptInLibrary?.(promptId);
+        showLibraryConfirmation('Prompten finns nu i Mitt bibliotek.');
+      };
+
+      window.addPublishedPackageToLibrary = async function (packageId, button) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData?.session) {
+          window.location.href = 'login.html?redirect=promptbanken.html';
+          return;
+        }
+        const original = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Lägger till...';
+        const { error } = await supabase.rpc('add_catalog_package_to_library', { p_package_id: packageId });
+        if (error) {
+          console.error('Kunde inte lägga till paketet i biblioteket', error);
+          button.textContent = 'Kunde inte lägga till';
+          setTimeout(() => { button.disabled = false; button.textContent = original; }, 2500);
+          return;
+        }
+        window.markCatalogPackageInLibrary?.(packageId);
+        showLibraryConfirmation('Paketet finns nu i Mitt bibliotek.');
       };
 
       async function loadProTemplates() {

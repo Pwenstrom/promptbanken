@@ -4,7 +4,8 @@ import {
     libraryAccessLabel,
     libraryPromptActions,
     libraryPromptActionUrl,
-    openPublicationLabel
+    openPublicationLabel,
+    registerAndSelectLibraryItem
 } from '../src/creatorLibrary.js';
 
 test('ett privat original kan vara publicerat i Open', () => {
@@ -29,4 +30,35 @@ test('Använd är oberoende av Open-publicering', () => {
 
 test('okända handlingar skapar ingen lokal URL', () => {
     assert.equal(libraryPromptActionUrl('delete', 'prompt-123'), null);
+});
+
+test('Använd väntar in registreringen och öppnar exakt den privata prompten', async () => {
+    const events = [];
+    const items = [{ id: 'prompt-123', title: 'Min prompt' }];
+
+    const selected = await registerAndSelectLibraryItem({
+        items,
+        requestedId: 'prompt-123',
+        register: async (registeredItems) => {
+            await Promise.resolve();
+            events.push(`registered:${registeredItems[0].id}`);
+        },
+        select: (id, options) => events.push(`selected:${id}:${options.reveal}`)
+    });
+
+    assert.equal(selected, true);
+    assert.deepEqual(events, ['registered:prompt-123', 'selected:prompt-123:true']);
+});
+
+test('Använd väljer inte ett annat objekt när länken är inaktuell', async () => {
+    const selectedIds = [];
+    const selected = await registerAndSelectLibraryItem({
+        items: [{ id: 'prompt-123' }],
+        requestedId: 'saknas',
+        register: async () => {},
+        select: (id) => selectedIds.push(id)
+    });
+
+    assert.equal(selected, false);
+    assert.deepEqual(selectedIds, []);
 });

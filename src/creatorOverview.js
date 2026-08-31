@@ -196,14 +196,18 @@ async function init() {
         return;
     }
 
-    el('[data-overview-user-email]').textContent = session.user.email || '-';
+    const userEmail = el('[data-overview-user-email]');
+    const logoutButton = el('[data-overview-logout]');
+    userEmail.textContent = session.user.email || '-';
+    userEmail.hidden = false;
+    logoutButton.hidden = false;
     const greetingName = session.user.user_metadata?.display_name
         || session.user.email?.split('@')[0]
         || '';
     el('[data-overview-greeting]').textContent = greetingName
         ? `Hej ${greetingName}`
         : 'Mitt bibliotek';
-    el('[data-overview-logout]').addEventListener('click', async () => {
+    logoutButton.addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.href = 'login.html';
     });

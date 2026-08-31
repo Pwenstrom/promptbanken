@@ -1,6 +1,6 @@
 import { requireSupabaseConfig } from './auth.js';
 import { supabase } from './supabaseClient.js';
-import { libraryAccessLabel, openPublicationLabel } from './creatorLibrary.js';
+import { libraryAccessLabel, libraryPromptActionUrl, openPublicationLabel } from './creatorLibrary.js';
 
 const STATUS_LABELS = { draft: 'Utkast', review: 'Under granskning', published: 'Publicerad', archived: 'Arkiverad' };
 const TYPE_LABELS = {
@@ -134,7 +134,7 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
         previewBtn.addEventListener('click', () => {
             if (!previewEl.hidden) {
                 previewEl.hidden = true;
-                previewBtn.textContent = 'Öppna paket';
+                previewBtn.textContent = 'Använd paket';
                 return;
             }
             const heading = `<h3>${escapeHtml(draft.title)}</h3>` +
@@ -144,11 +144,25 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
                     const label = draft.package_type === 'workflow'
                         ? `Steg ${index + 1}: ${item.title}`
                         : item.title;
-                    return `<h4>${escapeHtml(label)}</h4>` +
-                        (item.summary ? `<p>${escapeHtml(item.summary)}</p>` : '');
+                    const action = draft.is_open_reference
+                        ? `<button type="button" class="secondary-btn package-preview-copy" data-package-copy-index="${index}">Kopiera prompt</button>`
+                        : `<a class="secondary-btn" href="${libraryPromptActionUrl('use', item.content_item_id)}">Använd prompt</a>`;
+                    return `<section class="package-preview-step"><h4>${escapeHtml(label)}</h4>` +
+                        (item.summary ? `<p>${escapeHtml(item.summary)}</p>` : '') + action + '</section>';
                 })
                 .join('');
             previewEl.innerHTML = heading + steps;
+            previewEl.querySelectorAll('[data-package-copy-index]').forEach((copyButton) => {
+                copyButton.addEventListener('click', async () => {
+                    const item = itemList[Number(copyButton.dataset.packageCopyIndex)];
+                    try {
+                        await navigator.clipboard.writeText(item.content || '');
+                        copyButton.textContent = 'Kopierad';
+                    } catch {
+                        copyButton.textContent = 'Kunde inte kopiera';
+                    }
+                });
+            });
             previewEl.hidden = false;
             previewBtn.textContent = 'Dölj förhandsgranskning';
         });
@@ -323,13 +337,22 @@ async function init() {
         return;
     }
 
-    el('[data-creator-packages-user-email]').textContent = session.user.email || '-';
-    el('[data-creator-packages-logout]').addEventListener('click', async () => {
+    const userEmail = el('[data-creator-packages-user-email]');
+    const logoutButton = el('[data-creator-packages-logout]');
+    userEmail.textContent = session.user.email || '-';
+    userEmail.hidden = false;
+    logoutButton.hidden = false;
+    logoutButton.addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.href = 'login.html';
     });
 
     el('[data-creator-packages-content]').hidden = false;
+    const composer = document.getElementById('new-package');
+    if (composer) {
+        composer.open = window.location.hash === '#new-package';
+        composer.parentNode.insertBefore(el('[data-draft-list]'), composer);
+    }
     registerNewDraftForm();
     await loadDrafts();
 }
