@@ -2120,6 +2120,9 @@ async function loadCatalogPackages() {
             const ownChip = prompt.own
                 ? `<span class="own-chip">${prompt.ownVisibility === 'workspace' ? 'Din prompt · Delad' : 'Din prompt · Privat'}</span>`
                 : '';
+            const sourceChip = prompt.own
+                ? ''
+                : `<span class="static-source-chip">Promptbanken</span>`;
 
             // Build card HTML
             card.innerHTML = `
@@ -2134,7 +2137,7 @@ async function loadCatalogPackages() {
                 </div>
                 <p>${description}</p>
                 <div class="card-tags">
-                    ${ownChip}
+                    ${ownChip}${sourceChip}
                     <span class="risk-chip" data-risk="${meta.risk.toLowerCase()}">${meta.risk}</span>
                     <span>${meta.audience}</span>
                     <span>${meta.role}</span>
