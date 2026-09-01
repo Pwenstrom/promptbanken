@@ -64,6 +64,21 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
             ? `promptbanken.html?package=${encodeURIComponent(draft.canonical_slug)}`
             : 'promptbanken.html';
         shareLink.textContent = 'Visa i Open';
+    } else if (['draft', 'review'].includes(draft.status)) {
+        // Samma gräns som delete_creator_package_draft (RPC:n avvisar
+        // annars ändå) -- publicerade/arkiverade paket och Open-referenser
+        // (referensen är inte creatorns eget innehåll att radera) får
+        // ingen knapp.
+        const deleteBtn = el('[data-draft-delete-btn]', node);
+        deleteBtn.hidden = false;
+        deleteBtn.addEventListener('click', async () => {
+            if (!confirm(`Ta bort paketet "${draft.title}"? Det går inte att ångra.`)) return;
+            deleteBtn.disabled = true;
+            const { error } = await supabase.rpc('delete_creator_package_draft', { p_draft_id: draft.id });
+            deleteBtn.disabled = false;
+            if (error) { alert(error.message); return; }
+            await loadDrafts();
+        });
     }
 
     if (itemsError) {
