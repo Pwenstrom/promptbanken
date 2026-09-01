@@ -765,36 +765,16 @@
         showLibraryConfirmation('Paketet finns nu i Mitt bibliotek.');
       };
 
-      async function loadProTemplates() {
-        const [
-          { data: prompts, error: promptsError },
-          { data: packages, error: packagesError }
-        ] = await Promise.all([
-          supabase.rpc('list_published_prompts', { p_context_keys: ['generell'], p_include_creator_content: true }),
-          supabase.rpc('list_published_packages', { p_context_keys: ['generell'], p_include_creator_content: true })
-        ]);
-        if (promptsError || packagesError || !Array.isArray(prompts)) {
-          console.error('Kunde inte hämta promptbibliotekets fördjupningsmallar', promptsError || packagesError);
-          return;
-        }
-
-        const areaLabels = new Map((packages || []).map((pkg) => [pkg.slug, pkg.title]));
-
-        const mappedItems = prompts.map((prompt) => ({
-          id: prompt.id,
-          title: prompt.title,
-          description: prompt.summary || '',
-          content: prompt.prompt_text || '',
-          category: areaLabels.get(prompt.area) || prompt.area || '',
-          risk: riskLabels[prompt.risk_level] || riskLabels.low
-        }));
-
-        window.registerProTemplates?.(mappedItems);
-      }
-
+      // loadProTemplates() togs bort 2026-09-01: den hämtade hela katalogen
+      // en andra gång (samma list_published_prompts som loadCatalogPrompts i
+      // script.js redan hämtar, med p_include_creator_content satt av
+      // callCatalogRpc) och renderade den genom createPromptCard parallellt
+      // med katalogens egen rendering. Resultatet var varje katalogprompt
+      // två gånger i listan, den ena med fel källbadge och utan
+      // biblioteksknapp, plus ett tomt-läge som kunde visas samtidigt som
+      // träffar eftersom två oberoende async-vägar körde applyAllFilters().
       if (hasSupabaseConfig) {
         loadMyPrompts();
-        loadProTemplates();
       }
     </script>
 </body>
