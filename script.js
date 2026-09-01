@@ -569,10 +569,37 @@ function getQuickInputValue() {
 document.querySelectorAll('[data-catalog-package-shortcut]').forEach((button) => {
     button.addEventListener('click', () => {
         const slug = button.getAttribute('data-catalog-package-shortcut');
+        switchCatalogTab('packages');
         openCatalogPackageDetail(slug);
         document.getElementById('catalog-package-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 });
+
+// Flikväxling mellan "Alla prompter" och "Paket och arbetssätt" —
+// paketgridden ligger inte längre synlig som förval (se
+// docs/superpowers/specs/2026-09-01-unified-catalog-list-design.md,
+// Fas B). Den delade förhandsgranskningsmodalen (#catalog-prompt-detail)
+// ligger utanför båda panelerna i markupen och rörs inte här.
+function switchCatalogTab(which) {
+    const promptsPanel = document.getElementById('all-prompts-panel');
+    const packagesPanel = document.getElementById('catalog-package-section');
+    const promptsTab = document.getElementById('catalog-tab-prompts');
+    const packagesTab = document.getElementById('catalog-tab-packages');
+    if (!promptsPanel || !packagesPanel || !promptsTab || !packagesTab) return;
+
+    const showPackages = which === 'packages';
+    setElementHiddenState(promptsPanel, showPackages);
+    setElementHiddenState(packagesPanel, !showPackages);
+    promptsTab.classList.toggle('is-active', !showPackages);
+    promptsTab.setAttribute('aria-selected', String(!showPackages));
+    packagesTab.classList.toggle('is-active', showPackages);
+    packagesTab.setAttribute('aria-selected', String(showPackages));
+}
+
+window.switchCatalogTab = switchCatalogTab;
+
+document.getElementById('catalog-tab-prompts')?.addEventListener('click', () => switchCatalogTab('prompts'));
+document.getElementById('catalog-tab-packages')?.addEventListener('click', () => switchCatalogTab('packages'));
 
 function applyCatalogPromptFilters() {
     const query = getSearchQuery();
@@ -3763,6 +3790,7 @@ ${initialUserInput.trim()}`
             const initialPackageSlug = getPackageSlugFromLocation();
             const initialPromptSlug = getPromptSlugFromLocation();
             if (initialPackageSlug) {
+                switchCatalogTab('packages');
                 const opened = await openCatalogPackageDetail(initialPackageSlug);
                 if (!opened) {
                     window.history.replaceState(null, '', window.location.pathname);
