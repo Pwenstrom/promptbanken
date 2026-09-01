@@ -1,6 +1,27 @@
+import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+
+// script.js kopieras obundlad (se viteStaticCopy nedan) och får därför ingen
+// innehållshash i filnamnet som resten av bygget. Cache-bustern i
+// promptbanken.html (?v=%VITE_BUILD_ID%) var tidigare en handskriven sträng
+// som inte bumpades vid deploy, så återkommande besökare körde gammal JS.
+// Här sätts den till aktuell commit i stället: ny URL per deploy, utan att
+// någon behöver komma ihåg att uppdatera den. Faller tillbaka på en
+// tidsstämpel när git inte finns (t.ex. i en nedladdad zip).
+function resolveBuildId() {
+    if (process.env.VITE_BUILD_ID) return process.env.VITE_BUILD_ID;
+    try {
+        return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { stdio: ['ignore', 'pipe', 'ignore'] })
+            .toString()
+            .trim();
+    } catch {
+        return `t${Date.now()}`;
+    }
+}
+
+process.env.VITE_BUILD_ID = resolveBuildId();
 
 export default defineConfig({
   plugins: [
