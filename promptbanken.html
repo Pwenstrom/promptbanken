@@ -38,9 +38,9 @@
 
         .prompt-grid .prompt-card .card-actions {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: stretch;
             gap: 0.5rem;
-            align-items: center;
         }
 
         .prompt-grid .prompt-card .card-actions .export-btn,
@@ -50,8 +50,9 @@
             display: none !important;
         }
 
-        .prompt-grid .prompt-card .select-prompt-btn {
-            width: auto;
+        .prompt-grid .prompt-card .card-actions .select-prompt-btn,
+        .prompt-grid .prompt-card .card-actions .info-btn {
+            width: 100%;
         }
 
         .prompt-grid .prompt-card .info-btn {
@@ -173,6 +174,14 @@
                     </div>
                 </div>
 
+                <div class="plan-meter my-prompts-meter" id="my-prompts-meter" hidden>
+                    <div class="plan-meter-row">
+                        <span class="plan-meter-label">Aktiva egna prompter</span>
+                        <span class="plan-meter-value" id="my-prompts-meter-value">0 / 3</span>
+                    </div>
+                    <div class="plan-meter-track"><div class="plan-meter-fill" id="my-prompts-meter-fill" style="width:0%"></div></div>
+                </div>
+
                 <section class="context-filter-bar" aria-labelledby="context-filter-heading">
                     <div class="context-filter-copy">
                         <h2 id="context-filter-heading">Anpassa prompttext</h2>
@@ -194,21 +203,6 @@
                         </label>
                     </div>
                     <p class="context-filter-status" id="catalog-profile-status">Visar innehåll för: Alla</p>
-                </section>
-
-                <section class="my-prompts-rail" id="my-prompts-rail" hidden aria-label="Dina egna prompter">
-                    <div class="my-prompts-header">
-                        <h2>Dina prompter</h2>
-                        <div class="plan-meter my-prompts-meter" id="my-prompts-meter" hidden>
-                            <div class="plan-meter-row">
-                                <span class="plan-meter-label">Aktiva prompter</span>
-                                <span class="plan-meter-value" id="my-prompts-meter-value">0 / 3</span>
-                            </div>
-                            <div class="plan-meter-track"><div class="plan-meter-fill" id="my-prompts-meter-fill" style="width:0%"></div></div>
-                        </div>
-                        <a class="my-prompts-manage-link" href="admin.html">Hantera i workspace →</a>
-                    </div>
-                    <div id="my-prompts-body"></div>
                 </section>
 
                 <ol class="workflow-strip" aria-label="Arbetsflöde">
@@ -294,13 +288,7 @@
                 </div>
                 <p class="result-count" id="result-count">Visar prompter</p>
 
-                <section class="catalog-section" id="catalog-section">
-                    <div class="catalog-section-heading">
-                        <h2>Öppen katalog</h2>
-                        <p>Publicerade prompts från Promptbanken för din valda kontext.</p>
-                    </div>
-
-                    <h3>Enskilda prompts</h3>
+                <section class="catalog-section" id="catalog-section" aria-label="Katalogprompter">
                     <div class="catalog-package-link-error" id="catalog-prompt-link-error" hidden role="alert">
                         Prompten kunde inte hittas eller är inte längre publicerad.
                     </div>
@@ -583,35 +571,6 @@
           .replace(/'/g, '&#39;');
       }
 
-      function renderMyPromptsEmpty(body) {
-        body.innerHTML = `
-          <div class="my-prompts-empty">
-            <p>Du har inga egna prompter ännu. Skapa en i din workspace för att hitta den snabbt här.</p>
-            <a class="secondary-btn" href="admin.html">Skapa prompt</a>
-          </div>
-        `;
-      }
-
-      function renderMyPromptsTiles(body, items) {
-        body.innerHTML = `<div class="my-prompts-track"></div>`;
-        const track = body.querySelector('.my-prompts-track');
-        items.forEach((item) => {
-          const tile = document.createElement('button');
-          tile.type = 'button';
-          tile.className = 'my-prompt-tile';
-          tile.dataset.myPromptId = item.id;
-          tile.innerHTML = `
-            <span class="my-prompt-tile-badge">${item.visibility === 'workspace' ? 'Delad' : 'Privat'}</span>
-            <span class="my-prompt-tile-title">${escapeHtml(item.title)}</span>
-            <span class="my-prompt-tile-desc">${escapeHtml(item.description)}</span>
-          `;
-          tile.addEventListener('click', () => {
-            window.selectWorkflowPrompt?.(item.id, { reveal: true });
-          });
-          track.appendChild(tile);
-        });
-      }
-
       function renderMyPromptsMeter(usedCount, maxCount) {
         const meter = document.getElementById('my-prompts-meter');
         const value = document.getElementById('my-prompts-meter-value');
@@ -704,21 +663,13 @@
           return;
         }
 
-        const rail = document.getElementById('my-prompts-rail');
-        const body = document.getElementById('my-prompts-body');
-        if (!rail || !body) return;
-
-        rail.hidden = false;
-
         const activeItems = items || [];
-        if (!activeItems.length) {
-          renderMyPromptsEmpty(body);
-          return;
-        }
 
         if (workspace?.max_prompts) {
           renderMyPromptsMeter(activeItems.filter((item) => item.status !== 'archived').length, workspace.max_prompts);
         }
+
+        if (!activeItems.length) return;
 
         const mappedItems = activeItems.map((item) => ({
           id: item.id,
@@ -731,7 +682,6 @@
           risk: riskLabels[item.risk_level] || riskLabels.low
         }));
 
-        renderMyPromptsTiles(body, mappedItems);
         const requestedLibraryItem = new URLSearchParams(window.location.search).get('libraryItem');
         await registerAndSelectLibraryItem({
           items: mappedItems,

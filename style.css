@@ -4420,8 +4420,9 @@ body.favorites-mode-on .favorites-menu.hidden {
     padding: 0.85rem;
 }
 
-.prompt-grid {
+.prompt-grid, #catalog-prompt-grid {
     grid-template-columns: repeat(2, minmax(260px, 1fr));
+    gap: 0.9rem;
 }
 
 .prompt-card {
@@ -4561,7 +4562,7 @@ body.detail-panel-closed .prompt-detail-panel {
 }
 
 @media (max-width: 1180px) {
-    .prompt-grid {
+    .prompt-grid, #catalog-prompt-grid {
         grid-template-columns: repeat(2, minmax(220px, 1fr));
     }
 }
@@ -4656,7 +4657,7 @@ body.detail-panel-closed .prompt-detail-panel {
         min-width: 0;
     }
 
-    .prompt-grid {
+    .prompt-grid, #catalog-prompt-grid {
         grid-template-columns: 1fr;
         gap: 0.75rem;
     }
@@ -5527,6 +5528,8 @@ body.detail-panel-closed .prompt-detail-panel {
 
 .my-prompts-meter {
     min-width: 190px;
+    max-width: 260px;
+    margin: 1.5rem 0;
 }
 
 .my-prompts-manage-link {
@@ -5640,9 +5643,7 @@ body.detail-panel-closed .prompt-detail-panel {
 }
 
 .catalog-section {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border-color, #e2e2e2);
+    margin-top: 0;
 }
 
 .context-filter-bar {
