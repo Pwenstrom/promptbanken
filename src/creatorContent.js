@@ -40,6 +40,23 @@ function renderRow(template, prompt) {
     const editBtn = el('[data-row-edit-btn]', node);
     editBtn.hidden = Boolean(prompt.is_open_reference);
 
+    // Samma gräns som delete_creator_prompt-policyn (RPC:n avvisar annars
+    // ändå) -- publicerade/arkiverade prompts och Open-referenser
+    // (referensen är inte creatorns eget innehåll att radera) får ingen
+    // knapp.
+    if (!prompt.is_open_reference && ['draft', 'review'].includes(prompt.status)) {
+        const deleteBtn = el('[data-row-delete-btn]', node);
+        deleteBtn.hidden = false;
+        deleteBtn.addEventListener('click', async () => {
+            if (!confirm(`Ta bort prompten "${prompt.title}"? Det går inte att ångra.`)) return;
+            deleteBtn.disabled = true;
+            const { error } = await supabase.from('content_items').delete().eq('id', prompt.id);
+            deleteBtn.disabled = false;
+            if (error) { alert(error.message); return; }
+            await loadPrompts();
+        });
+    }
+
     // Redigering. Utan den blir "Begär ändring" en återvändsgränd:
     // creatorn läser motiveringen men kan inte åtgärda något.
     if (!prompt.is_open_reference && prompt.status !== 'archived') {
