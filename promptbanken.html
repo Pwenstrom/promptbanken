@@ -156,7 +156,12 @@
 
         <div class="workspace-grid">
             <section class="prompt-library" aria-label="Tillgängliga prompter">
-                <section class="catalog-package-section" aria-labelledby="catalog-package-heading">
+                <div class="catalog-tabs" role="tablist" aria-label="Katalogvy">
+                    <button type="button" class="catalog-tab is-active" id="catalog-tab-prompts" role="tab" aria-selected="true" aria-controls="all-prompts-panel">Alla prompter</button>
+                    <button type="button" class="catalog-tab" id="catalog-tab-packages" role="tab" aria-selected="false" aria-controls="catalog-package-section">Paket och arbetssätt</button>
+                </div>
+
+                <section class="catalog-package-section" id="catalog-package-section" aria-labelledby="catalog-package-heading" role="tabpanel" hidden>
                     <div class="catalog-section-heading">
                         <h2 id="catalog-package-heading">Paket och arbetssätt</h2>
                         <p class="catalog-section-lead">Färdiga AI-arbetssätt och samlingar för riktiga arbetsuppgifter. <a href="/paket/">Se alla paket</a>.</p>
@@ -167,6 +172,7 @@
                     <div class="catalog-grid" id="catalog-package-grid"></div>
                 </section>
 
+                <div id="all-prompts-panel" role="tabpanel">
                 <div class="page-title-row">
                     <div>
                         <h1>Alla prompter</h1>
@@ -293,16 +299,23 @@
                         Prompten kunde inte hittas eller är inte längre publicerad.
                     </div>
                     <div class="catalog-grid" id="catalog-prompt-grid"></div>
-
-                    <div class="catalog-prompt-detail" id="catalog-prompt-detail" hidden>
-                        <div class="catalog-detail-panel">
-                            <button type="button" class="catalog-detail-share" id="catalog-detail-share" aria-label="Kopiera länk" hidden>🔗</button>
-                            <button type="button" class="catalog-detail-close" id="catalog-detail-close" aria-label="Stäng">×</button>
-                            <div class="catalog-detail-tabs" id="catalog-detail-tabs"></div>
-                            <div class="catalog-detail-body" id="catalog-detail-body"></div>
-                        </div>
-                    </div>
                 </section>
+                </div>
+
+                <!-- Delad mellan prompt- och paketförhandsvisning (se
+                     renderCatalogDetailVariant i script.js) — ligger utanför
+                     båda flikpanelerna med flit: position:fixed-overlayen
+                     ska visas oavsett vilken flik som är aktiv, och en
+                     "hidden"-förälder skulle annars dölja den även när
+                     modalens egen "hidden" är avstängd. -->
+                <div class="catalog-prompt-detail" id="catalog-prompt-detail" hidden>
+                    <div class="catalog-detail-panel">
+                        <button type="button" class="catalog-detail-share" id="catalog-detail-share" aria-label="Kopiera länk" hidden>🔗</button>
+                        <button type="button" class="catalog-detail-close" id="catalog-detail-close" aria-label="Stäng">×</button>
+                        <div class="catalog-detail-tabs" id="catalog-detail-tabs"></div>
+                        <div class="catalog-detail-body" id="catalog-detail-body"></div>
+                    </div>
+                </div>
             </section>
 
             <aside class="prompt-detail-panel" id="prompt-detail-panel" aria-label="Vald prompt" tabindex="-1">

@@ -3231,6 +3231,35 @@ body {
     align-items: start;
 }
 
+.catalog-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.catalog-tab {
+    appearance: none;
+    background: #fff;
+    color: #344054;
+    font: inherit;
+    font-weight: 650;
+    padding: 0.5rem 1rem;
+    border: 1px solid #dce3eb;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.catalog-tab:hover {
+    border-color: #0052a3;
+}
+
+.catalog-tab.is-active {
+    border-color: #0052a3;
+    background: #e8f1ff;
+    color: #003b75;
+    font-weight: 750;
+}
+
 .page-title-row h1 {
     margin: 0;
     font-size: 1.55rem;
