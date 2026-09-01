@@ -746,6 +746,40 @@ const catalogRiskLabels = { low: 'Låg risk', medium: 'Medelrisk', high: 'Hög r
 const libraryReferencePromptIds = new Set();
 const libraryReferencePackageIds = new Set();
 
+// Legacy statiska prompter (prompts.json) som sedan dess migrerats till
+// katalogen som parametriserade mallar under nytt UUID. Hand-verifierad
+// mappning (prompt_text jämförd ord-för-ord 2026-09-01) — inget automatiskt
+// länkfält finns mellan de två registren. Lokal-MCP:n (mcp-server/) läser
+// prompts.json/skills.json oberoende av detta och påverkas inte: filerna
+// rörs inte, bara webbkortet döljs när katalogtvillingen faktiskt laddat.
+const LEGACY_STATIC_CATALOG_MAP = {
+    klarsprak: '4a326dd1-09d6-4812-87a0-4b8fabe907da',
+    mejl: '987a12cf-9679-419a-8d15-0f3be011b742',
+    faq: '924f7a3d-7287-4ead-8290-5560d14ae0cb',
+    kallelse: 'b086dcd4-029f-46e1-808e-9be23263dae8',
+    beslutsunderlag: 'ef6c1b3d-385d-4aea-873c-760e4d98008e',
+    rutin: '6dcd7d9c-b9fe-48b9-b361-6984193e3c02',
+    tvaversioner: '85aee9de-faab-464c-9839-5246889260f9',
+    informationsutskick: 'fab9ece6-6b46-4f5b-be67-bea307f2e402',
+    enkel_infografik: 'f303a6d0-40ee-47ff-8cb5-4ee97d4e242c',
+    illustration_informationsutskick: 'a01714bc-419e-43fe-891d-c6d536e44e96'
+};
+
+// Tar bort statiska kort vars katalogtvilling faktiskt laddat denna
+// omgång. Ren tillägg: rör aldrig prompts.json/skills.json, bara
+// in-memory allPrompts-arrayen och dess DOM-kort i #prompt-grid. Om
+// katalogen är otillgänglig anropas denna aldrig — statiska kort är då
+// fallback precis som idag.
+function removeStaticDuplicatePrompts(staticIds) {
+    if (!Array.isArray(staticIds) || !staticIds.length) return;
+    staticIds.forEach((id) => {
+        const index = allPrompts.findIndex((existing) => existing.id === id);
+        if (index === -1) return;
+        allPrompts.splice(index, 1);
+        document.querySelector(`#prompt-grid .prompt-card[data-prompt-id="${id}"]`)?.remove();
+    });
+}
+
 function getCatalogLibraryActionState(inLibrary) {
     return window.catalogLibraryActionState?.(inLibrary) || (inLibrary
         ? { label: '✓ Finns i Mitt bibliotek', disabled: true }
@@ -863,7 +897,13 @@ async function loadCatalogPrompts() {
                 catalogPromptsById.set(prompt.id, prompt);
                 grid.appendChild(createCatalogPromptCard(prompt));
             });
+        removeStaticDuplicatePrompts(
+            Object.entries(LEGACY_STATIC_CATALOG_MAP)
+                .filter(([, catalogId]) => catalogPromptsById.has(catalogId))
+                .map(([staticId]) => staticId)
+        );
         populateFilterOptions(allPrompts);
+        updateLibraryStats(allPrompts);
         applyAllFilters();
     } catch (error) {
         console.error('Kunde inte ladda katalogprompts:', error);
