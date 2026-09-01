@@ -807,6 +807,21 @@ function removeStaticDuplicatePrompts(staticIds) {
     });
 }
 
+// Körs av BÅDA laddningarna, eftersom ordningen mellan dem inte är
+// bestämd: i produktion svarar katalog-RPC:n ofta före loadPrompts, som
+// hämtar prompts.json plus en .txt-fil per prompt. Kördes dedupen bara
+// från loadCatalogPrompts fanns inga statiska kort att ta bort ännu, och
+// dubbletterna blev kvar (verifierat live 2026-09-01). Funktionen är
+// idempotent — den som blir klar sist städar.
+function applyLegacyCatalogDedupe() {
+    if (!catalogPromptsById.size) return;
+    removeStaticDuplicatePrompts(
+        Object.entries(LEGACY_STATIC_CATALOG_MAP)
+            .filter(([, catalogId]) => catalogPromptsById.has(catalogId))
+            .map(([staticId]) => staticId)
+    );
+}
+
 function getCatalogLibraryActionState(inLibrary) {
     return window.catalogLibraryActionState?.(inLibrary) || (inLibrary
         ? { label: '✓ Finns i Mitt bibliotek', disabled: true }
@@ -924,11 +939,7 @@ async function loadCatalogPrompts() {
                 catalogPromptsById.set(prompt.id, prompt);
                 grid.appendChild(createCatalogPromptCard(prompt));
             });
-        removeStaticDuplicatePrompts(
-            Object.entries(LEGACY_STATIC_CATALOG_MAP)
-                .filter(([, catalogId]) => catalogPromptsById.has(catalogId))
-                .map(([staticId]) => staticId)
-        );
+        applyLegacyCatalogDedupe();
         populateFilterOptions(allPrompts);
         updateLibraryStats(allPrompts);
         applyAllFilters();
@@ -1679,8 +1690,13 @@ async function loadCatalogPackages() {
                     }
                 }
 
-                updateLibraryStats(visiblePrompts);
-                populateFilterOptions(visiblePrompts);
+                // Katalogen kan redan ha laddat medan .txt-filerna hämtades.
+                // Städa dubbletterna innan statistik och filter räknas, så
+                // korten och siffrorna beskriver samma lista.
+                applyLegacyCatalogDedupe();
+
+                updateLibraryStats(allPrompts);
+                populateFilterOptions(allPrompts);
 
                 // Set up event delegation for all cards
                 setupEventDelegation();
@@ -1691,13 +1707,21 @@ async function loadCatalogPackages() {
                 // Update favorites menu
                 updateFavoritesMenu();
                 applyPromptSort();
-                if (visiblePrompts.length) {
-                    const keepCurrentSelection = visiblePrompts.some((prompt) => prompt.id === previouslySelectedPromptId);
+                // allPrompts, inte visiblePrompts: dedupen ovan kan ha tagit
+                // bort poster, och en borttagen prompt får inte bli förvald.
+                if (allPrompts.length) {
+                    const keepCurrentSelection = allPrompts.some((prompt) => prompt.id === previouslySelectedPromptId);
                     const nextPromptId = keepCurrentSelection
                         ? previouslySelectedPromptId
-                        : visiblePrompts[0].id;
+                        : allPrompts[0].id;
                     selectPrompt(nextPromptId, { reveal: false, markSelected: keepCurrentSelection });
                 }
+
+                // Träffräknaren och tomt-läget ägs av applyAllFilters, som
+                // räknar alla källor. Utan det här anropet blev räknaren
+                // kvar i updateLibraryStats format ("Visar 1-21 av 21"),
+                // som varken såg katalogen eller aktiva filter.
+                applyAllFilters();
 
                 grid.classList.remove('loading');
                 resolvePromptbankenReady();
@@ -1712,12 +1736,14 @@ async function loadCatalogPackages() {
         function updateLibraryStats(prompts) {
             const statPrompts = document.getElementById('stat-prompts');
             const statCategories = document.getElementById('stat-categories');
-            const resultCount = document.getElementById('result-count');
             const categories = new Set(prompts.map((prompt) => getPromptMeta(prompt).category));
 
             if (statPrompts) statPrompts.textContent = String(prompts.length);
             if (statCategories) statCategories.textContent = String(categories.size);
-            if (resultCount) resultCount.textContent = `Visar 1-${prompts.length} av ${prompts.length} prompter`;
+            // Rör inte #result-count här. Den ägs av applyAllFilters, som
+            // räknar statiska, katalog och paket tillsammans och tar hänsyn
+            // till aktiva filter. Den här funktionen ser bara den statiska
+            // listan och skrev tidigare över den korrekta siffran.
         }
 
         function setFilterOptions(selectId, values, allLabel) {
