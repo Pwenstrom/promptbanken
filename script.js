@@ -2266,49 +2266,12 @@ async function loadCatalogPackages() {
             applyAllFilters();
         }
 
-        async function registerProTemplates(items) {
-            await window.promptbankenReady;
-
-            if (!Array.isArray(items) || !items.length) {
-                return;
-            }
-
-            items.forEach((item) => {
-                if (allPrompts.some((existing) => existing.id === item.id)) {
-                    return;
-                }
-
-                promptUiMeta[item.id] = {
-                    icon: '▤',
-                    category: item.category || 'Alla kategorier',
-                    audience: 'Intern & extern',
-                    role: 'Alla roller',
-                    risk: item.risk || 'Låg risk',
-                    example: item.description || '',
-                    phrase: 'Anpassa efter ditt ärende.'
-                };
-
-                const promptEntry = {
-                    id: item.id,
-                    title: item.title,
-                    description: item.description || ''
-                };
-
-                allPrompts.push(promptEntry);
-
-                const card = createPromptCard(promptEntry, item.content || '', allPrompts.length);
-                grid.appendChild(card);
-            });
-
-            populateFilterOptions(allPrompts);
-            updateLibraryStats(allPrompts);
-            loadFavoriteStates();
-            applyPromptSort();
-            applyAllFilters();
-        }
+        // registerProTemplates togs bort 2026-09-01 tillsammans med sin enda
+        // anropare (loadProTemplates i promptbanken.html). Katalogprompter
+        // renderas bara av loadCatalogPrompts/createCatalogPromptCard, med
+        // källbadge och biblioteksknapp. Se commit-meddelandet för mekanismen.
 
         window.registerOwnPrompts = registerOwnPrompts;
-        window.registerProTemplates = registerProTemplates;
 
         function setupEventDelegation() {
             // Toggle examples - event delegation
