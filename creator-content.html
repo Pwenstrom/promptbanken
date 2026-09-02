@@ -116,7 +116,36 @@
                         <button type="button" data-row-submit-btn>Skicka in för granskning</button>
                     </div>
                 </div>
-                <button type="button" data-row-withdraw-btn hidden>Dra tillbaka</button>
+                <div class="creator-row-actions">
+                    <button type="button" data-row-withdraw-btn hidden>Dra tillbaka</button>
+                    <button type="button" class="danger-btn" data-row-delete-btn data-delete-confirm="0" hidden>Ta bort</button>
+                </div>
+            </article>
+        </template>
+
+        <!-- Följda och kopierade katalogprompts. De ligger i module='valvet'
+             och kan varken redigeras eller skickas in för granskning här —
+             enda handlingen som betyder något är att ta bort dem igen. -->
+        <section class="workspace-section" data-library-section hidden>
+            <div class="workspace-section-heading">
+                <h2>Från Promptbanken</h2>
+            </div>
+            <p>Prompts du följer eller har kopierat från katalogen. En följd prompt läses live: ändras originalet ändras din också.</p>
+            <p class="workspace-status" role="status" data-library-status hidden></p>
+            <div data-library-list></div>
+        </section>
+
+        <template data-library-row-template>
+            <article class="creator-library-row" data-library-item-id>
+                <div class="creator-library-row-heading">
+                    <h3 data-library-title>-</h3>
+                    <strong class="status-badge" data-library-kind-badge>-</strong>
+                </div>
+                <p data-library-summary></p>
+                <p class="field-error" data-library-error role="alert" hidden></p>
+                <div class="creator-row-actions">
+                    <button type="button" class="danger-btn" data-library-remove-btn data-delete-confirm="0">Ta bort</button>
+                </div>
             </article>
         </template>
     </main>

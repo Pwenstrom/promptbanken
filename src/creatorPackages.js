@@ -1,5 +1,6 @@
 import { requireSupabaseConfig } from './auth.js';
 import { supabase } from './supabaseClient.js';
+import { wireConfirmButton } from './confirmAction.js';
 
 const STATUS_LABELS = { draft: 'Utkast', review: 'Under granskning', published: 'Publicerad', archived: 'Arkiverad' };
 const TYPE_LABELS = {
@@ -39,8 +40,26 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
         reviewNote.hidden = false;
     }
 
-    const { data: items, error: itemsError } = await supabase.rpc('list_creator_package_draft_items', { p_draft_id: draft.id });
-    const itemList = itemsError ? [] : items;
+    // Ett följt katalogpaket har inga egna creator_package_items -- stegen
+    // läses live ur katalogen. Läser vi items-tabellen för det ser paketet
+    // tomt ut, med "0/8 prompts" och en "Lägg till prompt"-rad som inte
+    // betyder något.
+    const isReference = Boolean(draft.is_library_reference);
+    el('[data-draft-reference-note]', node).hidden = !isReference;
+
+    const { data: items, error: itemsError } = isReference
+        ? await supabase.rpc('get_referenced_library_package', { p_draft_id: draft.id })
+        : await supabase.rpc('list_creator_package_draft_items', { p_draft_id: draft.id });
+
+    const itemList = itemsError
+        ? []
+        : (isReference
+            ? items.map((row) => ({
+                content_item_id: null,
+                title: row.item_title,
+                summary: row.item_summary
+            }))
+            : items);
 
     if (itemsError) {
         const errorEl = el('[data-draft-error]', node);
@@ -49,7 +68,9 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
     }
 
     const countHint = el('[data-draft-count-hint]', node);
-    countHint.textContent = `${itemList.length}/${MAX_ITEMS} prompts` + (itemList.length >= 3 && itemList.length <= 6 ? ' — lagom paket' : itemList.length < 3 ? ' — 3–6 prompts brukar vara ett lagom paket' : '');
+    countHint.textContent = isReference
+        ? `${itemList.length} prompts i paketet`
+        : `${itemList.length}/${MAX_ITEMS} prompts` + (itemList.length >= 3 && itemList.length <= 6 ? ' — lagom paket' : itemList.length < 3 ? ' — 3–6 prompts brukar vara ett lagom paket' : '');
 
     el('[data-draft-type-badge]', node).textContent =
         TYPE_LABELS[draft.package_type] || TYPE_LABELS.collection;
@@ -77,9 +98,9 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
     const itemsEl = el('[data-draft-items]', node);
     itemList.forEach((item, index) => {
         const row = itemTemplate.content.firstElementChild.cloneNode(true);
-        row.dataset.itemContentItemId = item.content_item_id;
+        row.dataset.itemContentItemId = item.content_item_id || '';
         el('[data-item-title]', row).textContent = item.title;
-        if (draft.status === 'draft') {
+        if (draft.status === 'draft' && !isReference) {
             const upBtn = el('[data-item-up-btn]', row);
             const downBtn = el('[data-item-down-btn]', row);
             upBtn.hidden = index === 0;
@@ -130,7 +151,7 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
         });
     }
 
-    if (draft.status === 'draft') {
+    if (draft.status === 'draft' && !isReference) {
         const addRow = el('[data-draft-add-row]', node);
         const submitBtn = el('[data-draft-submit-btn]', node);
         const errorEl = el('[data-draft-error]', node);
@@ -194,6 +215,31 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
             const { error } = await supabase.rpc('withdraw_creator_package_draft', { p_draft_id: draft.id });
             if (error) { alert(error.message); return; }
             await loadDrafts();
+        });
+    }
+
+    // Radering: eget utkast eller avslaget paket, samt följda katalogpaket
+    // (som alltid ligger i draft). Under granskning och publicerat vägras
+    // av RPC:n -- knappen visas inte där heller.
+    if (draft.status === 'draft' || draft.status === 'archived') {
+        const deleteBtn = el('[data-draft-delete-btn]', node);
+        const errorEl = el('[data-draft-error]', node);
+        deleteBtn.hidden = false;
+        deleteBtn.textContent = isReference ? 'Sluta följa' : 'Ta bort';
+        wireConfirmButton(deleteBtn, {
+            confirmLabel: isReference ? 'Bekräfta?' : 'Bekräfta radering?',
+            onConfirm: async () => {
+                errorEl.hidden = true;
+                const { error } = await supabase.rpc('delete_my_creator_package_draft', {
+                    p_draft_id: draft.id
+                });
+                if (error) {
+                    errorEl.textContent = error.message;
+                    errorEl.hidden = false;
+                    return;
+                }
+                await loadDrafts();
+            }
         });
     }
 

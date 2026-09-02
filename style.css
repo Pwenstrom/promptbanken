@@ -2310,10 +2310,23 @@ body.local-chat-enabled .card-actions .local-chat-btn {
     background: #fee2e2;
     color: #b42318;
     border: 1px solid #fca5a5;
+    border-radius: 6px;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    padding: 0.5rem 0.7rem;
 }
 
 .workspace-section button.danger-btn:hover {
     background: #fecaca;
+}
+
+/* Andra klicket på en destruktiv knapp -- se src/confirmAction.js. Samma
+   färgspråk som bekräftelseläget i workspace-tabellen. */
+.workspace-section button.is-confirming {
+    background: #b42318;
+    color: #fff;
+    border-color: #b42318;
 }
 
 .workspace-section button:not(.integration-tab):not(.danger-btn),
@@ -6544,6 +6557,41 @@ body.detail-panel-closed .prompt-detail-panel {
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-top: 0.75rem;
+}
+
+/* Biblioteksraderna: följda och kopierade katalogprompts. Lättare vikt än
+   ett eget workspace-section-kort -- de är inget creatorn arbetar i, bara
+   något hen behåller eller tar bort. */
+.creator-library-row {
+    border-top: 1px solid #e4eaf2;
+    padding: 0.85rem 0 0.25rem;
+}
+
+.creator-library-row:first-child {
+    border-top: 0;
+}
+
+.creator-library-row-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.creator-library-row-heading h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.creator-library-row p {
+    margin: 0.35rem 0 0;
+    color: #475467;
+}
+
+.creator-library-note {
+    color: #475467;
+    font-size: 0.92rem;
+    margin: 0.25rem 0 0;
 }
 
 /* Samtyckesgruppen för spridning utanför Promptbanken. Avgränsad för att

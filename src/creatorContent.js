@@ -1,5 +1,6 @@
 import { requireSupabaseConfig } from './auth.js';
 import { supabase } from './supabaseClient.js';
+import { wireConfirmButton } from './confirmAction.js';
 
 const STATUS_LABELS = { draft: 'Utkast', review: 'Under granskning', published: 'Publicerad', archived: 'Arkiverad' };
 
@@ -127,7 +128,85 @@ function renderRow(template, prompt) {
         });
     }
 
+    // Radering. Under granskning måste dras tillbaka först och publicerat
+    // ligger i öppna katalogen -- RPC:n vägrar båda, så knappen visas inte
+    // heller för dem.
+    if (prompt.status === 'draft' || prompt.status === 'archived') {
+        const deleteBtn = el('[data-row-delete-btn]', node);
+        deleteBtn.hidden = false;
+        wireConfirmButton(deleteBtn, {
+            onConfirm: async () => {
+                const { error } = await supabase.rpc('delete_my_creator_prompt', {
+                    p_content_item_id: prompt.id
+                });
+                if (error) {
+                    alert(error.message);
+                    return;
+                }
+                await loadPrompts();
+            }
+        });
+    }
+
     return node;
+}
+
+// Följda och kopierade katalogprompts. De ligger i module='valvet' och
+// syns därför inte i list_my_creator_prompts (module='kommun'). Utan den
+// här sektionen fanns "lägg till i mitt bibliotek" men ingen väg tillbaka.
+async function loadLibrary() {
+    const section = el('[data-library-section]');
+    const list = el('[data-library-list]');
+    const template = el('[data-library-row-template]');
+    const statusEl = el('[data-library-status]');
+
+    const { data, error } = await supabase.rpc('list_my_library_prompts');
+    if (error) {
+        section.hidden = false;
+        statusEl.hidden = false;
+        statusEl.textContent = `Kunde inte ladda biblioteket: ${error.message}`;
+        return;
+    }
+
+    if (!data.length) {
+        section.hidden = true;
+        return;
+    }
+
+    list.innerHTML = '';
+    data.forEach((item) => {
+        const node = template.content.firstElementChild.cloneNode(true);
+        node.dataset.libraryItemId = item.id;
+        el('[data-library-title]', node).textContent = item.title;
+        el('[data-library-summary]', node).textContent = item.summary || '';
+        el('[data-library-kind-badge]', node).textContent =
+            item.is_library_reference ? 'Följer' : 'Egen kopia';
+
+        const errorEl = el('[data-library-error]', node);
+        const removeBtn = el('[data-library-remove-btn]', node);
+        removeBtn.textContent = item.is_library_reference ? 'Sluta följa' : 'Ta bort';
+
+        wireConfirmButton(removeBtn, {
+            confirmLabel: item.is_library_reference ? 'Bekräfta?' : 'Bekräfta radering?',
+            onConfirm: async () => {
+                errorEl.hidden = true;
+                const { error: removeError } = await supabase.rpc('delete_my_creator_prompt', {
+                    p_content_item_id: item.id
+                });
+                if (removeError) {
+                    errorEl.textContent = removeError.message;
+                    errorEl.hidden = false;
+                    return;
+                }
+                await loadLibrary();
+            }
+        });
+
+        list.appendChild(node);
+    });
+
+    statusEl.hidden = true;
+    section.hidden = false;
 }
 
 async function loadPrompts() {
@@ -296,6 +375,7 @@ async function init() {
     el('[data-creator-content-new-prompt]').hidden = false;
     registerNewPromptForm();
     await loadPrompts();
+    await loadLibrary();
 }
 
 init();

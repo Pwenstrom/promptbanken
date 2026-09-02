@@ -82,6 +82,7 @@
                 </div>
                 <p data-draft-summary></p>
                 <p class="package-type-badge" data-draft-type-badge></p>
+                <p class="creator-library-note" data-draft-reference-note hidden>Följer Promptbanken. Innehållet läses live ur katalogen och kan inte redigeras här.</p>
                 <p class="mp-hint is-error" data-draft-review-note hidden></p>
                 <p data-draft-count-hint></p>
                 <div data-draft-items></div>
@@ -100,8 +101,11 @@
                     <p class="creator-consent-hint">Båda krävs för spridning utanför Promptbanken. Lämnar du dem tomma publiceras paketet ändå — men bara på webben.</p>
                 </fieldset>
                 <p class="field-error" data-draft-error role="alert" hidden></p>
-                <button type="button" data-draft-submit-btn hidden>Skicka in för granskning</button>
-                <button type="button" data-draft-withdraw-btn hidden>Dra tillbaka</button>
+                <div class="creator-row-actions">
+                    <button type="button" data-draft-submit-btn hidden>Skicka in för granskning</button>
+                    <button type="button" data-draft-withdraw-btn hidden>Dra tillbaka</button>
+                    <button type="button" class="danger-btn" data-draft-delete-btn data-delete-confirm="0" hidden>Ta bort</button>
+                </div>
             </article>
         </template>
 
