@@ -2370,6 +2370,14 @@ body.local-chat-enabled .card-actions .local-chat-btn {
     font-weight: 700;
 }
 
+/* display:grid ovan har högre specificitet än standardregeln [hidden] {
+   display: none } och skulle annars visa ett fält som skickats in dolt
+   (t.ex. eget-datum-fältet i creator-shares.html innan "Eget datum" är
+   valt). */
+.workspace-form label[hidden] {
+    display: none;
+}
+
 .workspace-form input,
 .workspace-form select,
 .workspace-form textarea {
