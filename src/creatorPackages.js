@@ -380,10 +380,12 @@ async function init() {
     });
 
     el('[data-creator-packages-content]').hidden = false;
+    // Skapa-formuläret ligger kvar högst upp (HTML-ordningen) -- att
+    // flytta listan ovanför den, som tidigare, gömde "skapa paket" längst
+    // ner efter alla befintliga paket. Samma fix som creatorContent.js.
     const composer = document.getElementById('new-package');
     if (composer) {
         composer.open = window.location.hash === '#new-package';
-        composer.parentNode.insertBefore(el('[data-draft-list]'), composer);
     }
     registerNewDraftForm();
     await loadDrafts();

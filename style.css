@@ -7022,6 +7022,25 @@ button:disabled,
     color: #172033;
 }
 
+/* "Lägg till prompt"-raden i paketbyggaren -- en bar <select> utan
+   .workspace-form-wrapper hade ingen styling alls tidigare. */
+[data-draft-add-row] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+}
+
+[data-draft-add-select] {
+    flex: 1 1 220px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 0.6rem 0.65rem;
+    font: inherit;
+    background: #fff;
+    color: #172033;
+}
+
 .package-type-badge {
     margin: 0.2rem 0 0;
     color: #5b6779;

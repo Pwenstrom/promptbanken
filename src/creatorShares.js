@@ -246,6 +246,8 @@ async function init() {
     });
 
     el('[data-shares-content]').hidden = false;
+    const composer = document.getElementById('new-share');
+    if (composer) composer.open = window.location.hash === '#new-share';
     registerCreateForm();
     await loadSubjects();
     await loadShares();

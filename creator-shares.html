@@ -42,20 +42,36 @@
         </section>
 
         <div data-shares-content hidden>
-            <section class="workspace-section">
-                <h2>Skapa delning</h2>
+            <details class="workspace-section creator-composer" id="new-share">
+                <summary>+ Skapa delning</summary>
+                <div class="creator-composer-body">
                 <p>
                     Du kan dela dina privata prompts och paket direkt. Delning är separat
                     från publicering i Promptbanken Open och kräver ingen granskning.
                 </p>
 
-                <label>Vad vill du dela
-                    <select data-share-subject></select>
-                </label>
+                <div class="workspace-form">
+                    <label>Vad vill du dela
+                        <select data-share-subject></select>
+                    </label>
 
-                <label>Namn på delningen
-                    <input type="text" data-share-label maxlength="120" placeholder="Syns bara för dig">
-                </label>
+                    <label>Namn på delningen
+                        <input type="text" data-share-label maxlength="120" placeholder="Syns bara för dig">
+                    </label>
+
+                    <label>Giltig
+                        <select data-share-expiry>
+                            <option value="7">7 dagar</option>
+                            <option value="30" selected>30 dagar</option>
+                            <option value="custom">Eget datum</option>
+                            <option value="never">Tills vidare</option>
+                        </select>
+                    </label>
+
+                    <label data-share-custom-date-wrap hidden>Slutdatum
+                        <input type="date" data-share-custom-date>
+                    </label>
+                </div>
 
                 <fieldset class="package-type-choice">
                     <legend>Version</legend>
@@ -75,19 +91,6 @@
                     </label>
                 </fieldset>
 
-                <label>Giltig
-                    <select data-share-expiry>
-                        <option value="7">7 dagar</option>
-                        <option value="30" selected>30 dagar</option>
-                        <option value="custom">Eget datum</option>
-                        <option value="never">Tills vidare</option>
-                    </select>
-                </label>
-
-                <label data-share-custom-date-wrap hidden>Slutdatum
-                    <input type="date" data-share-custom-date>
-                </label>
-
                 <p data-share-create-error role="alert" hidden></p>
                 <button type="button" data-share-create-btn>Skapa delning</button>
 
@@ -95,7 +98,8 @@
                     Delningen är skapad. <strong data-share-created-url></strong>
                     <button type="button" data-share-created-copy>Kopiera länken</button>
                 </p>
-            </section>
+                </div>
+            </details>
 
             <section class="workspace-section">
                 <h2>Aktiva delningar</h2>

@@ -427,10 +427,12 @@ async function init() {
         window.location.href = 'login.html';
     });
 
+    // Skapa-formuläret ligger kvar högst upp (HTML-ordningen) -- att
+    // flytta listan ovanför den, som tidigare, gömde "skapa ny prompt"
+    // längst ner efter alla befintliga kort.
     const composer = el('[data-creator-content-new-prompt]');
     composer.hidden = false;
     composer.open = window.location.hash === '#new-prompt';
-    composer.parentNode.insertBefore(el('[data-creator-content-list]'), composer);
     registerNewPromptForm();
     await loadPrompts();
     await loadLibrary();
