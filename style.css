@@ -1746,6 +1746,18 @@ body.local-chat-enabled .card-actions .local-chat-btn {
     margin-bottom: 0.2rem;
 }
 
+/* "Skapa din profil" var enda checklistraden utan någon länk till
+   creator-profile.html någonstans i gränssnittet -- inte i navigationen,
+   inte här. Övriga tre steg hänger man kan nå via huvudnavigationen. */
+.onboarding-step-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.onboarding-step-link:hover strong {
+    text-decoration: underline;
+}
+
 .onboarding-checklist p {
     margin: 0;
     color: #667085;
