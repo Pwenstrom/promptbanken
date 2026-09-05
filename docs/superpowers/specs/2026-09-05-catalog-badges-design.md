@@ -148,11 +148,21 @@ till i prompt-korten) — placerad FÖRE risk-chippen, så den mest
 Tre CSS-klasser (`data-badge="new|trending|popular"`), samma pill-bas som
 `.risk-chip` (`.card-tags span` ger padding/border-radius/font-storlek
 gratis), tre färgvarianter som INTE krockar visuellt med risk-chippens
-grön/gul/röd-skala (risk och badge ska aldrig kunna förväxlas) — förslag:
-Ny = blå (`#eef4ff`/`#0052a3`, samma "öppen katalog"-blått som redan är
-dokumenterat i `docs/superpowers/plans/2026-09-01-unified-catalog-list.md`),
-Trendande = lila, Populär = grå/guld. Exakta hex väljs i implementations-
-planen, inte här — det är en detalj, inte en arkitekturfråga.
+grön/gul/röd-skala (risk och badge ska aldrig kunna förväxlas). Godkänt via
+designkanvasen (`https://claude.ai/code/artifact/891ce739-1116-43d8-b9b2-3ac804616018`):
+
+| Badge | Bakgrund | Text | Ikon (12px inline SVG) |
+| --- | --- | --- | --- |
+| Ny | `#eef4ff` | `#0052a3` | 4-udda gnista (samma "öppen katalog"-blått som redan används, se `docs/superpowers/plans/2026-09-01-unified-catalog-list.md`) |
+| Trendande | `#f3e8ff` | `#7e22ce` | Trendpil uppåt (stroke-baserad) |
+| Populär | `#fdf6e3` | `#8a6d1d` | Fylld stjärna |
+
+Badge-`<span>` läggs FÖRE risk-chippen i `.card-tags`-raden (mest
+nyhetsvärda informationen läses först). Paketkort saknar idag en
+`.card-tags`-rad helt — den läggs till, och den befintliga
+`.catalog-package-type`-chippen (Samling/Arbetssätt) flyttas in i samma
+rad som badgen i stället för att stå kvar som en fristående `<span>`
+under brödtexten (ren layoutstädning, ingen semantisk ändring).
 
 **Paketkort:** samma mönster i `createCatalogPackageCard`, som idag saknar
 en tagg-rad helt — den läggs till bara för badgen (paketkort har inte
