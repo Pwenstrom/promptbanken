@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anslut en AI-tjänst | Promptbanken</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="auth-page">
+    <main class="auth-shell" aria-labelledby="consent-title">
+        <section class="auth-panel consent-panel">
+            <a class="auth-brand" href="/">Promptbanken</a>
+            <p class="auth-kicker">Säker anslutning</p>
+            <h1 id="consent-title">Kontrollerar anslutningen</h1>
+
+            <p class="consent-loading" data-consent-loading>Hämtar information från Promptbanken…</p>
+
+            <div data-consent-content hidden>
+                <p class="consent-lead">
+                    <strong data-consent-client>En extern AI-tjänst</strong> vill ansluta till ditt Promptbanken-konto.
+                </p>
+
+                <section class="consent-permissions" aria-labelledby="permissions-title">
+                    <h2 id="permissions-title">Det här godkänner du</h2>
+                    <ul data-consent-scopes></ul>
+                </section>
+
+                <p class="consent-note">
+                    Tjänsten får aldrig mer åtkomst än ditt konto redan har. Åtkomst till ditt bibliotek och dina arbetsytor kontrolleras separat av Promptbanken.
+                </p>
+
+                <div class="consent-actions">
+                    <button type="button" class="consent-deny" data-consent-deny>Neka</button>
+                    <button type="button" class="consent-approve" data-consent-approve>Tillåt anslutning</button>
+                </div>
+            </div>
+
+            <p class="auth-status" role="status" aria-live="polite" data-consent-status></p>
+        </section>
+    </main>
+    <script type="module" src="/src/oauthConsent.js"></script>
+</body>
+</html>

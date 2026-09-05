@@ -1,4 +1,5 @@
 import { hasSupabaseConfig, supabase } from './supabaseClient.js';
+import { parseSafeAuthRedirect } from './authRedirect.js';
 
 export function requireSupabaseConfig(statusElement) {
   if (hasSupabaseConfig) {
@@ -37,18 +38,12 @@ export async function requireSession() {
   return session;
 }
 
-// Ett uttryckligt ?redirect= i URL:en, eller null. Mönstret släpper bara
-// igenom ett filnamn i roten — ingen sökväg, inget schema, ingen värd — så
-// en länk utifrån kan inte skicka en inloggad användare vidare någon
-// annanstans.
+// Ett uttryckligt ?redirect= i URL:en, eller null. Tillåtna mål är befintliga
+// rotfiler och Connects samtyckessida med authorization_id. Allt valideras
+// som samma origin för att förhindra externa omdirigeringar.
 export function getExplicitRedirect() {
   const params = new URLSearchParams(window.location.search);
-  const redirect = params.get('redirect');
-  if (!redirect || !/^[a-zA-Z0-9_-]+\.html$/.test(redirect)) {
-    return null;
-  }
-
-  return redirect;
+  return parseSafeAuthRedirect(params.get('redirect'), window.location.origin);
 }
 
 export async function isPlatformOwner() {
