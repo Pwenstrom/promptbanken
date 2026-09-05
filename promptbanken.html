@@ -38,9 +38,9 @@
 
         .prompt-grid .prompt-card .card-actions {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: stretch;
             gap: 0.5rem;
-            align-items: center;
         }
 
         .prompt-grid .prompt-card .card-actions .export-btn,
@@ -50,8 +50,9 @@
             display: none !important;
         }
 
-        .prompt-grid .prompt-card .select-prompt-btn {
-            width: auto;
+        .prompt-grid .prompt-card .card-actions .select-prompt-btn,
+        .prompt-grid .prompt-card .card-actions .info-btn {
+            width: 100%;
         }
 
         .prompt-grid .prompt-card .info-btn {
@@ -155,7 +156,12 @@
 
         <div class="workspace-grid">
             <section class="prompt-library" aria-label="Tillgängliga prompter">
-                <section class="catalog-package-section" aria-labelledby="catalog-package-heading">
+                <div class="catalog-tabs" role="tablist" aria-label="Katalogvy">
+                    <button type="button" class="catalog-tab is-active" id="catalog-tab-prompts" role="tab" aria-selected="true" aria-controls="all-prompts-panel">Alla prompter</button>
+                    <button type="button" class="catalog-tab" id="catalog-tab-packages" role="tab" aria-selected="false" aria-controls="catalog-package-section">Paket och arbetssätt</button>
+                </div>
+
+                <section class="catalog-package-section" id="catalog-package-section" aria-labelledby="catalog-package-heading" role="tabpanel" hidden>
                     <div class="catalog-section-heading">
                         <h2 id="catalog-package-heading">Paket och arbetssätt</h2>
                         <p class="catalog-section-lead">Färdiga AI-arbetssätt och samlingar för riktiga arbetsuppgifter. <a href="/paket/">Se alla paket</a>.</p>
@@ -166,11 +172,20 @@
                     <div class="catalog-grid" id="catalog-package-grid"></div>
                 </section>
 
+                <div id="all-prompts-panel" role="tabpanel">
                 <div class="page-title-row">
                     <div>
                         <h1>Alla prompter</h1>
                         <p>Färdiga prompter för professionella arbetsuppgifter.</p>
                     </div>
+                </div>
+
+                <div class="plan-meter my-prompts-meter" id="my-prompts-meter" hidden>
+                    <div class="plan-meter-row">
+                        <span class="plan-meter-label">Aktiva egna prompter</span>
+                        <span class="plan-meter-value" id="my-prompts-meter-value">0 / 3</span>
+                    </div>
+                    <div class="plan-meter-track"><div class="plan-meter-fill" id="my-prompts-meter-fill" style="width:0%"></div></div>
                 </div>
 
                 <section class="context-filter-bar" aria-labelledby="context-filter-heading">
@@ -194,21 +209,6 @@
                         </label>
                     </div>
                     <p class="context-filter-status" id="catalog-profile-status">Visar innehåll för: Alla</p>
-                </section>
-
-                <section class="my-prompts-rail" id="my-prompts-rail" hidden aria-label="Dina egna prompter">
-                    <div class="my-prompts-header">
-                        <h2>Dina prompter</h2>
-                        <div class="plan-meter my-prompts-meter" id="my-prompts-meter" hidden>
-                            <div class="plan-meter-row">
-                                <span class="plan-meter-label">Aktiva prompter</span>
-                                <span class="plan-meter-value" id="my-prompts-meter-value">0 / 3</span>
-                            </div>
-                            <div class="plan-meter-track"><div class="plan-meter-fill" id="my-prompts-meter-fill" style="width:0%"></div></div>
-                        </div>
-                        <a class="my-prompts-manage-link" href="admin.html">Hantera i workspace →</a>
-                    </div>
-                    <div id="my-prompts-body"></div>
                 </section>
 
                 <ol class="workflow-strip" aria-label="Arbetsflöde">
@@ -280,8 +280,8 @@
                                 <option value="risk-desc">Högst risk först</option>
                             </select>
                         </label>
-                        <button type="button" class="active"><span class="app-icon" aria-hidden="true" data-icon="grid"></span></button>
-                        <button type="button">☰</button>
+                        <button type="button" class="active" aria-label="Visa som rutnät"><span class="app-icon" aria-hidden="true" data-icon="grid"></span></button>
+                        <button type="button" aria-label="Visa som lista"><span class="app-icon" aria-hidden="true" data-icon="list"></span></button>
                     </div>
                 </div>
 
@@ -294,27 +294,28 @@
                 </div>
                 <p class="result-count" id="result-count">Visar prompter</p>
 
-                <section class="catalog-section" id="catalog-section">
-                    <div class="catalog-section-heading">
-                        <h2>Öppen katalog</h2>
-                        <p>Publicerade prompts från Promptbanken för din valda kontext.</p>
-                    </div>
-
-                    <h3>Enskilda prompts</h3>
+                <section class="catalog-section" id="catalog-section" aria-label="Katalogprompter">
                     <div class="catalog-package-link-error" id="catalog-prompt-link-error" hidden role="alert">
                         Prompten kunde inte hittas eller är inte längre publicerad.
                     </div>
                     <div class="catalog-grid" id="catalog-prompt-grid"></div>
-
-                    <div class="catalog-prompt-detail" id="catalog-prompt-detail" hidden>
-                        <div class="catalog-detail-panel">
-                            <button type="button" class="catalog-detail-share" id="catalog-detail-share" aria-label="Kopiera länk" hidden>🔗</button>
-                            <button type="button" class="catalog-detail-close" id="catalog-detail-close" aria-label="Stäng">×</button>
-                            <div class="catalog-detail-tabs" id="catalog-detail-tabs"></div>
-                            <div class="catalog-detail-body" id="catalog-detail-body"></div>
-                        </div>
-                    </div>
                 </section>
+                </div>
+
+                <!-- Delad mellan prompt- och paketförhandsvisning (se
+                     renderCatalogDetailVariant i script.js) — ligger utanför
+                     båda flikpanelerna med flit: position:fixed-overlayen
+                     ska visas oavsett vilken flik som är aktiv, och en
+                     "hidden"-förälder skulle annars dölja den även när
+                     modalens egen "hidden" är avstängd. -->
+                <div class="catalog-prompt-detail" id="catalog-prompt-detail" hidden>
+                    <div class="catalog-detail-panel">
+                        <button type="button" class="catalog-detail-share" id="catalog-detail-share" aria-label="Kopiera länk" hidden>🔗</button>
+                        <button type="button" class="catalog-detail-close" id="catalog-detail-close" aria-label="Stäng">×</button>
+                        <div class="catalog-detail-tabs" id="catalog-detail-tabs"></div>
+                        <div class="catalog-detail-body" id="catalog-detail-body"></div>
+                    </div>
+                </div>
             </section>
 
             <aside class="prompt-detail-panel" id="prompt-detail-panel" aria-label="Vald prompt" tabindex="-1">
@@ -563,10 +564,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.3.1/html-docx.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-    <script src="script.js?v=prompt-preview-status-20260726b" defer></script>
+    <script src="script.js?v=%VITE_BUILD_ID%" defer></script>
     <script type="module">
       import { supabase, hasSupabaseConfig } from '/src/supabaseClient.js';
       import { isPlatformOwner } from '/src/auth.js';
+      import { catalogLibraryActionState } from '/src/catalogLibrary.js';
+      import { registerAndSelectLibraryItem } from '/src/creatorLibrary.js';
+
+      window.catalogLibraryActionState = catalogLibraryActionState;
 
       const riskLabels = { low: 'Låg risk', medium: 'Medelrisk', high: 'Hög risk' };
 
@@ -577,35 +582,6 @@
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
           .replace(/'/g, '&#39;');
-      }
-
-      function renderMyPromptsEmpty(body) {
-        body.innerHTML = `
-          <div class="my-prompts-empty">
-            <p>Du har inga egna prompter ännu. Skapa en i din workspace för att hitta den snabbt här.</p>
-            <a class="secondary-btn" href="admin.html">Skapa prompt</a>
-          </div>
-        `;
-      }
-
-      function renderMyPromptsTiles(body, items) {
-        body.innerHTML = `<div class="my-prompts-track"></div>`;
-        const track = body.querySelector('.my-prompts-track');
-        items.forEach((item) => {
-          const tile = document.createElement('button');
-          tile.type = 'button';
-          tile.className = 'my-prompt-tile';
-          tile.dataset.myPromptId = item.id;
-          tile.innerHTML = `
-            <span class="my-prompt-tile-badge">${item.visibility === 'workspace' ? 'Delad' : 'Privat'}</span>
-            <span class="my-prompt-tile-title">${escapeHtml(item.title)}</span>
-            <span class="my-prompt-tile-desc">${escapeHtml(item.description)}</span>
-          `;
-          tile.addEventListener('click', () => {
-            window.selectWorkflowPrompt?.(item.id, { reveal: true });
-          });
-          track.appendChild(tile);
-        });
       }
 
       function renderMyPromptsMeter(usedCount, maxCount) {
@@ -631,7 +607,7 @@
           // Analysytan är bara plattformsägarens. Alla andra hör hemma på
           // sin creator-yta, annars möts de av en adminmeny de inte får se.
           link.href = (await isPlatformOwner()) ? 'admin.html' : 'creator.html';
-          label.textContent = 'Min workspace';
+          label.textContent = (await isPlatformOwner()) ? 'Admin' : 'Mitt bibliotek';
         }
 
         if (!session) {
@@ -665,6 +641,23 @@
           return;
         }
 
+        const [{ data: referenceRows }, { data: packageReferenceRows }] = await Promise.all([
+          supabase.from('content_items')
+            .select('library_ref_catalog_prompt_id')
+            .eq('workspace_id', profile.workspace_id)
+            .not('library_ref_catalog_prompt_id', 'is', null),
+          supabase.from('creator_package_drafts')
+            .select('library_ref_catalog_package_id')
+            .eq('owner_user_id', session.user.id)
+            .not('library_ref_catalog_package_id', 'is', null)
+        ]);
+        (referenceRows || []).forEach((row) => {
+          window.markCatalogPromptInLibrary?.(row.library_ref_catalog_prompt_id);
+        });
+        (packageReferenceRows || []).forEach((row) => {
+          window.markCatalogPackageInLibrary?.(row.library_ref_catalog_package_id);
+        });
+
         const { data: workspace } = await supabase
           .from('workspaces')
           .select('id, max_prompts')
@@ -683,21 +676,13 @@
           return;
         }
 
-        const rail = document.getElementById('my-prompts-rail');
-        const body = document.getElementById('my-prompts-body');
-        if (!rail || !body) return;
-
-        rail.hidden = false;
-
         const activeItems = items || [];
-        if (!activeItems.length) {
-          renderMyPromptsEmpty(body);
-          return;
-        }
 
         if (workspace?.max_prompts) {
           renderMyPromptsMeter(activeItems.filter((item) => item.status !== 'archived').length, workspace.max_prompts);
         }
+
+        if (!activeItems.length) return;
 
         const mappedItems = activeItems.map((item) => ({
           id: item.id,
@@ -710,8 +695,26 @@
           risk: riskLabels[item.risk_level] || riskLabels.low
         }));
 
-        renderMyPromptsTiles(body, mappedItems);
-        window.registerOwnPrompts?.(mappedItems);
+        const requestedLibraryItem = new URLSearchParams(window.location.search).get('libraryItem');
+        await registerAndSelectLibraryItem({
+          items: mappedItems,
+          requestedId: requestedLibraryItem,
+          register: (itemsToRegister) => window.registerOwnPrompts?.(itemsToRegister),
+          select: (id, options) => window.selectWorkflowPrompt?.(id, options)
+        });
+      }
+
+      function showLibraryConfirmation(message) {
+        let notice = document.getElementById('library-add-notice');
+        if (!notice) {
+          notice = document.createElement('div');
+          notice.id = 'library-add-notice';
+          notice.className = 'library-add-notice';
+          notice.setAttribute('role', 'status');
+          document.body.appendChild(notice);
+        }
+        notice.innerHTML = `${escapeHtml(message)} <a href="creator.html">Öppna Mitt bibliotek</a>`;
+        notice.hidden = false;
       }
 
       window.addPublishedPromptToLibrary = async function (promptId, button) {
@@ -738,40 +741,40 @@
           return;
         }
 
-        button.textContent = 'Tillagd ✓';
-        setTimeout(() => { button.textContent = original; }, 2500);
+        window.markCatalogPromptInLibrary?.(promptId);
+        showLibraryConfirmation('Prompten finns nu i Mitt bibliotek.');
       };
 
-      async function loadProTemplates() {
-        const [
-          { data: prompts, error: promptsError },
-          { data: packages, error: packagesError }
-        ] = await Promise.all([
-          supabase.rpc('list_published_prompts', { p_context_keys: ['generell'], p_include_creator_content: true }),
-          supabase.rpc('list_published_packages', { p_context_keys: ['generell'], p_include_creator_content: true })
-        ]);
-        if (promptsError || packagesError || !Array.isArray(prompts)) {
-          console.error('Kunde inte hämta promptbibliotekets fördjupningsmallar', promptsError || packagesError);
+      window.addPublishedPackageToLibrary = async function (packageId, button) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData?.session) {
+          window.location.href = 'login.html?redirect=promptbanken.html';
           return;
         }
+        const original = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Lägger till...';
+        const { error } = await supabase.rpc('add_catalog_package_to_library', { p_package_id: packageId });
+        if (error) {
+          console.error('Kunde inte lägga till paketet i biblioteket', error);
+          button.textContent = 'Kunde inte lägga till';
+          setTimeout(() => { button.disabled = false; button.textContent = original; }, 2500);
+          return;
+        }
+        window.markCatalogPackageInLibrary?.(packageId);
+        showLibraryConfirmation('Paketet finns nu i Mitt bibliotek.');
+      };
 
-        const areaLabels = new Map((packages || []).map((pkg) => [pkg.slug, pkg.title]));
-
-        const mappedItems = prompts.map((prompt) => ({
-          id: prompt.id,
-          title: prompt.title,
-          description: prompt.summary || '',
-          content: prompt.prompt_text || '',
-          category: areaLabels.get(prompt.area) || prompt.area || '',
-          risk: riskLabels[prompt.risk_level] || riskLabels.low
-        }));
-
-        window.registerProTemplates?.(mappedItems);
-      }
-
+      // loadProTemplates() togs bort 2026-09-01: den hämtade hela katalogen
+      // en andra gång (samma list_published_prompts som loadCatalogPrompts i
+      // script.js redan hämtar, med p_include_creator_content satt av
+      // callCatalogRpc) och renderade den genom createPromptCard parallellt
+      // med katalogens egen rendering. Resultatet var varje katalogprompt
+      // två gånger i listan, den ena med fel källbadge och utan
+      // biblioteksknapp, plus ett tomt-läge som kunde visas samtidigt som
+      // träffar eftersom två oberoende async-vägar körde applyAllFilters().
       if (hasSupabaseConfig) {
         loadMyPrompts();
-        loadProTemplates();
       }
     </script>
 </body>

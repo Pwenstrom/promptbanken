@@ -1,6 +1,7 @@
 import { requireSupabaseConfig } from './auth.js';
 import { supabase } from './supabaseClient.js';
 import { wireConfirmButton } from './confirmAction.js';
+import { libraryAccessLabel, libraryPromptActionUrl, openPublicationLabel } from './creatorLibrary.js';
 
 const STATUS_LABELS = { draft: 'Utkast', review: 'Under granskning', published: 'Publicerad', archived: 'Arkiverad' };
 const TYPE_LABELS = {
@@ -27,39 +28,48 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
     node.dataset.draftId = draft.id;
     el('[data-draft-title]', node).textContent = draft.title;
     el('[data-draft-summary]', node).textContent = draft.summary || '';
-    const statusBadge = el('[data-draft-status-badge]', node);
-    statusBadge.textContent = STATUS_LABELS[draft.status] || draft.status;
-    statusBadge.dataset.status = draft.status;
+    el('[data-draft-access-badge]', node).textContent = draft.is_open_reference
+        ? 'Från Open'
+        : libraryAccessLabel({ visibility: draft.access_label === 'shared' ? 'workspace' : 'private' });
+    const openBadge = el('[data-draft-open-badge]', node);
+    const openLabel = draft.is_open_reference ? 'Följer Open' : openPublicationLabel(draft);
+    openBadge.textContent = openLabel || '';
+    openBadge.hidden = !openLabel;
+    openBadge.dataset.status = draft.open_submission_state || '';
 
     // Redaktionell återkoppling, samma mönster som creatorContent.js.
     const reviewNote = el('[data-draft-review-note]', node);
-    if (draft.review_note && (draft.status === 'draft' || draft.status === 'archived')) {
-        reviewNote.textContent = draft.status === 'archived'
+    if (draft.review_note && ['changes_requested', 'rejected'].includes(draft.open_submission_state)) {
+        reviewNote.textContent = draft.open_submission_state === 'rejected'
             ? `Avslogs: ${draft.review_note}`
             : `Skickades tillbaka: ${draft.review_note}`;
         reviewNote.hidden = false;
     }
 
     // Ett följt katalogpaket har inga egna creator_package_items -- stegen
-    // läses live ur katalogen. Läser vi items-tabellen för det ser paketet
-    // tomt ut, med "0/8 prompts" och en "Lägg till prompt"-rad som inte
-    // betyder något.
-    const isReference = Boolean(draft.is_library_reference);
-    el('[data-draft-reference-note]', node).hidden = !isReference;
+    // läses live ur katalogen via get_referenced_library_package.
+    const isReference = Boolean(draft.is_open_reference);
 
-    const { data: items, error: itemsError } = isReference
-        ? await supabase.rpc('get_referenced_library_package', { p_draft_id: draft.id })
-        : await supabase.rpc('list_creator_package_draft_items', { p_draft_id: draft.id });
+    const itemRequest = isReference
+        ? supabase.rpc('get_referenced_library_package', { p_draft_id: draft.id, p_context_keys: ['generell'] })
+        : supabase.rpc('list_creator_package_draft_items', { p_draft_id: draft.id });
+    const { data: items, error: itemsError } = await itemRequest;
+    const itemList = itemsError ? [] : isReference
+        ? (items || []).map((item) => ({
+            title: item.item_title,
+            summary: item.item_summary,
+            content: item.item_prompt_text
+        }))
+        : items;
 
-    const itemList = itemsError
-        ? []
-        : (isReference
-            ? items.map((row) => ({
-                content_item_id: null,
-                title: row.item_title,
-                summary: row.item_summary
-            }))
-            : items);
+    if (isReference) {
+        el('[data-draft-open-details]', node).hidden = true;
+        const shareLink = el('[data-draft-share-link]', node);
+        shareLink.href = draft.canonical_slug
+            ? `promptbanken.html?package=${encodeURIComponent(draft.canonical_slug)}`
+            : 'promptbanken.html';
+        shareLink.textContent = 'Visa i Open';
+    }
 
     if (itemsError) {
         const errorEl = el('[data-draft-error]', node);
@@ -100,7 +110,7 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
         const row = itemTemplate.content.firstElementChild.cloneNode(true);
         row.dataset.itemContentItemId = item.content_item_id || '';
         el('[data-item-title]', row).textContent = item.title;
-        if (draft.status === 'draft' && !isReference) {
+        if (!isReference && draft.status === 'draft') {
             const upBtn = el('[data-item-up-btn]', row);
             const downBtn = el('[data-item-down-btn]', row);
             upBtn.hidden = index === 0;
@@ -131,7 +141,7 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
         previewBtn.addEventListener('click', () => {
             if (!previewEl.hidden) {
                 previewEl.hidden = true;
-                previewBtn.textContent = 'Förhandsgranska';
+                previewBtn.textContent = 'Använd paket';
                 return;
             }
             const heading = `<h3>${escapeHtml(draft.title)}</h3>` +
@@ -141,17 +151,31 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
                     const label = draft.package_type === 'workflow'
                         ? `Steg ${index + 1}: ${item.title}`
                         : item.title;
-                    return `<h4>${escapeHtml(label)}</h4>` +
-                        (item.summary ? `<p>${escapeHtml(item.summary)}</p>` : '');
+                    const action = draft.is_open_reference
+                        ? `<button type="button" class="secondary-btn package-preview-copy" data-package-copy-index="${index}">Kopiera prompt</button>`
+                        : `<a class="secondary-btn" href="${libraryPromptActionUrl('use', item.content_item_id)}">Använd prompt</a>`;
+                    return `<section class="package-preview-step"><h4>${escapeHtml(label)}</h4>` +
+                        (item.summary ? `<p>${escapeHtml(item.summary)}</p>` : '') + action + '</section>';
                 })
                 .join('');
             previewEl.innerHTML = heading + steps;
+            previewEl.querySelectorAll('[data-package-copy-index]').forEach((copyButton) => {
+                copyButton.addEventListener('click', async () => {
+                    const item = itemList[Number(copyButton.dataset.packageCopyIndex)];
+                    try {
+                        await navigator.clipboard.writeText(item.content || '');
+                        copyButton.textContent = 'Kopierad';
+                    } catch {
+                        copyButton.textContent = 'Kunde inte kopiera';
+                    }
+                });
+            });
             previewEl.hidden = false;
             previewBtn.textContent = 'Dölj förhandsgranskning';
         });
     }
 
-    if (draft.status === 'draft' && !isReference) {
+    if (!isReference && draft.status !== 'archived') {
         const addRow = el('[data-draft-add-row]', node);
         const submitBtn = el('[data-draft-submit-btn]', node);
         const errorEl = el('[data-draft-error]', node);
@@ -193,7 +217,7 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
         });
         syncSubmitEnabled();
 
-        submitBtn.hidden = false;
+        submitBtn.hidden = draft.open_submission_state === 'review';
         submitBtn.addEventListener('click', async () => {
             errorEl.hidden = true;
             const { error } = await supabase.rpc('submit_creator_package_draft', {
@@ -208,7 +232,10 @@ async function renderDraft(cardTemplate, itemTemplate, draft, ownPrompts) {
             }
             await loadDrafts();
         });
-    } else if (draft.status === 'review') {
+    }
+
+    if (draft.open_submission_state === 'review') {
+        el('[data-draft-open-details]', node).open = true;
         const withdrawBtn = el('[data-draft-withdraw-btn]', node);
         withdrawBtn.hidden = false;
         withdrawBtn.addEventListener('click', async () => {
@@ -253,19 +280,52 @@ async function loadDrafts() {
     const itemTemplate = el('[data-draft-item-template]');
 
     statusEl.textContent = 'Laddar...';
-    const [{ data: drafts, error: draftsError }, { data: ownPrompts, error: promptsError }] = await Promise.all([
+    const [
+        { data: drafts, error: draftsError },
+        { data: ownPrompts, error: promptsError },
+        { data: libraryItems, error: libraryError },
+        { data: referenceRows, error: referenceError },
+        { data: catalogPackages, error: catalogError }
+    ] = await Promise.all([
         supabase.rpc('list_my_creator_package_drafts'),
-        supabase.rpc('list_my_package_eligible_prompts')
+        supabase.rpc('list_my_package_eligible_prompts'),
+        supabase.rpc('list_my_library_items'),
+        supabase.from('creator_package_drafts')
+            .select('id,library_ref_catalog_package_id')
+            .not('library_ref_catalog_package_id', 'is', null),
+        supabase.rpc('list_published_packages', {
+            p_context_keys: ['generell'],
+            p_include_creator_content: true
+        })
     ]);
 
-    if (draftsError || promptsError) {
-        statusEl.textContent = `Kunde inte ladda paket: ${(draftsError || promptsError).message}`;
+    if (draftsError || promptsError || libraryError || referenceError || catalogError) {
+        statusEl.textContent = `Kunde inte ladda paket: ${(draftsError || promptsError || libraryError || referenceError || catalogError).message}`;
         return;
     }
 
-    statusEl.textContent = drafts.length ? '' : 'Du har inga paket-utkast ännu.';
+    const libraryById = new Map((libraryItems || [])
+        .filter((item) => item.kind === 'package')
+        .map((item) => [item.subject_id, item]));
+    const referenceById = new Map((referenceRows || []).map((row) => [row.id, row]));
+    const catalogById = new Map((catalogPackages || []).map((pkg) => [pkg.id, pkg]));
+    const mergedDrafts = drafts.map((draft) => {
+        const reference = referenceById.get(draft.id);
+        const canonical = reference ? catalogById.get(reference.library_ref_catalog_package_id) : null;
+        return {
+            ...draft,
+            ...(libraryById.get(draft.id) || {}),
+            is_open_reference: Boolean(reference),
+            canonical_slug: canonical?.slug || null,
+            title: canonical?.title || draft.title,
+            summary: canonical?.summary || draft.summary,
+            package_type: canonical?.package_type || draft.package_type
+        };
+    });
+
+    statusEl.textContent = mergedDrafts.length ? '' : 'Du har inga paket i ditt bibliotek ännu.';
     listEl.innerHTML = '';
-    for (const draft of drafts) {
+    for (const draft of mergedDrafts) {
         listEl.appendChild(await renderDraft(cardTemplate, itemTemplate, draft, ownPrompts));
     }
 }
@@ -309,13 +369,22 @@ async function init() {
         return;
     }
 
-    el('[data-creator-packages-user-email]').textContent = session.user.email || '-';
-    el('[data-creator-packages-logout]').addEventListener('click', async () => {
+    const userEmail = el('[data-creator-packages-user-email]');
+    const logoutButton = el('[data-creator-packages-logout]');
+    userEmail.textContent = session.user.email || '-';
+    userEmail.hidden = false;
+    logoutButton.hidden = false;
+    logoutButton.addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.href = 'login.html';
     });
 
     el('[data-creator-packages-content]').hidden = false;
+    const composer = document.getElementById('new-package');
+    if (composer) {
+        composer.open = window.location.hash === '#new-package';
+        composer.parentNode.insertBefore(el('[data-draft-list]'), composer);
+    }
     registerNewDraftForm();
     await loadDrafts();
 }

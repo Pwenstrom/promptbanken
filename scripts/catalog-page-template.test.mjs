@@ -1,6 +1,7 @@
 // scripts/catalog-page-template.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { renderPackagePage, renderPackageIndexPage } from './catalog-page-template.mjs';
 
 const testSupabase = { url: 'https://db.example.co', anonKey: 'anon-key-123' };
@@ -126,6 +127,12 @@ test('innehållsförteckningen visar stegen i ordning med falltillbaka-titel', (
 
 test('åtgärdslänken pekar på appens paketvy', () => {
     assert.match(render(), /href="\/promptbanken\.html\?package=ai-for-hr"/);
+});
+
+test('katalogens vyknappar har begripliga tillgängliga namn', () => {
+    const html = readFileSync(new URL('../promptbanken.html', import.meta.url), 'utf8');
+    assert.match(html, /aria-label="Visa som rutnät"/);
+    assert.match(html, /aria-label="Visa som lista"/);
 });
 
 test('relaterade paket renderas, och sektionen utelämnas när listan är tom', () => {

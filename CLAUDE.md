@@ -120,3 +120,95 @@ The global quick-input textarea (id `quick-input-textarea`) stores its value in 
 - **Prompt text files** (`prompts/*.txt`) are the canonical source; the two JSON registries reference them.
 - `script.js` is not bundled by Vite — keep it self-contained with no `import` statements.
 - The MCP server runs as a stdio process; it must never start an HTTP server of its own.
+
+## Slutförd release 2026-08-31: Mitt bibliotek och Open
+
+### Uppdrag och hård gräns
+
+Färdigställ och publicera UX-fixen som gör att privata prompts och paket kan
+användas direkt från Mitt bibliotek och att en inloggad användare tydligt kan
+lägga till kanoniskt innehåll från Promptbanken Open. **Rör inte Promptbanken
+Open MCP 1.2.2:** inga filer, tools, schemas, authregler eller runtime-vägar för
+MCP får ändras.
+
+Arbetet ligger isolerat här:
+
+`C:\Users\petwen\OneDrive - Höglandsförbundet\Projekt\promptbanken\.worktrees\codex-publish-private-library`
+
+Branch: `codex/fix-library-ux`. Releasen är committad som `7c6d542` samt
+live-testfixen `c8b51fd` och pushad till `main`.
+Originalarbetsytan utanför `.worktrees` är smutsig med användarens egna
+ändringar och får inte användas för implementationen.
+
+### Det som är byggt
+
+- `Använd` för en privat prompt väntar nu tills den exakta privata prompten är
+  registrerad innan panelen öppnas. Det löser felet där standardprompten
+  Tydlighetskoll öppnades i stället.
+- Promptpanelen är ett synligt bottom sheet upp till 1180 px bredd. Vid test i
+  824×900 låg panelen inom viewporten (`position: fixed`, topp 102, botten 840)
+  i stället för cirka 44 700 px ned på sidan.
+- Skapa/importera prompt och Skapa paket är infällbara. Befintligt innehåll
+  flyttas före skapandet så Mitt bibliotek känns som startpunkten.
+- Paketets `Använd paket` visar handlingar per prompt: privata prompts öppnas i
+  den befintliga promptpanelen och Open-referenser kan kopieras.
+- Delningsvyn säger nu korrekt att privata prompts och paket kan delas utan
+  Open-granskning. Befintliga RPC:er återanvänds; ingen ny delningsarkitektur.
+- Utloggat läge visar inte längre e-post/Logga ut och har bara en H1.
+  Inloggningssidan hänvisar personliga användare till Mitt bibliotek, inte
+  Valvet.
+- Open-promptar och Open-paket har tydliga knappar `Lägg till i Mitt bibliotek`.
+  Efter tillägg visas `✓ Finns i Mitt bibliotek` och en bekräftelse med länk
+  tillbaka till biblioteket. Dubbletter avgörs av kanoniskt ursprung och
+  befintliga deduplicerande RPC:er används.
+- Open-navigationen säger `Mitt bibliotek` för vanliga inloggade användare och
+  `Admin` för plattformsägaren.
+- Katalogens två vyknappar har nu begripliga tillgängliga namn.
+- Ett live-testfynd där dolda flytta-/ta bort-knappar syntes på Open-paket är
+  rättat. `hidden` vinner nu över paketknapparnas displayregel.
+
+### Databasläge
+
+Ingen ny migration behövs. Frontend återanvänder dessa redan produktionskörda
+funktioner/modeller:
+
+- `add_catalog_prompt_to_library` / promptreferens, remote migration
+  `20260830174958`
+- `add_catalog_package_to_library` / paketreferens, remote migration
+  `20260830201049`
+- creator authoring, remote migration `20260821200411`
+
+`creator_package_drafts` ägs av `owner_user_id` och har ingen `workspace_id`.
+Detta är redan rättat i den nya frontendkoden. Migrationshistoriken har äldre,
+separat drift som fanns före denna uppgift; försök inte lösa den inom denna
+UX-fix och kör inte en generell `supabase db push`.
+
+### Verifiering som redan är klar
+
+- TDD-regressioner skrevs först och observerades röda för privat promptval,
+  kanonisk dubblettstatus och tillgängliga vyknappar.
+- Senaste fulla `npm test`: **69/69 godkända**.
+- Senaste produktionsbygge med rotprojektets `.env.local`: godkänt.
+- `dist/prompts/`: **21 promptfiler** efter bygget.
+- Lokal webbläsartest: utloggad creator-vy har en H1, rätt inloggningscopy och
+  inga synliga utloggningskontroller. Open visar tilläggsknappar direkt på alla
+  paketkort. Responsiv promptpanel verifierad visuellt vid 824×900.
+- Diff-skydd: inga filer under `mcp-server/`, inga MCP-kontrakt, `skills.json`
+  eller `prompts/` är ändrade.
+- Impeccable-kontrollen kördes en gång. Den rapporterade främst gammal teknisk
+  skuld i den stora befintliga `style.css`; nya färger justerades till den
+  dokumenterade paletten.
+- Promptbanken Open MCP 1.2.2:s publika produktionskontrakt: **52/52** efter
+  deploy. Free/Pro-profilerna kördes inte eftersom testnycklar saknades lokalt.
+- GitHub Pages-jobben `33360654811` och `33360931984` blev gröna.
+- Live-test med inloggad användare verifierade privat `Använd`, korrekt prompt i
+  fast panel, biblioteket före skapande, privat delningscopy, Open-promptens
+  dubblettskydd samt Open-paketets tillägg och kopieringshandlingar.
+- Testet lade avsiktligt till Open-prompten `Analysera argumentet` och
+  Open-paketet `Anti-slop` i testanvändarens bibliotek.
+
+### Slutstatus
+
+Releasen är klar i produktion. Ingen ny migration skapades och inga MCP-filer
+ändrades. Äldre migrationsdrift och autentiserade MCP-profiler är separata
+framtida uppgifter, inte blockerare för denna frontendrelease.

@@ -10,10 +10,12 @@ import { requireSupabaseConfig } from './auth.js';
 import { supabase } from './supabaseClient.js';
 
 const STATUS_LABELS = {
-    draft: 'Utkast',
+    draft: 'Privat',
     review: 'Under granskning',
     published: 'Publicerad',
-    archived: 'Arkiverad'
+    archived: 'Arkiverad',
+    changes_requested: 'Ändringar begärda i Open',
+    rejected: 'Avslagen i Open'
 };
 
 const KIND_LABELS = { prompt: 'Prompt', package: 'Paket' };
@@ -86,7 +88,7 @@ function renderNeedsAction(items) {
         el('[data-action-kind]', node).textContent =
             `${KIND_LABELS[item.kind]} · ${STATUS_LABELS[item.status] || item.status}`;
         el('[data-action-note]', node).textContent =
-            item.status === 'archived'
+            ['archived', 'rejected'].includes(item.status)
                 ? `Avslogs: ${item.review_note}`
                 : `Skickades tillbaka: ${item.review_note}`;
         el('[data-action-link]', node).href = KIND_PAGES[item.kind];
@@ -194,8 +196,18 @@ async function init() {
         return;
     }
 
-    el('[data-overview-user-email]').textContent = session.user.email || '-';
-    el('[data-overview-logout]').addEventListener('click', async () => {
+    const userEmail = el('[data-overview-user-email]');
+    const logoutButton = el('[data-overview-logout]');
+    userEmail.textContent = session.user.email || '-';
+    userEmail.hidden = false;
+    logoutButton.hidden = false;
+    const greetingName = session.user.user_metadata?.display_name
+        || session.user.email?.split('@')[0]
+        || '';
+    el('[data-overview-greeting]').textContent = greetingName
+        ? `Hej ${greetingName}`
+        : 'Mitt bibliotek';
+    logoutButton.addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.href = 'login.html';
     });

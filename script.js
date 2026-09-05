@@ -569,10 +569,37 @@ function getQuickInputValue() {
 document.querySelectorAll('[data-catalog-package-shortcut]').forEach((button) => {
     button.addEventListener('click', () => {
         const slug = button.getAttribute('data-catalog-package-shortcut');
+        switchCatalogTab('packages');
         openCatalogPackageDetail(slug);
         document.getElementById('catalog-package-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 });
+
+// Flikväxling mellan "Alla prompter" och "Paket och arbetssätt" —
+// paketgridden ligger inte längre synlig som förval (se
+// docs/superpowers/specs/2026-09-01-unified-catalog-list-design.md,
+// Fas B). Den delade förhandsgranskningsmodalen (#catalog-prompt-detail)
+// ligger utanför båda panelerna i markupen och rörs inte här.
+function switchCatalogTab(which) {
+    const promptsPanel = document.getElementById('all-prompts-panel');
+    const packagesPanel = document.getElementById('catalog-package-section');
+    const promptsTab = document.getElementById('catalog-tab-prompts');
+    const packagesTab = document.getElementById('catalog-tab-packages');
+    if (!promptsPanel || !packagesPanel || !promptsTab || !packagesTab) return;
+
+    const showPackages = which === 'packages';
+    setElementHiddenState(promptsPanel, showPackages);
+    setElementHiddenState(packagesPanel, !showPackages);
+    promptsTab.classList.toggle('is-active', !showPackages);
+    promptsTab.setAttribute('aria-selected', String(!showPackages));
+    packagesTab.classList.toggle('is-active', showPackages);
+    packagesTab.setAttribute('aria-selected', String(showPackages));
+}
+
+window.switchCatalogTab = switchCatalogTab;
+
+document.getElementById('catalog-tab-prompts')?.addEventListener('click', () => switchCatalogTab('prompts'));
+document.getElementById('catalog-tab-packages')?.addEventListener('click', () => switchCatalogTab('packages'));
 
 function applyCatalogPromptFilters() {
     const query = getSearchQuery();
@@ -743,6 +770,99 @@ const catalogPromptsById = new Map();
 const catalogAreaLabels = new Map();
 const catalogLabelToArea = new Map();
 const catalogRiskLabels = { low: 'Låg risk', medium: 'Medelrisk', high: 'Hög risk' };
+const libraryReferencePromptIds = new Set();
+const libraryReferencePackageIds = new Set();
+
+// Legacy statiska prompter (prompts.json) som sedan dess migrerats till
+// katalogen som parametriserade mallar under nytt UUID. Hand-verifierad
+// mappning (prompt_text jämförd ord-för-ord 2026-09-01) — inget automatiskt
+// länkfält finns mellan de två registren. Lokal-MCP:n (mcp-server/) läser
+// prompts.json/skills.json oberoende av detta och påverkas inte: filerna
+// rörs inte, bara webbkortet döljs när katalogtvillingen faktiskt laddat.
+const LEGACY_STATIC_CATALOG_MAP = {
+    klarsprak: '4a326dd1-09d6-4812-87a0-4b8fabe907da',
+    mejl: '987a12cf-9679-419a-8d15-0f3be011b742',
+    faq: '924f7a3d-7287-4ead-8290-5560d14ae0cb',
+    kallelse: 'b086dcd4-029f-46e1-808e-9be23263dae8',
+    beslutsunderlag: 'ef6c1b3d-385d-4aea-873c-760e4d98008e',
+    rutin: '6dcd7d9c-b9fe-48b9-b361-6984193e3c02',
+    tvaversioner: '85aee9de-faab-464c-9839-5246889260f9',
+    informationsutskick: 'fab9ece6-6b46-4f5b-be67-bea307f2e402',
+    enkel_infografik: 'f303a6d0-40ee-47ff-8cb5-4ee97d4e242c',
+    illustration_informationsutskick: 'a01714bc-419e-43fe-891d-c6d536e44e96'
+};
+
+// Tar bort statiska kort vars katalogtvilling faktiskt laddat denna
+// omgång. Ren tillägg: rör aldrig prompts.json/skills.json, bara
+// in-memory allPrompts-arrayen och dess DOM-kort i #prompt-grid. Om
+// katalogen är otillgänglig anropas denna aldrig — statiska kort är då
+// fallback precis som idag.
+function removeStaticDuplicatePrompts(staticIds) {
+    if (!Array.isArray(staticIds) || !staticIds.length) return;
+    staticIds.forEach((id) => {
+        const index = allPrompts.findIndex((existing) => existing.id === id);
+        if (index === -1) return;
+        allPrompts.splice(index, 1);
+        document.querySelector(`#prompt-grid .prompt-card[data-prompt-id="${id}"]`)?.remove();
+    });
+}
+
+// Körs av BÅDA laddningarna, eftersom ordningen mellan dem inte är
+// bestämd: i produktion svarar katalog-RPC:n ofta före loadPrompts, som
+// hämtar prompts.json plus en .txt-fil per prompt. Kördes dedupen bara
+// från loadCatalogPrompts fanns inga statiska kort att ta bort ännu, och
+// dubbletterna blev kvar (verifierat live 2026-09-01). Funktionen är
+// idempotent — den som blir klar sist städar.
+function applyLegacyCatalogDedupe() {
+    if (!catalogPromptsById.size) return;
+    removeStaticDuplicatePrompts(
+        Object.entries(LEGACY_STATIC_CATALOG_MAP)
+            .filter(([, catalogId]) => catalogPromptsById.has(catalogId))
+            .map(([staticId]) => staticId)
+    );
+}
+
+function getCatalogLibraryActionState(inLibrary) {
+    return window.catalogLibraryActionState?.(inLibrary) || (inLibrary
+        ? { label: '✓ Finns i Mitt bibliotek', disabled: true }
+        : { label: 'Lägg till i Mitt bibliotek', disabled: false });
+}
+
+window.markCatalogPromptInLibrary = function markCatalogPromptInLibrary(promptId) {
+    if (!promptId) return;
+    libraryReferencePromptIds.add(promptId);
+    document.querySelectorAll(`[data-catalog-prompt-id="${CSS.escape(promptId)}"] .catalog-library-btn`)
+        .forEach((button) => {
+            const state = getCatalogLibraryActionState(true);
+            button.textContent = state.label;
+            button.disabled = state.disabled;
+        });
+    if (activeCatalogPromptEntity?.id === promptId) {
+        const detailButton = document.getElementById('catalog-detail-library-btn');
+        if (detailButton) {
+            const state = getCatalogLibraryActionState(true);
+            detailButton.textContent = state.label;
+            detailButton.disabled = state.disabled;
+        }
+    }
+};
+
+window.markCatalogPackageInLibrary = function markCatalogPackageInLibrary(packageId) {
+    if (!packageId) return;
+    libraryReferencePackageIds.add(packageId);
+    document.querySelectorAll(`[data-catalog-package-id="${CSS.escape(packageId)}"] .catalog-library-btn`)
+        .forEach((button) => {
+            const state = getCatalogLibraryActionState(true);
+            button.textContent = state.label;
+            button.disabled = state.disabled;
+        });
+    const detailButton = document.getElementById('catalog-detail-library-btn');
+    if (detailButton && catalogDetailVariants.some((variant) => variant.id === packageId)) {
+        const state = getCatalogLibraryActionState(true);
+        detailButton.textContent = state.label;
+        detailButton.disabled = state.disabled;
+    }
+};
 
 function createCatalogPromptCard(prompt) {
     const card = document.createElement('div');
@@ -755,13 +875,13 @@ function createCatalogPromptCard(prompt) {
         ? `<span class="catalog-context-badge">${escapeHtml(prompt.fallbackLabel || 'Kan vara generell version')}</span>`
         : '';
     card.innerHTML = `
-        <h4>${title}</h4>
+        <h3>${title}</h3>
         <p>${summary}</p>
         ${fallbackBadge}
         <div class="catalog-card-actions">
             <button type="button" class="primary-btn catalog-select-btn">Välj</button>
             <button type="button" class="secondary-btn catalog-preview-btn">Förhandsvisa</button>
-            <button type="button" class="secondary-btn catalog-library-btn">Lägg till i mitt bibliotek</button>
+            <button type="button" class="secondary-btn catalog-library-btn">Lägg till i Mitt bibliotek</button>
         </div>
     `;
     card.addEventListener('click', () => selectCatalogPromptInSidebar(prompt));
@@ -778,6 +898,11 @@ function createCatalogPromptCard(prompt) {
         window.addPublishedPromptToLibrary?.(prompt.id, event.currentTarget);
         trackLibraryUsageEvent({ eventType: 'library_add', promptSlug: prompt.slug });
     });
+    if (libraryReferencePromptIds.has(prompt.id)) {
+        const libraryButton = card.querySelector('.catalog-library-btn');
+        libraryButton.textContent = '✓ Finns i Mitt bibliotek';
+        libraryButton.disabled = true;
+    }
     return card;
 }
 
@@ -814,7 +939,9 @@ async function loadCatalogPrompts() {
                 catalogPromptsById.set(prompt.id, prompt);
                 grid.appendChild(createCatalogPromptCard(prompt));
             });
+        applyLegacyCatalogDedupe();
         populateFilterOptions(allPrompts);
+        updateLibraryStats(allPrompts);
         applyAllFilters();
     } catch (error) {
         console.error('Kunde inte ladda katalogprompts:', error);
@@ -934,11 +1061,11 @@ function renderCatalogDetailVariant(variant) {
         ? `<pre class="catalog-detail-prompt-text">${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'prompt_text'))}</pre>
            <div class="catalog-card-actions">
                <button type="button" class="catalog-copy-btn" id="catalog-detail-copy-btn">Kopiera prompt</button>
-               <button type="button" class="secondary-btn" id="catalog-detail-library-btn">Lägg till i mitt bibliotek</button>
+               <button type="button" class="secondary-btn catalog-library-btn" id="catalog-detail-library-btn">Lägg till i Mitt bibliotek</button>
            </div>`
         : (normalizedVariant.intro_text
             ? `<p>${escapeHtml(renderCatalogTemplateField(normalizedVariant, 'intro_text'))}</p>`
-            : '');
+            : '') + `<div class="catalog-card-actions"><button type="button" class="secondary-btn catalog-library-btn" id="catalog-detail-library-btn">Lägg till i Mitt bibliotek</button></div>`;
 
     const packageItemsHtml = (!isPrompt && catalogDetailPackageItems.length)
         ? `<div class="catalog-package-items">
@@ -970,6 +1097,20 @@ function renderCatalogDetailVariant(variant) {
             window.addPublishedPromptToLibrary?.(normalizedVariant.id, event.currentTarget);
             trackLibraryUsageEvent({ eventType: 'library_add', promptSlug: normalizedVariant.slug });
         });
+        if (libraryReferencePromptIds.has(normalizedVariant.id)) {
+            const libraryButton = document.getElementById('catalog-detail-library-btn');
+            libraryButton.textContent = '✓ Finns i Mitt bibliotek';
+            libraryButton.disabled = true;
+        }
+    } else {
+        document.getElementById('catalog-detail-library-btn')?.addEventListener('click', (event) => {
+            window.addPublishedPackageToLibrary?.(normalizedVariant.id, event.currentTarget);
+        });
+        if (libraryReferencePackageIds.has(normalizedVariant.id)) {
+            const libraryButton = document.getElementById('catalog-detail-library-btn');
+            libraryButton.textContent = '✓ Finns i Mitt bibliotek';
+            libraryButton.disabled = true;
+        }
     }
 
     body.querySelectorAll('.catalog-package-item [data-package-item-index]').forEach((button) => {
@@ -1187,6 +1328,7 @@ function createCatalogPackageCard(pkg) {
     const card = document.createElement('div');
     card.className = 'catalog-card';
     card.dataset.catalogPackageSlug = pkg.slug;
+    card.dataset.catalogPackageId = pkg.id;
     const title = escapeHtml(pkg.title);
     const summary = escapeHtml(pkg.summary);
     const typeLabel = pkg.package_type === 'workflow' ? 'Arbetssätt' : 'Samling';
@@ -1198,12 +1340,29 @@ function createCatalogPackageCard(pkg) {
         <p>${summary}</p>
         <span class="catalog-package-type">${typeLabel}</span>
         ${fallbackBadge}
-        <p class="catalog-package-permalink"><a href="/paket/${encodeURIComponent(pkg.slug)}/">Läs mer om paketet</a></p>
+        <div class="catalog-card-actions">
+            <button type="button" class="primary-btn catalog-package-open-btn">Öppna paket</button>
+            <button type="button" class="secondary-btn catalog-library-btn">Lägg till i Mitt bibliotek</button>
+        </div>
+        <p class="catalog-package-permalink"><a href="/paket/${encodeURIComponent(pkg.slug)}/">Om paketet</a></p>
     `;
     card.addEventListener('click', () => openCatalogPackageDetail(pkg.slug));
+    card.querySelector('.catalog-package-open-btn')?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        openCatalogPackageDetail(pkg.slug);
+    });
+    card.querySelector('.catalog-library-btn')?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        window.addPublishedPackageToLibrary?.(pkg.id, event.currentTarget);
+    });
     card.querySelector('.catalog-package-permalink a')?.addEventListener('click', (event) => {
         event.stopPropagation();
     });
+    if (libraryReferencePackageIds.has(pkg.id)) {
+        const libraryButton = card.querySelector('.catalog-library-btn');
+        libraryButton.textContent = '✓ Finns i Mitt bibliotek';
+        libraryButton.disabled = true;
+    }
     return card;
 }
 
@@ -1531,8 +1690,13 @@ async function loadCatalogPackages() {
                     }
                 }
 
-                updateLibraryStats(visiblePrompts);
-                populateFilterOptions(visiblePrompts);
+                // Katalogen kan redan ha laddat medan .txt-filerna hämtades.
+                // Städa dubbletterna innan statistik och filter räknas, så
+                // korten och siffrorna beskriver samma lista.
+                applyLegacyCatalogDedupe();
+
+                updateLibraryStats(allPrompts);
+                populateFilterOptions(allPrompts);
 
                 // Set up event delegation for all cards
                 setupEventDelegation();
@@ -1543,13 +1707,21 @@ async function loadCatalogPackages() {
                 // Update favorites menu
                 updateFavoritesMenu();
                 applyPromptSort();
-                if (visiblePrompts.length) {
-                    const keepCurrentSelection = visiblePrompts.some((prompt) => prompt.id === previouslySelectedPromptId);
+                // allPrompts, inte visiblePrompts: dedupen ovan kan ha tagit
+                // bort poster, och en borttagen prompt får inte bli förvald.
+                if (allPrompts.length) {
+                    const keepCurrentSelection = allPrompts.some((prompt) => prompt.id === previouslySelectedPromptId);
                     const nextPromptId = keepCurrentSelection
                         ? previouslySelectedPromptId
-                        : visiblePrompts[0].id;
+                        : allPrompts[0].id;
                     selectPrompt(nextPromptId, { reveal: false, markSelected: keepCurrentSelection });
                 }
+
+                // Träffräknaren och tomt-läget ägs av applyAllFilters, som
+                // räknar alla källor. Utan det här anropet blev räknaren
+                // kvar i updateLibraryStats format ("Visar 1-21 av 21"),
+                // som varken såg katalogen eller aktiva filter.
+                applyAllFilters();
 
                 grid.classList.remove('loading');
                 resolvePromptbankenReady();
@@ -1564,12 +1736,14 @@ async function loadCatalogPackages() {
         function updateLibraryStats(prompts) {
             const statPrompts = document.getElementById('stat-prompts');
             const statCategories = document.getElementById('stat-categories');
-            const resultCount = document.getElementById('result-count');
             const categories = new Set(prompts.map((prompt) => getPromptMeta(prompt).category));
 
             if (statPrompts) statPrompts.textContent = String(prompts.length);
             if (statCategories) statCategories.textContent = String(categories.size);
-            if (resultCount) resultCount.textContent = `Visar 1-${prompts.length} av ${prompts.length} prompter`;
+            // Rör inte #result-count här. Den ägs av applyAllFilters, som
+            // räknar statiska, katalog och paket tillsammans och tar hänsyn
+            // till aktiva filter. Den här funktionen ser bara den statiska
+            // listan och skrev tidigare över den korrekta siffran.
         }
 
         function setFilterOptions(selectId, values, allLabel) {
@@ -2039,6 +2213,9 @@ async function loadCatalogPackages() {
             const ownChip = prompt.own
                 ? `<span class="own-chip">${prompt.ownVisibility === 'workspace' ? 'Din prompt · Delad' : 'Din prompt · Privat'}</span>`
                 : '';
+            const sourceChip = prompt.own
+                ? ''
+                : `<span class="static-source-chip">Promptbanken</span>`;
 
             // Build card HTML
             card.innerHTML = `
@@ -2053,7 +2230,7 @@ async function loadCatalogPackages() {
                 </div>
                 <p>${description}</p>
                 <div class="card-tags">
-                    ${ownChip}
+                    ${ownChip}${sourceChip}
                     <span class="risk-chip" data-risk="${meta.risk.toLowerCase()}">${meta.risk}</span>
                     <span>${meta.audience}</span>
                     <span>${meta.role}</span>
@@ -2115,49 +2292,12 @@ async function loadCatalogPackages() {
             applyAllFilters();
         }
 
-        async function registerProTemplates(items) {
-            await window.promptbankenReady;
-
-            if (!Array.isArray(items) || !items.length) {
-                return;
-            }
-
-            items.forEach((item) => {
-                if (allPrompts.some((existing) => existing.id === item.id)) {
-                    return;
-                }
-
-                promptUiMeta[item.id] = {
-                    icon: '▤',
-                    category: item.category || 'Alla kategorier',
-                    audience: 'Intern & extern',
-                    role: 'Alla roller',
-                    risk: item.risk || 'Låg risk',
-                    example: item.description || '',
-                    phrase: 'Anpassa efter ditt ärende.'
-                };
-
-                const promptEntry = {
-                    id: item.id,
-                    title: item.title,
-                    description: item.description || ''
-                };
-
-                allPrompts.push(promptEntry);
-
-                const card = createPromptCard(promptEntry, item.content || '', allPrompts.length);
-                grid.appendChild(card);
-            });
-
-            populateFilterOptions(allPrompts);
-            updateLibraryStats(allPrompts);
-            loadFavoriteStates();
-            applyPromptSort();
-            applyAllFilters();
-        }
+        // registerProTemplates togs bort 2026-09-01 tillsammans med sin enda
+        // anropare (loadProTemplates i promptbanken.html). Katalogprompter
+        // renderas bara av loadCatalogPrompts/createCatalogPromptCard, med
+        // källbadge och biblioteksknapp. Se commit-meddelandet för mekanismen.
 
         window.registerOwnPrompts = registerOwnPrompts;
-        window.registerProTemplates = registerProTemplates;
 
         function setupEventDelegation() {
             // Toggle examples - event delegation
@@ -3639,6 +3779,7 @@ ${initialUserInput.trim()}`
             const initialPackageSlug = getPackageSlugFromLocation();
             const initialPromptSlug = getPromptSlugFromLocation();
             if (initialPackageSlug) {
+                switchCatalogTab('packages');
                 const opened = await openCatalogPackageDetail(initialPackageSlug);
                 if (!opened) {
                     window.history.replaceState(null, '', window.location.pathname);
