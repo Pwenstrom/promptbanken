@@ -2,6 +2,10 @@
 
 ## Nu / att diskutera
 
+- [ ] Flytta frontend till Cloudflare Workers.
+  - [x] Bygg från `dist/` är konfigurerad; stora OpenAI-demo-videon exkluderas från statiska assets och har en R2-rutt med stöd för videons byte-ranges.
+  - [ ] Logga in i Cloudflare, skapa R2-bucketen `promptbanken-media` och ladda upp `openaimcpssubmission.mp4` med `video/mp4` som innehållstyp.
+  - [ ] Deploya Worker, koppla `app.promptbanken.se` och verifiera startsida, inloggning, OAuth-samtycke, 404-sida och demo-video live.
 - [x] Bygg Supabase OAuth-samtycke på `/oauth/consent/` i en isolerad Connect-gren, inklusive säker login-retur, klient/scopes, godkänn och neka.
 - [ ] Publicera samtyckessidan på `app.promptbanken.se` och verifiera den live innan Supabase OAuth Server aktiveras.
 - [x] Supabase-migrationerna `20260725133000_catalog_parameter_schemas.sql` och `20260725140000_sync_parameterized_catalog_prompts.sql` finns i både lokal och remote migrationshistorik.

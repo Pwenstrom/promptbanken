@@ -36,6 +36,7 @@ export default defineConfig({
         { src: 'script.js', dest: '.' },
         { src: 'style.css', dest: '.' },
         { src: '.nojekyll', dest: '.' },
+        { src: 'public/.assetsignore', dest: '.' },
       ]
     })
   ],

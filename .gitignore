@@ -26,6 +26,7 @@ supabase/.temp/
 .codex/audits/
 .playwright-mcp/
 .worktrees/
+.wrangler/
 
 # Supabase CLI recovery snapshots
 supabase/.temp.bak-*/
