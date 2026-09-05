@@ -3,6 +3,12 @@
   "compatibility_date": "2026-09-05",
   "main": "./worker/index.mjs",
   "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "dev.promptbanken.se/*",
+      "zone_name": "promptbanken.se"
+    }
+  ],
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page",
