@@ -874,9 +874,22 @@ function createCatalogPromptCard(prompt) {
     const fallbackBadge = prompt.isFallback
         ? `<span class="catalog-context-badge">${escapeHtml(prompt.fallbackLabel || 'Kan vara generell version')}</span>`
         : '';
+    const areaLabel = escapeHtml(catalogAreaLabels.get(prompt.area) || prompt.area || '');
+    const riskLabel = catalogRiskLabels[prompt.risk_level] || '';
+    // Samma taggmönster som de statiska korten (risk-chip + area-kicker) --
+    // annars ser katalogkorten ut som en helt egen sorts kort, och
+    // risknivån (finns alltid på katalogdata) syntes inte alls.
+    const riskChip = riskLabel
+        ? `<span class="risk-chip" data-risk="${escapeHtml(riskLabel.toLowerCase())}">${escapeHtml(riskLabel)}</span>`
+        : '';
+    const audienceTag = prompt.audience_label
+        ? `<span>${escapeHtml(prompt.audience_label)}</span>`
+        : '';
     card.innerHTML = `
+        <span class="card-kicker">${areaLabel}</span>
         <h3>${title}</h3>
         <p>${summary}</p>
+        <div class="card-tags">${riskChip}${audienceTag}</div>
         ${fallbackBadge}
         <div class="catalog-card-actions">
             <button type="button" class="primary-btn catalog-select-btn">Välj</button>
