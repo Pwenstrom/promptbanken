@@ -7032,7 +7032,7 @@ button:disabled,
 
 /* "Lägg till prompt"-raden i paketbyggaren -- en bar <select> utan
    .workspace-form-wrapper hade ingen styling alls tidigare. */
-[data-draft-add-row] {
+[data-draft-add-row]:not([hidden]) {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
