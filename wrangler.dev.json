@@ -1,6 +1,6 @@
 {
   "name": "promptbanken-dev",
-  "compatibility_date": "2026-09-06",
+  "compatibility_date": "2026-09-05",
   "main": "./worker/index.mjs",
   "workers_dev": true,
   "assets": {
