@@ -22,6 +22,7 @@ const eligibleElement = document.querySelector('[data-creator-eligible]');
 const lockWarningElement = document.querySelector('[data-creator-lock-warning]');
 const publishButton = document.querySelector('[data-creator-publish]');
 const unpublishButton = document.querySelector('[data-creator-unpublish]');
+const publishDelayNote = document.querySelector('[data-creator-publish-delay]');
 
 function setStatus(message, isError = false) {
   if (!statusElement) return;
@@ -101,6 +102,13 @@ function renderProfileState(profile) {
 
   if (publishButton) publishButton.hidden = !profile || isPublished;
   if (unpublishButton) unpublishButton.hidden = !profile || !isPublished;
+
+  // Sidan renderas av generate-catalog-pages.mjs, som bara körs vid en
+  // deploy (push till main eller nattens 03:15-cron) -- publicera här
+  // uppdaterar databasen direkt, men den publika sidan syns inte förrän
+  // nästa körning. Utan den här texten ser det ut som att publiceringen
+  // inte fungerade (verifierat live: 404 direkt efter en publicering).
+  if (publishDelayNote) publishDelayNote.hidden = !isPublished;
 }
 
 async function loadProfile() {
