@@ -145,6 +145,11 @@ grant execute on function public.upsert_catalog_prompt_variant(
     text, text, text[], text, jsonb, jsonb, jsonb, text[]
 ) to authenticated;
 
+-- PostgreSQL cannot change a table function's OUT columns with CREATE OR
+-- REPLACE. This migration adds security_examples to the result, so remove
+-- the preceding signature before defining the expanded return type.
+drop function if exists public.list_published_prompts(text[]);
+
 create or replace function public.list_published_prompts(
     p_context_keys text[] default array['generell']
 )
@@ -215,6 +220,8 @@ $$;
 revoke all on function public.list_published_prompts(text[]) from public;
 grant execute on function public.list_published_prompts(text[]) to anon, authenticated;
 
+drop function if exists public.get_published_prompt(text, text[]);
+
 create or replace function public.get_published_prompt(
     p_slug text,
     p_context_keys text[] default array['generell']
@@ -280,6 +287,10 @@ $$;
 revoke all on function public.get_published_prompt(text, text[]) from public;
 grant execute on function public.get_published_prompt(text, text[]) to anon, authenticated;
 
+-- Drop the public wrapper first because it depends on the private function.
+drop function if exists public.get_catalog_prompt_by_id(uuid);
+drop function if exists app_private.get_catalog_prompt_by_id(uuid);
+
 create or replace function app_private.get_catalog_prompt_by_id(p_prompt_id uuid)
 returns table (
     id uuid,
@@ -342,3 +353,6 @@ set search_path = 'public', 'app_private', 'pg_temp'
 as $$
     select * from app_private.get_catalog_prompt_by_id(p_prompt_id);
 $$;
+
+revoke all on function public.get_catalog_prompt_by_id(uuid) from public;
+grant execute on function public.get_catalog_prompt_by_id(uuid) to authenticated;
