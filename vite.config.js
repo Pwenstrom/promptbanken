@@ -67,7 +67,8 @@ export default defineConfig({
         'creator-shares': resolve(__dirname, 'creator-shares.html'),
         delning: resolve(__dirname, 'delning/index.html'),
         'creator-content': resolve(__dirname, 'creator-content.html'),
-        'creator-packages': resolve(__dirname, 'creator-packages.html')
+        'creator-packages': resolve(__dirname, 'creator-packages.html'),
+        'oauth-consent': resolve(__dirname, 'oauth/consent/index.html')
       }
     }
   }

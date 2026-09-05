@@ -2,6 +2,8 @@
 
 ## Nu / att diskutera
 
+- [x] Bygg Supabase OAuth-samtycke på `/oauth/consent/` i en isolerad Connect-gren, inklusive säker login-retur, klient/scopes, godkänn och neka.
+- [ ] Publicera samtyckessidan på `app.promptbanken.se` och verifiera den live innan Supabase OAuth Server aktiveras.
 - [x] Supabase-migrationerna `20260725133000_catalog_parameter_schemas.sql` och `20260725140000_sync_parameterized_catalog_prompts.sql` finns i både lokal och remote migrationshistorik.
 - [ ] Rätta tre äldre `supabase db lint`-fel: tvetydiga variabler i `promote_user_to_platform_owner`, `create_pro_order` och `admin_activate_pro_order`.
 - [ ] Gå igenom Supabase säkerhetsrådgivarens befintliga varningar, främst körbara `SECURITY DEFINER`-funktioner, två muterbara `search_path` och avstängt leaked-password-skydd.
